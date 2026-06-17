@@ -2,118 +2,136 @@ import Link from "next/link";
 
 const features = [
   {
-    icon: "🕵️",
+    label: "STEALTH",
     title: "完全ステルス",
-    desc: "録音ボットを会議に参加させません。相手のZoom・Meet・Teamsには一切通知されません。",
+    desc: "録音ボットを会議に参加させません。Zoom・Meet・Teamsに一切通知されません。",
   },
   {
-    icon: "🔒",
+    label: "PRIVATE",
     title: "完全プライベート",
-    desc: "音声データは外部サーバーに送信されません。文字起こしもAI処理もすべてあなたのデバイス内で完結。",
+    desc: "音声データは外部サーバーに送信されません。文字起こしもAI処理もデバイス内で完結。",
   },
   {
-    icon: "🇯🇵",
+    label: "JAPANESE",
     title: "日本語特化",
-    desc: "OpenAI Whisperの日本語モデルをオンデバイスで実行。ネット環境に関わらず高精度な文字起こし。",
+    desc: "OpenAI Whisperの日本語モデルをオンデバイスで実行。ネット環境に依存しない高精度な文字起こし。",
   },
   {
-    icon: "👥",
+    label: "SPEAKER",
     title: "話者分離",
-    desc: "自分の声（マイク）と相手の声（システム音声）を自動で分けて表示。誰が何を言ったか一目瞭然。",
+    desc: "自分の声（マイク）と相手の声（システム音声）を自動で分離。誰が何を言ったか一目瞭然。",
   },
   {
-    icon: "✨",
+    label: "AI",
     title: "AI要約（有料）",
-    desc: "Gemini AIが要点・決定事項・アクションアイテムを箇条書きで自動生成。会議後の議事録作成が0秒に。",
+    desc: "Gemini AIが要点・決定事項・アクションアイテムを自動生成。会議後の議事録作成が0秒に。",
   },
   {
-    icon: "🪟",
+    label: "MINI",
     title: "ミニ表示",
-    desc: "録音中は画面の隅に小さなウィンドウで常に前面表示。会議の邪魔になりません。",
+    desc: "録音中は画面の隅に小さく常に前面表示。会議の邪魔になりません。",
   },
 ];
 
 const steps = [
-  { step: "01", title: "ダウンロード", desc: "DMG/EXEをダウンロードしてインストール（1分）" },
-  { step: "02", title: "モデル取得", desc: "初回起動時にWhisperモデル（1.5GB）を自動取得" },
-  { step: "03", title: "会議を開始", desc: "録音ボタンを押してオンライン会議に参加するだけ" },
-  { step: "04", title: "議事録完成", desc: "会議終了後、文字起こし・要約が自動で生成される" },
+  { num: "01", title: "ダウンロード", desc: "DMG または EXE をインストール（1分）" },
+  { num: "02", title: "モデル取得", desc: "初回起動時に Whisper モデル（1.5GB）を自動取得" },
+  { num: "03", title: "会議を開始", desc: "録音ボタンを押してオンライン会議に参加するだけ" },
+  { num: "04", title: "議事録完成", desc: "会議終了後、文字起こしと要約が自動生成される" },
 ];
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-full">
+    <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
-        <span className="text-xl font-bold text-white tracking-tight">議録 Giroku</span>
-        <div className="flex items-center gap-6">
-          <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
-            プライバシーポリシー
-          </Link>
-          <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
-            利用規約
-          </Link>
+      <nav style={{ borderBottom: "1px solid var(--border)", padding: "0 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.2em", color: "var(--text-1)" }}>GIROKU</span>
+          <div style={{ display: "flex", gap: 32 }}>
+            <Link href="/privacy" style={{ fontSize: 11, color: "var(--text-2)", letterSpacing: "0.08em", textDecoration: "none" }}>PRIVACY</Link>
+            <Link href="/terms" style={{ fontSize: 11, color: "var(--text-2)", letterSpacing: "0.08em", textDecoration: "none" }}>TERMS</Link>
+          </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="flex flex-col items-center text-center px-6 pt-20 pb-24 max-w-4xl mx-auto w-full">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/60 border border-blue-800/40 rounded-full text-blue-400 text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-          相手に気づかれない議事録AI
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight tracking-tight mb-6">
-          会議の内容を、<br />
-          <span className="text-blue-400">ステルスで記録。</span>
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "100px 40px 80px", width: "100%" }}>
+        <p style={{ fontSize: 11, letterSpacing: "0.25em", color: "var(--red)", marginBottom: 24 }}>STEALTH MEETING RECORDER</p>
+        <h1 style={{ fontSize: "clamp(42px, 7vw, 80px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 24 }}>
+          会議の全て、<br />記録される。
         </h1>
-        <p className="text-lg text-gray-400 leading-relaxed max-w-xl mb-10">
-          Zoom・Meet・Teamsなどのオンライン会議を、相手に一切通知せず録音・文字起こし。
+        <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 480, marginBottom: 48 }}>
+          Zoom・Meet・Teams などのオンライン会議を、相手に一切通知せず録音・文字起こし。
           音声データはすべてデバイス内で処理されます。
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
           <a
             href="#download"
-            className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors text-sm"
+            style={{
+              display: "inline-block",
+              padding: "14px 32px",
+              background: "var(--text-1)",
+              color: "var(--bg)",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.15em",
+              textDecoration: "none",
+            }}
           >
             無料でダウンロード
           </a>
           <a
             href="#features"
-            className="px-8 py-3.5 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 font-medium rounded-xl transition-colors text-sm border border-gray-700/40"
+            style={{
+              display: "inline-block",
+              padding: "14px 32px",
+              border: "1px solid var(--border)",
+              color: "var(--text-2)",
+              fontSize: 11,
+              letterSpacing: "0.15em",
+              textDecoration: "none",
+            }}
           >
             機能を見る
           </a>
         </div>
-        <p className="text-gray-600 text-xs mt-4">月120分まで無料 · macOS & Windows対応</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>月120分まで無料 · macOS & Windows 対応</p>
       </section>
 
       {/* Features */}
-      <section id="features" className="px-6 py-20 max-w-6xl mx-auto w-full">
-        <h2 className="text-3xl font-bold text-white text-center mb-12">なぜGirokuなのか</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-6 hover:border-gray-700/60 transition-colors"
-            >
-              <div className="text-3xl mb-4">{f.icon}</div>
-              <h3 className="text-white font-semibold mb-2">{f.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
+      <section id="features" style={{ borderTop: "1px solid var(--border)", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 48 }}>FEATURES</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0" }}>
+            {features.map((f, i) => (
+              <div
+                key={f.label}
+                style={{
+                  padding: "32px",
+                  borderRight: (i + 1) % 3 !== 0 ? "1px solid var(--border)" : "none",
+                  borderBottom: i < 3 ? "1px solid var(--border)" : "none",
+                }}
+              >
+                <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>{f.label}</p>
+                <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", marginBottom: 10 }}>{f.title}</h3>
+                <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.8 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="px-6 py-20 bg-gray-900/30 border-y border-gray-800/40">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">使い方</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((s) => (
-              <div key={s.step} className="text-center">
-                <div className="text-4xl font-bold text-blue-800/60 mb-3">{s.step}</div>
-                <h3 className="text-white font-semibold mb-1">{s.title}</h3>
-                <p className="text-gray-500 text-sm">{s.desc}</p>
+      <section style={{ borderTop: "1px solid var(--border)", padding: "80px 40px", background: "var(--surface)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 48 }}>HOW IT WORKS</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 0 }}>
+            {steps.map((s, i) => (
+              <div key={s.num} style={{ padding: "32px", borderRight: i < steps.length - 1 ? "1px solid var(--border)" : "none" }}>
+                <p style={{ fontSize: 32, fontWeight: 700, color: "var(--red)", fontFamily: "monospace", letterSpacing: "-0.02em", marginBottom: 16 }}>{s.num}</p>
+                <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 8 }}>{s.title}</h3>
+                <p style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.7 }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -121,84 +139,132 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="px-6 py-20 max-w-4xl mx-auto w-full">
-        <h2 className="text-3xl font-bold text-white text-center mb-12">料金プラン</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-8">
-            <div className="text-gray-400 text-sm font-medium mb-2">無料プラン</div>
-            <div className="text-4xl font-bold text-white mb-1">¥0</div>
-            <div className="text-gray-500 text-sm mb-6">月120分まで</div>
-            <ul className="space-y-2 text-sm text-gray-400 mb-8">
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 録音・文字起こし（月120分）</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 話者分離（自分 / 相手）</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 履歴・全文コピー</li>
-              <li className="flex items-center gap-2"><span className="text-gray-600">✗</span> AI要約</li>
-            </ul>
-            <a
-              href="#download"
-              className="block w-full py-3 text-center bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-sm font-medium transition-colors"
-            >
-              無料で始める
-            </a>
-          </div>
-
-          <div className="bg-blue-950/40 border border-blue-800/40 rounded-2xl p-8 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-blue-600 text-white text-xs font-medium rounded-full">
-              おすすめ
+      <section id="pricing" style={{ borderTop: "1px solid var(--border)", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 48 }}>PRICING</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--border)", maxWidth: 720 }}>
+            {/* Free */}
+            <div style={{ padding: "40px", borderRight: "1px solid var(--border)" }}>
+              <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>FREE</p>
+              <p style={{ fontSize: 40, fontWeight: 700, color: "var(--text-1)", fontFamily: "monospace", marginBottom: 4 }}>¥0</p>
+              <p style={{ fontSize: 11, color: "var(--text-2)", marginBottom: 32 }}>月120分まで</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
+                {["録音・文字起こし（月120分）", "話者分離（自分 / 相手）", "履歴・全文コピー"].map((item) => (
+                  <div key={item} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 10, color: "var(--text-2)", marginTop: 2 }}>—</span>
+                    <span style={{ fontSize: 12, color: "var(--text-2)" }}>{item}</span>
+                  </div>
+                ))}
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 10, color: "var(--text-3)", marginTop: 2 }}>—</span>
+                  <span style={{ fontSize: 12, color: "var(--text-3)" }}>AI要約</span>
+                </div>
+              </div>
+              <a
+                href="#download"
+                style={{
+                  display: "block",
+                  padding: "12px",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-2)",
+                  fontSize: 11,
+                  letterSpacing: "0.12em",
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                無料で始める
+              </a>
             </div>
-            <div className="text-blue-400 text-sm font-medium mb-2">有料プラン</div>
-            <div className="text-4xl font-bold text-white mb-1">¥980</div>
-            <div className="text-gray-500 text-sm mb-6">1年間 買い切り</div>
-            <ul className="space-y-2 text-sm text-gray-300 mb-8">
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 録音・文字起こし（無制限）</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 話者分離（自分 / 相手）</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 履歴・全文コピー</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> AI要約（Gemini）</li>
-              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 3台まで使用可能</li>
-            </ul>
-            <a
-              href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
-              className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-colors"
-            >
-              ¥980で購入
-            </a>
+
+            {/* Paid */}
+            <div style={{ padding: "40px" }}>
+              <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--red)", marginBottom: 16 }}>PAID</p>
+              <p style={{ fontSize: 40, fontWeight: 700, color: "var(--text-1)", fontFamily: "monospace", marginBottom: 4 }}>¥980</p>
+              <p style={{ fontSize: 11, color: "var(--text-2)", marginBottom: 32 }}>1年間 買い切り · 3台まで</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
+                {["録音・文字起こし（無制限）", "話者分離（自分 / 相手）", "履歴・全文コピー", "AI要約（Gemini）", "3台まで使用可能"].map((item) => (
+                  <div key={item} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: 10, color: "var(--text-1)", marginTop: 2 }}>—</span>
+                    <span style={{ fontSize: 12, color: "var(--text-1)" }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+              <a
+                href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
+                style={{
+                  display: "block",
+                  padding: "12px",
+                  background: "var(--text-1)",
+                  color: "var(--bg)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textDecoration: "none",
+                  textAlign: "center",
+                }}
+              >
+                ¥980 で購入
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Download */}
-      <section id="download" className="px-6 py-20 bg-gray-900/30 border-t border-gray-800/40">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">今すぐダウンロード</h2>
-          <p className="text-gray-400 mb-8">月120分まで無料。インストールして即使えます。</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <section id="download" style={{ borderTop: "1px solid var(--border)", padding: "80px 40px", background: "var(--surface)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 48 }}>DOWNLOAD</p>
+          <h2 style={{ fontSize: 32, fontWeight: 700, color: "var(--text-1)", marginBottom: 12 }}>今すぐ始める</h2>
+          <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 40 }}>月120分まで無料。インストールして即使えます。</p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <a
               href="#"
-              className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gray-800 hover:bg-gray-700 border border-gray-700/40 text-white rounded-xl text-sm font-medium transition-colors"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "14px 28px",
+                border: "1px solid var(--border)",
+                color: "var(--text-1)",
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                textDecoration: "none",
+              }}
             >
-              <span className="text-xl"></span>
+              <span style={{ fontSize: 16 }}></span>
               macOS 用ダウンロード
             </a>
             <a
               href="#"
-              className="flex items-center justify-center gap-3 px-8 py-3.5 bg-gray-800 hover:bg-gray-700 border border-gray-700/40 text-white rounded-xl text-sm font-medium transition-colors"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "14px 28px",
+                border: "1px solid var(--border)",
+                color: "var(--text-2)",
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                textDecoration: "none",
+              }}
             >
-              <span className="text-xl">🪟</span>
+              <span style={{ fontSize: 16 }}>⊞</span>
               Windows 用ダウンロード
             </a>
           </div>
-          <p className="text-gray-600 text-xs mt-4">macOS 12以降 / Windows 10以降</p>
+          <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 16, letterSpacing: "0.05em" }}>macOS 12 以降 · Windows 10 以降</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-gray-800/40">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-gray-600 text-sm">© 2026 Naoya Tsuji. All rights reserved.</span>
-          <div className="flex items-center gap-6 text-sm text-gray-600">
-            <Link href="/privacy" className="hover:text-gray-400 transition-colors">プライバシーポリシー</Link>
-            <Link href="/terms" className="hover:text-gray-400 transition-colors">利用規約</Link>
-            <a href="mailto:naoyatttsuji@gmail.com" className="hover:text-gray-400 transition-colors">サポート</a>
+      <footer style={{ borderTop: "1px solid var(--border)", padding: "24px 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+          <span style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>© 2026 Naoya Tsuji</span>
+          <div style={{ display: "flex", gap: 32 }}>
+            <Link href="/privacy" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.05em" }}>PRIVACY</Link>
+            <Link href="/terms" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.05em" }}>TERMS</Link>
+            <a href="mailto:naoyatttsuji@gmail.com" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.05em" }}>SUPPORT</a>
           </div>
         </div>
       </footer>
