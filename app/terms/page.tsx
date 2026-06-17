@@ -54,7 +54,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-white text-lg font-semibold mb-3">第4条（有料プランとライセンス）</h2>
           <ol className="list-decimal list-inside space-y-2 text-gray-400">
-            <li>有料プランのライセンスは購入日から2年間有効です。</li>
+            <li>有料プランのライセンスは購入日から1年間有効です。</li>
             <li>ライセンスは1デバイスでの使用を前提とします。</li>
             <li>ライセンスキーの他者への譲渡・共有は禁止します。</li>
             <li>

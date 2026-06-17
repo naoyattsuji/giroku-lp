@@ -148,7 +148,7 @@ export default function Home() {
             </div>
             <div className="text-blue-400 text-sm font-medium mb-2">有料プラン</div>
             <div className="text-4xl font-bold text-white mb-1">¥980</div>
-            <div className="text-gray-500 text-sm mb-6">2年間 買い切り</div>
+            <div className="text-gray-500 text-sm mb-6">1年間 買い切り</div>
             <ul className="space-y-2 text-sm text-gray-300 mb-8">
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 録音・文字起こし（無制限）</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 話者分離（自分 / 相手）</li>
