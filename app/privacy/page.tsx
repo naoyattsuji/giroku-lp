@@ -21,7 +21,7 @@ export default function PrivacyPage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>01</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>01</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>基本方針</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               Giroku（以下「本アプリ」）は、ユーザーのプライバシーを最大限に尊重します。
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>02</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>02</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>収集する情報</h2>
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>デバイス上にのみ保存される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>03</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>03</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>データの利用目的</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {["音声の文字起こし処理（すべてデバイス内で実行）", "AI要約の生成（有料プランのみ・Gemini APIを使用）", "使用量の制限管理（無料プランの月120分上限）", "ライセンスの有効性確認", "アプリの自動更新"].map((item) => (
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>04</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>04</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>第三者への提供</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9, marginBottom: 16 }}>
               収集した個人情報を、法令に基づく場合を除き、第三者に提供することはありません。
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>05</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>05</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>データの削除</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。
@@ -112,7 +112,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>06</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>06</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>セキュリティ</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               ライセンスキーおよびAPIキーはOSのキーチェーンまたは暗号化ストアに保存されます。
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>07</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>07</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>ポリシーの変更</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               本ポリシーは予告なく変更される場合があります。重要な変更がある場合はアプリ内でお知らせします。
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>08</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>08</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>お問い合わせ</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               プライバシーに関するお問い合わせは{" "}

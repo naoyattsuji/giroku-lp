@@ -16,3 +16,46 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Grid cell border technique: gap + background creates borders without logic */
+.grid-border {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+}
+.grid-border > * {
+  background: var(--bg);
+}
+.grid-border-surface > * {
+  background: var(--surface);
+}
+
+/* Responsive grids */
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+@media (max-width: 768px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .mobile-pad { padding: 48px 24px !important; }
+  .mobile-pad-sm { padding: 24px !important; }
+  .mobile-hero { padding: 60px 24px 48px !important; }
+  .mobile-hide { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* Hover transitions */
+a { transition: color 0.15s ease, opacity 0.15s ease; }
+a:hover { opacity: 0.75; }
+
+/* Button hover via class */
+.btn-primary:hover { opacity: 0.88; }
+.btn-outline:hover { border-color: #444 !important; color: var(--text-1) !important; }
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }

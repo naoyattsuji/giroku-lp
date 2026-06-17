@@ -21,7 +21,7 @@ export default function TermsPage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第1条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第1条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>適用</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               本利用規約（以下「本規約」）は、辻直哉（以下「提供者」）が提供するGiroku（以下「本アプリ」）の
@@ -33,7 +33,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第2条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第2条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>利用条件</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -53,7 +53,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第3条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第3条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>禁止事項</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 16 }}>ユーザーは以下の行為を行ってはなりません。</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -75,7 +75,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第4条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第4条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>有料プランとライセンス</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -95,7 +95,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第5条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第5条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>免責事項</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -115,7 +115,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第6条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第6条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>知的財産権</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               本アプリに関する著作権その他の知的財産権は提供者に帰属します。
@@ -126,7 +126,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第7条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第7条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>規約の変更</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               提供者は本規約を変更する場合があります。重要な変更はアプリ内または本サイトにて通知します。
@@ -137,7 +137,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第8条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第8条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>準拠法・管轄</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               本規約は日本法に準拠し、本規約に関する一切の紛争は東京地方裁判所を第一審の専属合意管轄裁判所とします。
@@ -147,7 +147,7 @@ export default function TermsPage() {
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
           <section>
-            <p style={{ fontSize: 10, letterSpacing: "0.2em", color: "var(--text-3)", marginBottom: 16 }}>第9条</p>
+            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第9条</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>お問い合わせ</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               本規約に関するお問い合わせは{" "}
