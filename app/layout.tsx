@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Giroku（議録）— 相手に気づかれない議事録AI",
     description: "オンライン会議を相手に通知せず録音・文字起こし。音声データはすべてデバイス内で処理されます。",
-    url: "https://giroku.app",
+    url: "https://giroku-lp.vercel.app",
     siteName: "Giroku",
     locale: "ja_JP",
     type: "website",
