@@ -157,7 +157,7 @@ export default function Home() {
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 3台まで使用可能</li>
             </ul>
             <a
-              href="https://app.lemonsqueezy.com"
+              href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
               className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-colors"
             >
               ¥980で購入
