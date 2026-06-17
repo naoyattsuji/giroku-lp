@@ -154,6 +154,7 @@ export default function Home() {
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 話者分離（自分 / 相手）</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 履歴・全文コピー</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> AI要約（Gemini）</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> 3台まで使用可能</li>
             </ul>
             <a
               href="https://app.lemonsqueezy.com"
