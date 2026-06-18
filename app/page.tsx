@@ -1,18 +1,18 @@
 import Link from "next/link";
 
-const pillars = [
+const features = [
   {
-    tag: "STEALTH",
+    num: "01",
     title: "相手に通知されない",
-    desc: "録音ボットを会議に参加させません。Zoom・Meet・Teams は、あなたが録音していることを知りません。",
+    desc: "録音ボットを会議に参加させません。Zoom・Meet・Teams はあなたが録音していることを知りません。",
   },
   {
-    tag: "PRIVATE",
+    num: "02",
     title: "完全オフライン処理",
-    desc: "音声データは外部サーバーに送信されません。Whisper による文字起こしも、すべてデバイス内で完結します。",
+    desc: "音声データは外部サーバーに送信されません。Whisper による文字起こしもすべてデバイス内で完結します。",
   },
   {
-    tag: "JAPANESE",
+    num: "03",
     title: "日本語特化・話者分離",
     desc: "OpenAI Whisper の日本語モデルをオンデバイス実行。自分の声と相手の声を自動で分けて記録します。",
   },
@@ -24,127 +24,157 @@ export default function Home() {
 
       {/* Nav */}
       <header className="nav-sticky" style={{ borderBottom: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.2em" }}>GIROKU</span>
-          <a
-            href="#download"
-            className="btn-primary"
-            style={{ display: "inline-block", padding: "8px 20px", background: "var(--text-1)", color: "var(--bg)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em" }}
+        <div className="lp-inner" style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.25em", color: "var(--text-1)" }}>GIROKU</span>
+          <a href="#download" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.1em", transition: "color 0.12s" }}
+            onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--text-1)")}
+            onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--text-3)")}
           >
-            ダウンロード →
+            ダウンロード
           </a>
         </div>
       </header>
 
       {/* Hero */}
-      <section
-        className="mobile-hero"
-        style={{ maxWidth: 1100, margin: "0 auto", padding: "100px 40px 88px", width: "100%", boxSizing: "border-box" }}
-      >
-        <p style={{ fontSize: 10, letterSpacing: "0.4em", color: "var(--red)", marginBottom: 36, fontWeight: 600, textTransform: "uppercase" }}>
-          Stealth Meeting Recorder
-        </p>
-        <h1
-          style={{
-            fontSize: "clamp(48px, 8vw, 88px)",
-            fontWeight: 700,
-            lineHeight: 1.0,
-            letterSpacing: "-0.04em",
-            marginBottom: 36,
-          }}
-        >
-          会議の記録を、<br />静かに。
-        </h1>
-        <p
-          style={{
-            fontSize: "clamp(14px, 1.5vw, 17px)",
-            color: "var(--text-2)",
-            lineHeight: 1.85,
-            maxWidth: 440,
-            marginBottom: 52,
-          }}
-        >
-          Zoom・Meet・Teams を、相手に気づかれずに録音・文字起こし。
-          音声データはすべてデバイス内で処理されます。
-        </p>
-        <div style={{ display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
-          <a
-            href="#download"
-            className="btn-primary"
-            style={{ display: "inline-block", padding: "14px 36px", background: "var(--text-1)", color: "var(--bg)", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em" }}
+      <section>
+        <div className="lp-inner" style={{ paddingTop: 120, paddingBottom: 100 }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.4em", color: "var(--red)", marginBottom: 52, fontWeight: 600 }}>
+            STEALTH MEETING RECORDER
+          </p>
+          <h1
+            style={{
+              fontSize: "clamp(52px, 9vw, 108px)",
+              fontWeight: 700,
+              lineHeight: 1.0,
+              letterSpacing: "-0.04em",
+              marginBottom: 48,
+            }}
           >
-            無料でダウンロード
-          </a>
-          <a
-            href="#pricing"
-            className="btn-ghost"
-            style={{ fontSize: 13, color: "var(--text-2)", letterSpacing: "0.03em" }}
+            会議の記録を、<br />
+            相手に知られず。
+          </h1>
+          <p
+            style={{
+              fontSize: 16,
+              color: "var(--text-2)",
+              lineHeight: 1.85,
+              maxWidth: 460,
+              marginBottom: 56,
+            }}
           >
-            料金を見る →
-          </a>
+            Zoom・Meet・Teams の音声を相手に気づかれずに録音・文字起こし。
+            音声データはすべてデバイス内で処理されます。
+          </p>
+          <div style={{ display: "flex", gap: 36, alignItems: "center", flexWrap: "wrap", marginBottom: 24 }}>
+            <a
+              href="#download"
+              style={{
+                display: "inline-block",
+                padding: "14px 36px",
+                background: "var(--text-1)",
+                color: "var(--bg)",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                transition: "opacity 0.12s",
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
+            >
+              macOS 用ダウンロード
+            </a>
+            <a href="#pricing" style={{ fontSize: 13, color: "var(--text-3)", letterSpacing: "0.03em", transition: "color 0.12s" }}
+              onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--text-1)")}
+              onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--text-3)")}
+            >
+              料金を見る →
+            </a>
+          </div>
+          <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>
+            月 120 分まで無料 · クレジットカード不要
+          </p>
         </div>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 24, letterSpacing: "0.05em" }}>
-          月120分まで無料 · macOS 対応 · クレジットカード不要
-        </p>
       </section>
 
-      {/* Three Pillars */}
+      {/* Features */}
       <section style={{ borderTop: "1px solid var(--border)" }}>
-        <div className="cols-3" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
-          {pillars.map((p, i) => (
-            <div
-              key={p.tag}
-              className={i > 0 ? "col-border-left" : ""}
-              style={{ padding: "52px 40px", borderLeft: i > 0 ? "1px solid var(--border)" : "none" }}
-            >
-              <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--red)", marginBottom: 24, fontWeight: 600 }}>{p.tag}</p>
-              <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 16, lineHeight: 1.4 }}>{p.title}</h3>
-              <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>{p.desc}</p>
+        {features.map((f, i) => (
+          <div key={f.num} style={{ borderBottom: "1px solid var(--border)" }}>
+            <div className="lp-inner feature-row" style={{ paddingTop: 48, paddingBottom: 48 }}>
+              <p style={{ fontSize: 11, letterSpacing: "0.15em", color: "var(--text-3)", fontFamily: "monospace", paddingTop: 3 }}>
+                {f.num}
+              </p>
+              <h3 style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.45, letterSpacing: "-0.01em" }}>{f.title}</h3>
+              <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.9 }}>{f.desc}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </section>
 
       {/* Pricing */}
       <section id="pricing" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-        <div className="mobile-pad" style={{ maxWidth: 1100, margin: "0 auto", padding: "88px 40px" }}>
-          <p style={{ fontSize: 10, letterSpacing: "0.3em", color: "var(--text-3)", marginBottom: 52 }}>PRICING</p>
-          <div
-            className="cols-2"
-            style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", maxWidth: 680, gap: "1px", background: "var(--border)" }}
-          >
+        <div className="lp-inner" style={{ paddingTop: 100, paddingBottom: 100 }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.35em", color: "var(--text-3)", marginBottom: 72 }}>PRICING</p>
+          <div className="pricing-grid">
             {/* Free */}
-            <div style={{ padding: "48px 40px", background: "var(--surface)" }}>
-              <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--text-3)", marginBottom: 28 }}>FREE</p>
-              <p style={{ fontSize: 52, fontWeight: 700, fontFamily: "monospace", lineHeight: 1, marginBottom: 8 }}>¥0</p>
-              <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 40 }}>月 120 分まで</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 48 }}>
-                {["録音・文字起こし", "話者分離（自分 / 相手）", "履歴・全文コピー"].map((item) => (
+            <div className="pricing-col" style={{ paddingRight: 56 }}>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 32 }}>FREE</p>
+              <p style={{ fontSize: 60, fontWeight: 700, fontFamily: "monospace", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 4 }}>¥0</p>
+              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 44 }}>月 120 分まで</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 52 }}>
+                {["録音・文字起こし", "話者分離（自分/相手）", "履歴・全文コピー"].map((item) => (
                   <p key={item} style={{ fontSize: 13, color: "var(--text-2)" }}>— {item}</p>
                 ))}
                 <p style={{ fontSize: 13, color: "var(--text-3)" }}>— AI 要約</p>
               </div>
               <a
                 href="#download"
-                style={{ display: "block", padding: "12px 0", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textAlign: "center" }}
+                style={{
+                  display: "block",
+                  padding: "12px 0",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-2)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textAlign: "center",
+                  transition: "border-color 0.12s, color 0.12s",
+                }}
+                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--text-1)"; el.style.color = "var(--text-1)" }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "var(--border)"; el.style.color = "var(--text-2)" }}
               >
                 無料で始める
               </a>
             </div>
+
+            {/* Divider */}
+            <div className="pricing-divider" style={{ background: "var(--border)" }} />
+
             {/* Paid */}
-            <div style={{ padding: "48px 40px", background: "var(--surface)" }}>
-              <p style={{ fontSize: 9, letterSpacing: "0.3em", color: "var(--red)", marginBottom: 28 }}>PAID</p>
-              <p style={{ fontSize: 52, fontWeight: 700, fontFamily: "monospace", lineHeight: 1, marginBottom: 8 }}>¥980</p>
-              <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 40 }}>1 年間 · 3 台まで</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 48 }}>
-                {["録音・文字起こし（無制限）", "話者分離（自分 / 相手）", "履歴・全文コピー", "AI 要約（Gemini）"].map((item) => (
-                  <p key={item} style={{ fontSize: 13 }}>— {item}</p>
+            <div className="pricing-col" style={{ paddingLeft: 56 }}>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--red)", marginBottom: 32 }}>PAID</p>
+              <p style={{ fontSize: 60, fontWeight: 700, fontFamily: "monospace", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 4 }}>¥980</p>
+              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 44 }}>1 年間 · 3 台まで</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 52 }}>
+                {["録音・文字起こし（無制限）", "話者分離（自分/相手）", "履歴・全文コピー", "AI 要約（Gemini）"].map((item) => (
+                  <p key={item} style={{ fontSize: 13, color: "var(--text-1)" }}>— {item}</p>
                 ))}
               </div>
               <a
                 href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
-                className="btn-primary"
-                style={{ display: "block", padding: "12px 0", background: "var(--text-1)", color: "var(--bg)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textAlign: "center" }}
+                style={{
+                  display: "block",
+                  padding: "12px 0",
+                  background: "var(--text-1)",
+                  color: "var(--bg)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textAlign: "center",
+                  transition: "opacity 0.12s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
               >
                 ¥980 で購入
               </a>
@@ -155,28 +185,55 @@ export default function Home() {
 
       {/* Download */}
       <section id="download">
-        <div className="mobile-pad" style={{ maxWidth: 1100, margin: "0 auto", padding: "100px 40px" }}>
+        <div className="lp-inner" style={{ paddingTop: 100, paddingBottom: 100 }}>
           <h2
-            style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 20 }}
+            style={{
+              fontSize: "clamp(32px, 5vw, 56px)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+              marginBottom: 16,
+            }}
           >
             今すぐ始める
           </h2>
           <p style={{ fontSize: 14, color: "var(--text-2)", marginBottom: 52, lineHeight: 1.7 }}>
-            月120分まで無料。クレジットカード不要。
+            月 120 分まで無料。クレジットカード不要。
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <a
               href="https://github.com/naoyatsuji/giroku-releases/releases/latest"
-              className="btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", background: "var(--text-1)", color: "var(--bg)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", whiteSpace: "nowrap" }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 32px",
+                background: "var(--text-1)",
+                color: "var(--bg)",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap",
+                transition: "opacity 0.12s",
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.8")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
             >
-              <span style={{ fontSize: 16, lineHeight: 1 }}></span>
+              <span style={{ fontSize: 15 }}></span>
               macOS 用ダウンロード
             </a>
             <span
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 28px", border: "1px solid var(--border)", color: "var(--text-3)", fontSize: 12, letterSpacing: "0.08em", whiteSpace: "nowrap" }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "14px 32px",
+                border: "1px solid var(--border)",
+                color: "var(--text-3)",
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                whiteSpace: "nowrap",
+              }}
             >
-              <span style={{ fontFamily: "monospace" }}>⊞</span>
               Windows — 準備中
             </span>
           </div>
@@ -189,7 +246,8 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--border)", marginTop: "auto" }}>
         <div
-          style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}
+          className="lp-inner"
+          style={{ paddingTop: 20, paddingBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}
         >
           <span style={{ fontSize: 11, color: "var(--text-3)" }}>© {new Date().getFullYear()} Naoya Tsuji</span>
           <div style={{ display: "flex", gap: 24 }}>
