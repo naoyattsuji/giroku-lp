@@ -34,10 +34,10 @@ const features = [
 ];
 
 const steps = [
-  { num: "01", title: "ダウンロード", desc: "DMG または EXE をダウンロードしてインストール（約1分）" },
-  { num: "02", title: "モデル取得", desc: "初回起動時に Whisper モデル（1.5 GB）を自動取得" },
+  { num: "01", title: "ダウンロード", desc: "DMG ファイルをダウンロードしてインストール（約1分）" },
+  { num: "02", title: "モデル取得", desc: "初回起動時に Whisper モデル（約 1.5 GB）を自動ダウンロード" },
   { num: "03", title: "会議を開始", desc: "録音ボタンを押してオンライン会議に参加するだけ" },
-  { num: "04", title: "議事録完成", desc: "会議終了後、文字起こしと要約が自動で生成される" },
+  { num: "04", title: "文字起こし完成", desc: "会議終了後、自動で文字起こし生成。有料プランでは AI 要約も可能" },
 ];
 
 export default function Home() {
