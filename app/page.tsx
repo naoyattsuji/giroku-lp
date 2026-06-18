@@ -326,7 +326,8 @@ export default function Home() {
       <footer style={{ borderTop: "1px solid var(--border)", marginTop: "auto" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <span style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>© 2026 Naoya Tsuji</span>
-          <div style={{ display: "flex", gap: 28 }}>
+          <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
+            <a href="#faq" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.08em" }}>FAQ</a>
             <Link href="/privacy" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.08em" }}>PRIVACY</Link>
             <Link href="/terms" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.08em" }}>TERMS</Link>
             <a href="mailto:naoyatttsuji@gmail.com" style={{ fontSize: 11, color: "var(--text-3)", textDecoration: "none", letterSpacing: "0.08em" }}>SUPPORT</a>
