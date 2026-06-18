@@ -40,9 +40,22 @@ const steps = [
   { num: "04", title: "文字起こし完成", desc: "会議終了後、自動で文字起こし生成。有料プランでは AI 要約も可能" },
 ];
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "相手に本当に通知されないの？", "acceptedAnswer": { "@type": "Answer", "text": "Giroku は録音ボットを会議に参加させる方式ではなく、あなたのデバイスのシステム音声・マイクを直接キャプチャします。Zoom・Meet・Teams 側には一切通知が届きません。" } },
+    { "@type": "Question", "name": "音声データはどこに保存される？", "acceptedAnswer": { "@type": "Answer", "text": "すべてあなたのデバイス内のみです。外部サーバーへの送信は一切行いません。文字起こしも AI 処理もオフラインで完結します。" } },
+    { "@type": "Question", "name": "どのオンライン会議ツールで使える？", "acceptedAnswer": { "@type": "Answer", "text": "システム音声を再生するアプリなら基本的に対応しています。Zoom・Google Meet・Microsoft Teams・Webex などで動作確認済みです。" } },
+    { "@type": "Question", "name": "月120分を超えたらどうなる？", "acceptedAnswer": { "@type": "Answer", "text": "録音を開始できなくなります（既存の録音・履歴は消えません）。¥980 の有料プランにアップグレードすると無制限になります。" } },
+    { "@type": "Question", "name": "有料プランはどのくらい続く？", "acceptedAnswer": { "@type": "Answer", "text": "1年間の買い切りプランです。3台まで同時に使えます。1年後は無料プランに戻りますが、録音履歴は保持されます。" } },
+  ],
+}
+
 export default function Home() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
       {/* Nav */}
       <nav style={{ borderBottom: "1px solid var(--border)" }}>
