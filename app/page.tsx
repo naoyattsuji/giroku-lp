@@ -48,8 +48,9 @@ export default function Home() {
       <nav style={{ borderBottom: "1px solid var(--border)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.2em", color: "var(--text-1)" }}>GIROKU</span>
-          <div style={{ display: "flex", gap: 32 }}>
-            <Link href="/privacy" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em", textDecoration: "none" }} className="btn-outline">PRIVACY</Link>
+          <div className="mobile-nav-gap" style={{ display: "flex", gap: 32 }}>
+            <a href="#faq" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em", textDecoration: "none" }} className="btn-outline">FAQ</a>
+            <Link href="/privacy" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em", textDecoration: "none" }} className="btn-outline mobile-hide">PRIVACY</Link>
             <Link href="/terms" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em", textDecoration: "none" }} className="btn-outline">TERMS</Link>
           </div>
         </div>
@@ -100,7 +101,7 @@ export default function Home() {
             料金を見る
           </a>
         </div>
-        <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>月120分まで無料 · macOS & Windows 対応</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>月120分まで無料 · macOS 対応 · Windows 近日公開</p>
       </section>
 
       {/* Features */}
@@ -219,7 +220,8 @@ export default function Home() {
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <a
-              href="#"
+              href="https://github.com/naoyatsuji/giroku-releases/releases/latest"
+              className="btn-outline"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -236,26 +238,61 @@ export default function Home() {
               <span style={{ fontSize: 16, lineHeight: 1 }}></span>
               macOS 用ダウンロード
             </a>
-            <a
-              href="#"
+            <span
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 10,
                 padding: "14px 28px",
                 border: "1px solid var(--border)",
-                color: "var(--text-2)",
+                color: "var(--text-3)",
                 fontSize: 12,
                 letterSpacing: "0.08em",
-                textDecoration: "none",
                 whiteSpace: "nowrap",
+                cursor: "default",
               }}
             >
               <span style={{ fontSize: 14, lineHeight: 1, fontFamily: "monospace" }}>⊞</span>
-              Windows 用ダウンロード
-            </a>
+              Windows — 準備中
+            </span>
           </div>
-          <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>macOS 12 以降 · Windows 10 以降</p>
+          <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>macOS 12 以降 · Windows 10 以降（近日公開）</p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div className="mobile-pad" style={{ maxWidth: 1100, margin: "0 auto", padding: "64px 40px 0" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.3em", color: "var(--text-3)", marginBottom: 40 }}>FAQ</p>
+        </div>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 40px 64px" }}>
+          {[
+            {
+              q: "相手に本当に通知されないの？",
+              a: "はい。Giroku は録音ボットを会議に参加させる方式ではなく、あなたのデバイスのシステム音声・マイクを直接キャプチャします。Zoom・Meet・Teams 側には一切通知が届きません。",
+            },
+            {
+              q: "音声データはどこに保存される？",
+              a: "すべてあなたのデバイス内のみです。外部サーバーへの送信は一切行いません。文字起こしも AI 処理もオフラインで完結します。",
+            },
+            {
+              q: "どのオンライン会議ツールで使える？",
+              a: "システム音声を再生するアプリなら基本的に対応しています。Zoom・Google Meet・Microsoft Teams・Webex などで動作確認済みです。",
+            },
+            {
+              q: "月120分を超えたらどうなる？",
+              a: "録音を開始できなくなります（既存の録音・履歴は消えません）。¥980 の有料プランにアップグレードすると無制限になります。",
+            },
+            {
+              q: "有料プランはどのくらい続く？",
+              a: "1年間の買い切りプランです。3台まで同時に使えます。1年後は無料プランに戻りますが、録音履歴は保持されます。",
+            },
+          ].map((item, i, arr) => (
+            <div key={i} style={{ padding: "28px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none" }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 10, lineHeight: 1.5 }}>{item.q}</p>
+              <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9, maxWidth: 680 }}>{item.a}</p>
+            </div>
+          ))}
         </div>
       </section>
 

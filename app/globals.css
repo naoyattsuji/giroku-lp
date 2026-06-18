@@ -43,6 +43,7 @@ body {
   .mobile-pad-sm { padding: 24px !important; }
   .mobile-hero { padding: 60px 24px 48px !important; }
   .mobile-hide { display: none !important; }
+  .mobile-nav-gap { gap: 16px !important; }
 }
 
 @media (max-width: 480px) {

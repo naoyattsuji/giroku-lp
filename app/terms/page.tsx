@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "利用規約 — Giroku",
+  description: "Giroku の利用規約。サービスの利用条件、禁止事項、免責事項について記載しています。",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

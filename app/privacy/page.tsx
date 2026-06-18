@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー — Giroku",
+  description: "Giroku のプライバシーポリシー。音声データはデバイス内のみで処理され、外部サーバーへの送信は一切行いません。",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
