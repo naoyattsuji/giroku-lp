@@ -64,7 +64,7 @@ export default function Home() {
         </h1>
         <p style={{ fontSize: "clamp(13px, 1.5vw, 16px)", color: "var(--text-2)", lineHeight: 1.9, maxWidth: 500, marginBottom: 48 }}>
           Zoom・Meet・Teams などのオンライン会議を、相手に一切通知せず録音・文字起こし。
-          音声データはすべてデバイス内で処理されます。
+          音声データはすべてデバイス内で処理され、外部サーバーに送信されません。
         </p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
           <a
@@ -101,7 +101,14 @@ export default function Home() {
             料金を見る
           </a>
         </div>
-        <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>月120分まで無料 · macOS 対応 · Windows 近日公開</p>
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 20 }}>
+          {["相手に通知なし", "完全オフライン処理", "日本語特化 Whisper", "話者分離"].map((badge) => (
+            <span key={badge} style={{ fontSize: 10, color: "var(--text-3)", letterSpacing: "0.08em", borderLeft: "1px solid var(--border)", paddingLeft: 12 }}>
+              {badge}
+            </span>
+          ))}
+        </div>
+        <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em", marginTop: 16 }}>macOS 対応 · Windows 近日公開</p>
       </section>
 
       {/* Features */}
@@ -192,6 +199,7 @@ export default function Home() {
             </div>
             <a
               href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
+              className="btn-primary"
               style={{
                 display: "block",
                 padding: "13px 0",
@@ -206,6 +214,9 @@ export default function Home() {
             >
               ¥980 で購入
             </a>
+            <p style={{ fontSize: 10, color: "var(--text-3)", textAlign: "center", marginTop: 12, letterSpacing: "0.05em" }}>
+              Lemon Squeezy で安全に決済 · 領収書発行可
+            </p>
           </div>
         </div>
       </section>
@@ -221,15 +232,16 @@ export default function Home() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <a
               href="https://github.com/naoyatsuji/giroku-releases/releases/latest"
-              className="btn-outline"
+              className="btn-primary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 10,
                 padding: "14px 28px",
-                border: "1px solid var(--border)",
-                color: "var(--text-1)",
+                background: "var(--text-1)",
+                color: "var(--bg)",
                 fontSize: 12,
+                fontWeight: 700,
                 letterSpacing: "0.08em",
                 textDecoration: "none",
                 whiteSpace: "nowrap",
@@ -257,6 +269,7 @@ export default function Home() {
             </span>
           </div>
           <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>macOS 12 以降 · Windows 10 以降（近日公開）</p>
+          <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 8, letterSpacing: "0.05em" }}>初回起動時に Whisper モデル（約 1.5 GB）を自動ダウンロードします</p>
         </div>
       </section>
 
