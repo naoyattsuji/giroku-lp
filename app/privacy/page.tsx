@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー — Giroku",
-  description: "Giroku のプライバシーポリシー。音声データはデバイス内のみで処理され、外部サーバーへの送信は一切行いません。",
+  description: "Giroku のプライバシーポリシー。録音データはデバイス内に保存されます。AI要約を使用した場合のみ文字起こしテキストが外部サービスへ送信されます。",
   alternates: { canonical: "/privacy" },
 };
 
@@ -27,8 +27,8 @@ export default function PrivacyPage() {
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>基本方針</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               Giroku（以下「本アプリ」）は、ユーザーのプライバシーを最大限に尊重します。
-              本アプリはオフライン処理を基本設計とし、録音した音声データおよび文字起こしデータを
-              外部サーバーに送信することは一切ありません。
+              本アプリはオフライン処理を基本設計とし、録音した音声データはデバイス内のみで処理されます。
+              AI要約機能を使用した場合に限り、文字起こしテキストが外部AIサービスへ送信されることがあります。
             </p>
           </section>
 
