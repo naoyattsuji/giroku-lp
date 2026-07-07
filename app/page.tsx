@@ -5,12 +5,12 @@ import Link from "next/link";
 const features = [
   {
     num: "01",
-    title: "録音ボット不要",
-    desc: "会議に録音ボットを参加させず、あなたのデバイス内だけで音声を記録。Zoom・Meet・Teams をスマートに議事録化します。録音には必要な同意を得てご利用ください。",
+    title: "相手に通知されない",
+    desc: "録音ボットを会議に参加させません。Zoom・Meet・Teams はあなたが録音していることを知りません。",
   },
   {
     num: "02",
-    title: "完全ローカル処理",
+    title: "完全オフライン処理",
     desc: "音声データは外部サーバーに送信されません。Whisper による文字起こしもすべてデバイス内で完結します。",
   },
   {
@@ -41,7 +41,7 @@ export default function Home() {
       <section>
         <div className="lp-inner" style={{ paddingTop: 120, paddingBottom: 100 }}>
           <p style={{ fontSize: 10, letterSpacing: "0.4em", color: "var(--red)", marginBottom: 52, fontWeight: 600 }}>
-            LOCAL-FIRST MEETING RECORDER
+            STEALTH MEETING RECORDER
           </p>
           <h1
             style={{
@@ -53,7 +53,7 @@ export default function Home() {
             }}
           >
             会議の記録を、<br />
-            デバイスの中だけで。
+            相手に知られず。
           </h1>
           <p
             style={{
@@ -64,8 +64,8 @@ export default function Home() {
               marginBottom: 56,
             }}
           >
-            Zoom・Meet・Teams の音声を、録音ボットなしでデバイス内だけで録音・文字起こし。
-            音声データが外部に出ないから、安心して議事録に集中できます。
+            Zoom・Meet・Teams の音声を相手に気づかれずに録音・文字起こし。
+            音声データはすべてデバイス内で処理されます。
           </p>
           <div style={{ display: "flex", gap: 36, alignItems: "center", flexWrap: "wrap", marginBottom: 24 }}>
             <a
