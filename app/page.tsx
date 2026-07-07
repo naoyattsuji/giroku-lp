@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 const features = [
@@ -202,7 +204,7 @@ export default function Home() {
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <a
-              href="https://github.com/naoyatsuji/giroku-releases/releases/latest"
+              href="https://github.com/naoyattsuji/giroku-releases/releases/latest"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
