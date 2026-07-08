@@ -77,11 +77,11 @@ export default function Home() {
             <p style={{ fontSize: 10, letterSpacing: "0.4em", color: "var(--red)", marginBottom: 28, fontWeight: 700 }}>
               STEALTH MEETING RECORDER
             </p>
-            <h1 style={{ fontSize: "clamp(40px, 6vw, 76px)", fontWeight: 700, lineHeight: 1.02, letterSpacing: "-0.04em", marginBottom: 24 }}>
-              会議の記録を、<br />相手に知られず。
+            <h1 style={{ fontSize: "clamp(36px, 5.2vw, 62px)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.04em", marginBottom: 24 }}>
+              相手に知られず、<br />会話をまるごと<br />議事録に。
             </h1>
-            <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 420, marginBottom: 36 }}>
-              録音ボットなし。あなたのデバイス内だけで、会話を文字起こし。
+            <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 440, marginBottom: 36 }}>
+              オンライン会議・対面・講義。録音ボットなしで、デバイス内だけで文字起こし。
             </p>
             <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
               <a href="#download" style={btnDark}
