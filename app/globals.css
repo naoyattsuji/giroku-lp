@@ -45,6 +45,14 @@ a { text-decoration: none; color: inherit; }
   align-items: start;
 }
 
+.pillar-col {
+  border-left: 1px solid var(--border);
+}
+.pillar-col:first-child {
+  border-left: none;
+  padding-left: 0 !important;
+}
+
 .pricing-grid {
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
@@ -59,4 +67,6 @@ a { text-decoration: none; color: inherit; }
   .pricing-col { padding-left: 0 !important; padding-right: 0 !important; }
   .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
   .cards-3 { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .pillar-col { border-left: none !important; border-top: 1px solid var(--border); padding: 28px 0 !important; }
+  .pillar-col:first-child { border-top: none; padding-top: 4px !important; }
 }

@@ -6,9 +6,9 @@ import {
   SceneOnline,
   SceneMeeting,
   SceneLecture,
-  IconNoBot,
-  IconLocal,
-  IconSpeaker,
+  IconStealth,
+  IconBothVoices,
+  IconOffline,
 } from "./components/Illustrations";
 
 const scenes = [
@@ -32,10 +32,25 @@ const scenes = [
   },
 ];
 
-const features = [
-  { Icon: IconNoBot, title: "相手に気づかれない", desc: "会議に録音用のアプリを入れないので、録音していることが相手に伝わりません。" },
-  { Icon: IconLocal, title: "音声は外に出ない", desc: "録音した音声は、あなたのパソコンの外に送られません。" },
-  { Icon: IconSpeaker, title: "だれの発言か分かる", desc: "自分の声と相手の声を、自動で分けて文字にします。" },
+const pillars = [
+  {
+    Icon: IconStealth,
+    no: "01",
+    title: "相手に気づかれない",
+    desc: "会議に何も追加しないから、録音していることが相手に伝わりません。",
+  },
+  {
+    Icon: IconBothVoices,
+    no: "02",
+    title: "自分の声も、相手の声も",
+    desc: "あなたのマイクと、相手のスピーカーの音。どちらもまとめて録れます。",
+  },
+  {
+    Icon: IconOffline,
+    no: "03",
+    title: "ネットがなくても使える",
+    desc: "あなたのパソコンの中だけで動くから、電波のない場所でも安心です。",
+  },
 ];
 
 const btnDark = {
@@ -77,11 +92,11 @@ export default function Home() {
             <p style={{ fontSize: 12, letterSpacing: "0.18em", color: "var(--red)", marginBottom: 24, fontWeight: 700 }}>
               録音 · 文字起こし · AI議事録
             </p>
-            <h1 style={{ fontSize: "clamp(36px, 5.2vw, 62px)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.04em", marginBottom: 24 }}>
-              相手に知られず、<br />会話をまるごと<br />議事録に。
+            <h1 style={{ fontSize: "clamp(32px, 4.6vw, 50px)", fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.03em", marginBottom: 24 }}>
+              相手に気づかれず、<br />会話をまるごと記録。
             </h1>
             <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.85, maxWidth: 450, marginBottom: 36 }}>
-              オンライン会議も、対面の打ち合わせも、講義も。会議に何も追加せず、あなたのパソコンの中だけで記録します。
+              自分の声も、相手の声も。ネットがなくても、あなたのパソコンだけで。
             </p>
             <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
               <a href="#download" style={btnDark}
@@ -100,14 +115,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features（アイコン3枚・少文字） */}
+      {/* 3つのコアコンピタンス（インフォグラフィック） */}
       <section style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
-        <div className="lp-inner cards-3" style={{ paddingTop: 56, paddingBottom: 56, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 28 }}>
-          {features.map((f) => (
-            <div key={f.title} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <f.Icon />
-              <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>{f.title}</h3>
-              <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.7 }}>{f.desc}</p>
+        <div className="lp-inner" style={{ paddingTop: 72, paddingBottom: 20 }}>
+          <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--red)", fontWeight: 700 }}>Girokuだけの3つ</p>
+        </div>
+        <div className="lp-inner cards-3" style={{ paddingBottom: 72, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0 }}>
+          {pillars.map((p) => (
+            <div key={p.title} className="pillar-col" style={{ padding: "8px 32px" }}>
+              <div style={{ marginBottom: 20 }}><p.Icon /></div>
+              <p style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-3)", marginBottom: 8 }}>{p.no}</p>
+              <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.35, marginBottom: 12 }}>{p.title}</h3>
+              <p style={{ fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.75 }}>{p.desc}</p>
             </div>
           ))}
         </div>

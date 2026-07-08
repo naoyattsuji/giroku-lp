@@ -1,202 +1,183 @@
 // Giroku LP 用の軽量ラインアート・イラスト集（モノ＋赤アクセント）。
-// 文字に頼らず直感的に伝えるための図解・シーンイラスト。
+// 文字に頼らず直感的に伝えるための図解・アイコン。線幅・角丸を統一して清潔に。
 import type { ReactElement } from "react";
 
 const INK = "#0a0a0a";
 const RED = "#e8192c";
-const FAINT = "#d9d9d9";
+const FAINT = "#cfcfcf";
+const SW = 2.2; // 統一ストローク幅
 
-/** ヒーロー用フロー図：3つの場面 → あなたのパソコン → 3つの成果（録音・文字起こし・AI議事録） */
+/**
+ * ヒーロー図：相手の声（スピーカー）＋ 自分の声（マイク）→ あなたのパソコン（録音中・ネット不要）
+ *  → 録音 / 文字起こし / AI議事録。3つのコアコンピタンスが一目で伝わる図。
+ */
 export function HeroDiagram(): ReactElement {
   return (
-    <svg viewBox="0 0 640 336" width="100%" role="img" aria-label="オンライン会議・対面の打ち合わせ・講義を、あなたのパソコンの中だけで、録音・文字起こし・AI議事録にする流れ" style={{ maxWidth: 640 }}>
-      {/* 左：3つの場面 */}
-      {/* オンライン会議 */}
-      <g transform="translate(4,20)">
-        <rect x="0" y="0" width="110" height="56" rx="8" fill="none" stroke={INK} strokeWidth="2.2" />
-        <rect x="12" y="13" width="36" height="28" rx="4" fill="none" stroke={INK} strokeWidth="1.8" />
-        <circle cx="30" cy="24" r="4.5" fill="none" stroke={INK} strokeWidth="1.6" />
-        <path d="M23 38c0-4.5 3-7 7-7s7 2.5 7 7" fill="none" stroke={INK} strokeWidth="1.6" />
-        <rect x="58" y="17" width="38" height="6.5" rx="3" fill={FAINT} />
-        <rect x="58" y="30" width="28" height="6.5" rx="3" fill={FAINT} />
-        <text x="55" y="74" fontSize="11" fill={INK} textAnchor="middle" fontWeight="600">オンライン会議</text>
+    <svg viewBox="0 0 600 300" width="100%" role="img"
+      aria-label="相手の声とあなたの声の両方を、ネットがなくてもあなたのパソコンの中だけで、録音・文字起こし・AI議事録にする流れ"
+      style={{ maxWidth: 600 }} fill="none" stroke={INK} strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round">
+
+      {/* 左：2つの音声入力 */}
+      {/* 相手の声（スピーカー） */}
+      <g>
+        <rect x="8" y="44" width="156" height="60" rx="12" />
+        <rect x="26" y="62" width="20" height="24" rx="4" />
+        <g stroke={RED}><path d="M54 66c5 4 5 16 0 20" /><path d="M62 60c9 7 9 29 0 36" /></g>
+        <text x="92" y="79" fontSize="13" fill={INK} stroke="none" fontWeight="700">相手の声</text>
+        <text x="92" y="94" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">スピーカー</text>
       </g>
-      {/* 対面の打ち合わせ */}
-      <g transform="translate(4,120)">
-        <rect x="0" y="0" width="110" height="56" rx="8" fill="none" stroke={INK} strokeWidth="2.2" />
-        <g stroke={INK} strokeWidth="1.8" fill="none">
-          <circle cx="38" cy="20" r="6.5" />
-          <path d="M27 42c0-7 5-12 11-12s11 5 11 12" />
-          <circle cx="72" cy="20" r="6.5" />
-          <path d="M61 42c0-7 5-12 11-12s11 5 11 12" />
-        </g>
-        <ellipse cx="55" cy="44" rx="32" ry="5.5" fill="none" stroke={FAINT} strokeWidth="2" />
-        <text x="55" y="74" fontSize="11" fill={INK} textAnchor="middle" fontWeight="600">対面の打ち合わせ</text>
-      </g>
-      {/* 講義・授業 */}
-      <g transform="translate(4,220)">
-        <rect x="0" y="0" width="110" height="56" rx="8" fill="none" stroke={INK} strokeWidth="2.2" />
-        <rect x="12" y="11" width="42" height="28" rx="3" fill="none" stroke={INK} strokeWidth="1.8" />
-        <path d="M20 21h26M20 29h18" stroke={FAINT} strokeWidth="2.4" strokeLinecap="round" />
-        <circle cx="84" cy="21" r="5.5" fill="none" stroke={INK} strokeWidth="1.8" />
-        <path d="M73 42c0-6.5 5-10 11-10s11 3.5 11 10" fill="none" stroke={INK} strokeWidth="1.8" />
-        <text x="55" y="74" fontSize="11" fill={INK} textAnchor="middle" fontWeight="600">講義・授業</text>
+      {/* あなたの声（マイク） */}
+      <g>
+        <rect x="8" y="164" width="156" height="60" rx="12" />
+        <rect x="30" y="176" width="14" height="22" rx="7" stroke={RED} />
+        <path d="M25 194a12 12 0 0 0 24 0" stroke={RED} /><path d="M37 206v8" stroke={RED} /><path d="M30 214h14" stroke={RED} />
+        <text x="92" y="199" fontSize="13" fill={INK} stroke="none" fontWeight="700">あなたの声</text>
+        <text x="92" y="214" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">マイク</text>
       </g>
 
-      {/* 場面 → パソコン（集約する矢印） */}
-      <g stroke={RED} strokeWidth="2.2" fill="none" strokeLinecap="round">
-        <path d="M120 46C158 46 168 158 236 166" markerEnd="url(#arrow)" />
-        <path d="M120 148h112" markerEnd="url(#arrow)" />
-        <path d="M120 250C158 250 168 174 236 168" markerEnd="url(#arrow)" />
+      {/* 入力 → パソコン（集約） */}
+      <g stroke={RED}>
+        <path d="M170 74C210 74 214 132 244 138" markerEnd="url(#redArrow)" />
+        <path d="M170 194C210 194 214 152 244 146" markerEnd="url(#redArrow)" />
       </g>
 
       {/* 中央：あなたのパソコン */}
       <g>
-        <rect x="244" y="112" width="150" height="104" rx="10" fill="#fff" stroke={INK} strokeWidth="2.5" />
-        <rect x="244" y="112" width="150" height="26" rx="10" fill={INK} />
-        <circle cx="260" cy="125" r="4" fill={RED} />
-        <text x="292" y="129" fontSize="9.5" fill="#fff" fontWeight="700" letterSpacing="0.5">録音中</text>
-        <rect x="260" y="152" width="70" height="6" rx="3" fill={INK} />
-        <rect x="260" y="166" width="112" height="6" rx="3" fill={FAINT} />
-        <rect x="260" y="180" width="90" height="6" rx="3" fill={RED} opacity="0.85" />
-        <rect x="260" y="194" width="104" height="6" rx="3" fill={FAINT} />
-        <path d="M319 242l0-26" stroke={INK} strokeWidth="2.5" />
-        <rect x="274" y="242" width="90" height="8" rx="4" fill={INK} />
-        <text x="319" y="274" fontSize="12" fill={INK} textAnchor="middle" fontWeight="700">あなたのパソコン</text>
-        <text x="319" y="290" fontSize="10" fill={INK} textAnchor="middle" opacity="0.55">音声は外に出ません</text>
+        <rect x="252" y="96" width="150" height="100" rx="12" fill="#fff" />
+        <path d="M252 122h150" />
+        <circle cx="270" cy="109" r="4" fill={RED} stroke="none" />
+        <text x="300" y="113" fontSize="10" fill={INK} stroke="none" fontWeight="700">録音中</text>
+        <path d="M270 140h64" stroke={INK} /><path d="M270 156h104" stroke={FAINT} />
+        <path d="M270 172h84" stroke={RED} opacity="0.85" />
+        <path d="M327 214v-18" /><path d="M300 214h54" />
+        <text x="327" y="238" fontSize="12.5" fill={INK} stroke="none" fontWeight="700" textAnchor="middle">あなたのパソコン</text>
+        {/* ネット不要バッジ */}
+        <g transform="translate(279,250)">
+          <rect x="0" y="0" width="96" height="20" rx="10" fill="#fff" stroke={INK} strokeWidth="1.6" />
+          <path d="M11 13a5 5 0 0 1 8 0" strokeWidth="1.6" /><circle cx="15" cy="14.5" r="1.2" fill={INK} stroke="none" />
+          <path d="M8 6l14 12" stroke={RED} strokeWidth="1.6" />
+          <text x="56" y="14" fontSize="9.5" fill={INK} stroke="none" fontWeight="700" textAnchor="middle">ネット不要</text>
+        </g>
       </g>
 
-      {/* パソコン → 3つの成果（広がる矢印） */}
-      <g stroke={INK} strokeWidth="2.2" fill="none" strokeLinecap="round">
-        <path d="M400 158C440 158 452 60 502 54" markerEnd="url(#arrow2)" />
-        <path d="M400 164h96" markerEnd="url(#arrow2)" />
-        <path d="M400 170C440 170 452 254 502 260" markerEnd="url(#arrow2)" />
+      {/* パソコン → 3つの成果（分岐） */}
+      <g stroke={INK}>
+        <path d="M410 132C444 132 452 62 484 56" markerEnd="url(#inkArrow)" />
+        <path d="M410 146h70" markerEnd="url(#inkArrow)" />
+        <path d="M410 160C444 160 452 236 484 242" markerEnd="url(#inkArrow)" />
       </g>
 
       {/* 右：3つの成果 */}
       {/* 録音 */}
-      <g transform="translate(510,26)">
-        <rect x="0" y="0" width="118" height="56" rx="8" fill="#fff" stroke={INK} strokeWidth="2.2" />
-        <g stroke={RED} strokeWidth="2.4" strokeLinecap="round">
-          <path d="M18 34v-12" /><path d="M26 38v-20" /><path d="M34 34v-12" /><path d="M42 40v-24" /><path d="M50 34v-12" />
-        </g>
-        <text x="86" y="33" fontSize="13" fill={INK} fontWeight="700" textAnchor="middle">録音</text>
+      <g>
+        <rect x="490" y="30" width="104" height="52" rx="10" fill="#fff" />
+        <g stroke={RED}><path d="M506 62v-14" /><path d="M514 66v-22" /><path d="M522 62v-14" /><path d="M530 68v-26" /><path d="M538 62v-14" /></g>
+        <text x="566" y="60" fontSize="12" fill={INK} stroke="none" fontWeight="700" textAnchor="middle">録音</text>
       </g>
       {/* 文字起こし */}
-      <g transform="translate(510,120)">
-        <rect x="0" y="0" width="118" height="56" rx="8" fill="#fff" stroke={INK} strokeWidth="2.2" />
-        <g stroke={INK} strokeWidth="2.2" strokeLinecap="round">
-          <path d="M16 20h28" /><path d="M16 28h34" /><path d="M16 36h22" />
-        </g>
-        <text x="88" y="33" fontSize="12" fill={INK} fontWeight="700" textAnchor="middle">文字起こし</text>
+      <g>
+        <rect x="490" y="124" width="104" height="52" rx="10" fill="#fff" />
+        <path d="M504 143h24" /><path d="M504 151h30" /><path d="M504 159h18" />
+        <text x="562" y="155" fontSize="11" fill={INK} stroke="none" fontWeight="700" textAnchor="middle">文字起こし</text>
       </g>
       {/* AI議事録 */}
-      <g transform="translate(510,220)">
-        <rect x="0" y="0" width="118" height="56" rx="8" fill="#fff" stroke={INK} strokeWidth="2.2" />
-        <rect x="16" y="14" width="30" height="28" rx="3" fill="none" stroke={INK} strokeWidth="1.8" />
-        <path d="M22 22h18M22 28h18M22 34h12" stroke={FAINT} strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M50 14l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5z" fill={RED} />
-        <text x="90" y="33" fontSize="12.5" fill={INK} fontWeight="700" textAnchor="middle">AI議事録</text>
+      <g>
+        <rect x="490" y="216" width="104" height="52" rx="10" fill="#fff" />
+        <rect x="504" y="228" width="26" height="28" rx="3" />
+        <path d="M510 236h14" stroke={FAINT} strokeWidth="1.8" /><path d="M510 242h14" stroke={FAINT} strokeWidth="1.8" /><path d="M510 248h9" stroke={FAINT} strokeWidth="1.8" />
+        <path d="M534 226l2.4 5 5 2.4-5 2.4-2.4 5-2.4-5-5-2.4 5-2.4z" fill={RED} stroke="none" />
+        <text x="566" y="247" fontSize="11" fill={INK} stroke="none" fontWeight="700" textAnchor="middle">AI議事録</text>
       </g>
 
       <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l6 4-6 4" fill="none" stroke={RED} strokeWidth="2" /></marker>
-        <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l6 4-6 4" fill="none" stroke={INK} strokeWidth="2" /></marker>
+        <marker id="redArrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l6 4-6 4" stroke={RED} strokeWidth="2" /></marker>
+        <marker id="inkArrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l6 4-6 4" stroke={INK} strokeWidth="2" /></marker>
       </defs>
     </svg>
   );
 }
 
+// ---- 3つのコアコンピタンス用アイコン（大きめ・清潔） ----
+
+/** 1. 相手に気づかれない（通知が飛ばない） */
+export function IconStealth(): ReactElement {
+  return (
+    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="28" cy="20" r="8" />
+      <path d="M13 44c0-9 7-14 15-14s15 5 15 14" />
+      <path d="M9 9l38 38" stroke={RED} strokeWidth="3" />
+    </svg>
+  );
+}
+
+/** 2. 自分の声も相手の声も（マイク＋スピーカー） */
+export function IconBothVoices(): ReactElement {
+  return (
+    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      {/* マイク */}
+      <rect x="12" y="12" width="11" height="18" rx="5.5" />
+      <path d="M8 27a9.5 9.5 0 0 0 19 0" /><path d="M17.5 36v6" /><path d="M12 42h11" />
+      {/* スピーカー */}
+      <g stroke={RED}>
+        <rect x="34" y="20" width="9" height="12" rx="2.5" />
+        <path d="M46 22c3.5 3 3.5 9 0 12" /><path d="M50 18c6 5 6 17 0 22" />
+      </g>
+    </svg>
+  );
+}
+
+/** 3. ネットがなくても使える（オフライン） */
+export function IconOffline(): ReactElement {
+  return (
+    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 24a22 22 0 0 1 32 0" />
+      <path d="M19 32a12 12 0 0 1 18 0" />
+      <path d="M25.5 39.5a4 4 0 0 1 5 0" />
+      <circle cx="28" cy="45" r="1.6" fill={INK} stroke="none" />
+      <path d="M10 12l36 36" stroke={RED} strokeWidth="3" />
+    </svg>
+  );
+}
+
+// ---- 利用シーン（清潔化） ----
 const sceneWrap = { width: "100%" as const, height: "auto" as const };
 
-/** 利用シーン：オンライン会議 */
 export function SceneOnline(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="オンライン会議">
-      <rect x="40" y="28" width="160" height="96" rx="8" fill="#fff" stroke={INK} strokeWidth="2.5" />
+    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="オンライン会議" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="40" y="30" width="160" height="92" rx="10" />
       {[0, 1, 2, 3].map((i) => (
         <g key={i}>
-          <rect x={54 + (i % 2) * 74} y={42 + Math.floor(i / 2) * 40} width="62" height="32" rx="4" fill="none" stroke={i === 0 ? RED : FAINT} strokeWidth="2" />
-          <circle cx={70 + (i % 2) * 74} cy={54 + Math.floor(i / 2) * 40} r="6" fill="none" stroke={i === 0 ? RED : INK} strokeWidth="1.8" />
+          <rect x={56 + (i % 2) * 72} y={44 + Math.floor(i / 2) * 38} width="60" height="30" rx="5" stroke={i === 0 ? RED : FAINT} />
+          <circle cx={72 + (i % 2) * 72} cy={55 + Math.floor(i / 2) * 38} r="5.5" stroke={i === 0 ? RED : INK} />
+          <path d={`M${64 + (i % 2) * 72} ${68 + Math.floor(i / 2) * 38}a8 8 0 0 1 16 0`} stroke={i === 0 ? RED : INK} />
         </g>
       ))}
-      <rect x="92" y="124" width="56" height="6" rx="3" fill={INK} />
-      <circle cx="200" cy="34" r="6" fill={RED} />
+      <circle cx="200" cy="36" r="5.5" fill={RED} stroke="none" />
     </svg>
   );
 }
 
-/** 利用シーン：対面のワーク・1on1 */
 export function SceneMeeting(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="対面の打ち合わせ">
-      {/* テーブル */}
-      <ellipse cx="120" cy="104" rx="86" ry="20" fill="none" stroke={INK} strokeWidth="2.5" />
-      {/* 2人 */}
-      <g stroke={INK} strokeWidth="2.5" fill="none">
-        <circle cx="66" cy="52" r="14" />
-        <path d="M44 96c0-16 10-26 22-26s22 10 22 26" />
-        <circle cx="174" cy="52" r="14" />
-        <path d="M152 96c0-16 10-26 22-26s22 10 22 26" />
-      </g>
-      {/* 中央の端末＋波形 */}
-      <rect x="104" y="92" width="32" height="20" rx="3" fill="#fff" stroke={RED} strokeWidth="2.5" />
-      <g stroke={RED} strokeWidth="2" strokeLinecap="round">
-        <path d="M112 102v-4" /><path d="M118 104v-8" /><path d="M124 103v-6" /><path d="M130 102v-4" />
-      </g>
+    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="対面の打ち合わせ" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="94" y="94" width="52" height="26" rx="5" stroke={RED} />
+      <g stroke={RED} strokeWidth="2"><path d="M104 110v-6" /><path d="M112 112v-10" /><path d="M120 111v-8" /><path d="M128 110v-6" /><path d="M136 112v-10" /></g>
+      <circle cx="60" cy="52" r="13" /><path d="M40 96c0-14 9-22 20-22s20 8 20 22" />
+      <circle cx="180" cy="52" r="13" /><path d="M160 96c0-14 9-22 20-22s20 8 20 22" />
     </svg>
   );
 }
 
-/** 利用シーン：大学の講義 */
 export function SceneLecture(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="大学の講義">
-      {/* ホワイトボード */}
-      <rect x="26" y="26" width="120" height="72" rx="4" fill="none" stroke={INK} strokeWidth="2.5" />
-      <path d="M40 46h72M40 60h92M40 74h56" stroke={FAINT} strokeWidth="3" strokeLinecap="round" />
-      {/* 講師 */}
-      <g stroke={INK} strokeWidth="2.5" fill="none">
-        <circle cx="176" cy="46" r="13" />
-        <path d="M156 92c0-16 9-26 20-26s20 10 20 26" />
-      </g>
-      {/* 聴講（点） */}
-      <g fill={FAINT}>
-        {[0,1,2,3,4].map((i)=>(<circle key={i} cx={44 + i*22} cy={126} r="6" />))}
-      </g>
-      {/* 端末（録音） */}
-      <rect x="150" y="112" width="30" height="20" rx="3" fill="#fff" stroke={RED} strokeWidth="2.5" />
-      <circle cx="165" cy="122" r="4" fill={RED} />
-    </svg>
-  );
-}
-
-/** 特長アイコン */
-export function IconNoBot(): ReactElement {
-  return (
-    <svg viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="録音ボット不要">
-      <rect x="12" y="16" width="24" height="20" rx="5" fill="none" stroke={INK} strokeWidth="2.5" />
-      <circle cx="19" cy="26" r="2.5" fill={INK} /><circle cx="29" cy="26" r="2.5" fill={INK} />
-      <path d="M24 16v-5" stroke={INK} strokeWidth="2.5" /><circle cx="24" cy="9" r="2.5" fill={INK} />
-      <path d="M8 8l32 32" stroke={RED} strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  );
-}
-export function IconLocal(): ReactElement {
-  return (
-    <svg viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="ローカル完結">
-      <path d="M24 7l15 6v9c0 10-6.5 16-15 19-8.5-3-15-9-15-19v-9z" fill="none" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
-      <path d="M17 24l5 5 9-11" fill="none" stroke={RED} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-export function IconSpeaker(): ReactElement {
-  return (
-    <svg viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="話者分離">
-      <g fill="none" strokeWidth="2.5" strokeLinecap="round">
-        <circle cx="17" cy="18" r="6" stroke={INK} /><path d="M8 38c0-7 4-11 9-11s9 4 9 11" stroke={INK} />
-        <circle cx="33" cy="20" r="5" stroke={RED} /><path d="M25 38c0-6 3.5-9 8-9s8 3 8 9" stroke={RED} />
-      </g>
+    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="大学の講義・授業" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="28" y="26" width="118" height="72" rx="6" />
+      <path d="M44 46h80M44 60h96M44 74h56" stroke={FAINT} strokeWidth="3.2" />
+      <circle cx="182" cy="46" r="13" /><path d="M162 92c0-14 9-22 20-22s20 8 20 22" />
+      <g fill={FAINT} stroke="none">{[0, 1, 2, 3, 4].map((i) => (<circle key={i} cx={44 + i * 22} cy={126} r="6" />))}</g>
+      <rect x="150" y="112" width="30" height="20" rx="4" fill="#fff" stroke={RED} />
+      <circle cx="165" cy="122" r="3.5" fill={RED} stroke="none" />
     </svg>
   );
 }
