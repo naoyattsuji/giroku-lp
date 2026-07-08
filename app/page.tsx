@@ -15,27 +15,27 @@ const scenes = [
   {
     Illust: SceneOnline,
     tag: "オンライン会議",
-    benefit: "Zoom・Meet・Teams の音声をそのまま議事録に。",
-    detail: "ボットを参加させないので、会議の空気を壊さない。",
+    benefit: "オンライン会議を、そのまま記録。",
+    detail: "会議に何も追加しないので、いつも通りに話せます。",
   },
   {
     Illust: SceneMeeting,
-    tag: "対面のワーク・1on1",
-    benefit: "端末を置くだけで、対面の打ち合わせも記録。",
-    detail: "メモを取らずに会話へ集中。あとで全文を見返せる。",
+    tag: "対面の打ち合わせ・1対1",
+    benefit: "パソコンを置くだけで記録。",
+    detail: "メモを取らなくても、あとで全部読み返せます。",
   },
   {
     Illust: SceneLecture,
-    tag: "大学の講義",
-    benefit: "講義を録って、復習用ノートに。",
-    detail: "板書と話に集中。聞き逃しをゼロに。",
+    tag: "大学の講義・授業",
+    benefit: "講義を録って、あとで見返す。",
+    detail: "黒板と話に集中。聞き逃しがなくなります。",
   },
 ];
 
 const features = [
-  { Icon: IconNoBot, title: "録音ボット不要", desc: "会議にボットを入れず、デバイス内だけで記録。" },
-  { Icon: IconLocal, title: "ローカル完結", desc: "音声は外部サーバーに送信されない。" },
-  { Icon: IconSpeaker, title: "話者分離", desc: "自分と相手の声を自動で分けて文字起こし。" },
+  { Icon: IconNoBot, title: "相手に気づかれない", desc: "会議に録音用のアプリを入れないので、録音していることが相手に伝わりません。" },
+  { Icon: IconLocal, title: "音声は外に出ない", desc: "録音した音声は、あなたのパソコンの外に送られません。" },
+  { Icon: IconSpeaker, title: "だれの発言か分かる", desc: "自分の声と相手の声を、自動で分けて文字にします。" },
 ];
 
 const btnDark = {
@@ -57,12 +57,12 @@ export default function Home() {
     <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Nav */}
       <header className="nav-sticky" style={{ borderBottom: "1px solid var(--border)" }}>
-        <div className="lp-inner" style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.25em", color: "var(--text-1)" }}>GIROKU</span>
-          <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-            <a href="#scenes" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em" }}>使い方</a>
-            <a href="#pricing" style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.08em" }}>料金</a>
-            <a href="#download" style={{ fontSize: 11, color: "var(--text-1)", fontWeight: 700, letterSpacing: "0.08em" }}>ダウンロード</a>
+        <div className="lp-inner" style={{ height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.25em", color: "var(--text-1)" }}>GIROKU</span>
+          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+            <a href="#scenes" style={{ fontSize: 13, color: "var(--text-2)", letterSpacing: "0.06em" }}>使い方</a>
+            <a href="#pricing" style={{ fontSize: 13, color: "var(--text-2)", letterSpacing: "0.06em" }}>料金</a>
+            <a href="#download" style={{ fontSize: 13, color: "var(--bg)", background: "var(--text-1)", padding: "9px 18px", fontWeight: 700, letterSpacing: "0.06em" }}>ダウンロード</a>
           </div>
         </div>
       </header>
@@ -74,14 +74,14 @@ export default function Home() {
           style={{ paddingTop: 96, paddingBottom: 84, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}
         >
           <div>
-            <p style={{ fontSize: 10, letterSpacing: "0.4em", color: "var(--red)", marginBottom: 28, fontWeight: 700 }}>
-              STEALTH MEETING RECORDER
+            <p style={{ fontSize: 12, letterSpacing: "0.18em", color: "var(--red)", marginBottom: 24, fontWeight: 700 }}>
+              録音 · 文字起こし · AI議事録
             </p>
             <h1 style={{ fontSize: "clamp(36px, 5.2vw, 62px)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.04em", marginBottom: 24 }}>
               相手に知られず、<br />会話をまるごと<br />議事録に。
             </h1>
-            <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 440, marginBottom: 36 }}>
-              オンライン会議・対面・講義。録音ボットなしで、デバイス内だけで文字起こし。
+            <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.85, maxWidth: 450, marginBottom: 36 }}>
+              オンライン会議も、対面の打ち合わせも、講義も。会議に何も追加せず、あなたのパソコンの中だけで記録します。
             </p>
             <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
               <a href="#download" style={btnDark}
@@ -116,7 +116,7 @@ export default function Home() {
       {/* Scenes（利用シーン＋ベネフィット） */}
       <section id="scenes" style={{ borderTop: "1px solid var(--border)" }}>
         <div className="lp-inner" style={{ paddingTop: 84, paddingBottom: 36 }}>
-          <p style={{ fontSize: 10, letterSpacing: "0.35em", color: "var(--text-3)", marginBottom: 20 }}>USE CASES</p>
+          <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--red)", marginBottom: 20, fontWeight: 700 }}>こんな場面で</p>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15, maxWidth: 620 }}>
             話すだけで、<br />そのまま議事録になる。
           </h2>
@@ -140,29 +140,29 @@ export default function Home() {
       {/* Pricing */}
       <section id="pricing" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
         <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 88 }}>
-          <p style={{ fontSize: 10, letterSpacing: "0.35em", color: "var(--text-3)", marginBottom: 56 }}>PRICING</p>
+          <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "var(--red)", marginBottom: 48, fontWeight: 700 }}>料金</p>
           <div className="pricing-grid">
             <div className="pricing-col" style={{ paddingRight: 56 }}>
-              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 28 }}>FREE</p>
+              <p style={{ fontSize: 12, letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 24, fontWeight: 700 }}>無料</p>
               <p style={{ fontSize: 56, fontWeight: 700, fontFamily: "monospace", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 4 }}>¥0</p>
-              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 36 }}>月 120 分まで</p>
+              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 36 }}>1か月あたり120分まで</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 40 }}>
-                {["録音・文字起こし", "話者分離（自分/相手）", "履歴・全文コピー"].map((item) => (
+                {["録音", "文字起こし", "だれの発言か自動で分ける", "記録の保存とコピー"].map((item) => (
                   <p key={item} style={{ fontSize: 13, color: "var(--text-2)" }}>— {item}</p>
                 ))}
-                <p style={{ fontSize: 13, color: "var(--text-3)" }}>— AI 要約</p>
+                <p style={{ fontSize: 13, color: "var(--text-3)" }}>— AIで議事録を作成</p>
               </div>
-              <a href="#download" style={{ display: "block", padding: "12px 0", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textAlign: "center" }}>
+              <a href="#download" style={{ display: "block", padding: "12px 0", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textAlign: "center" }}>
                 無料で始める
               </a>
             </div>
             <div className="pricing-divider" style={{ background: "var(--border)" }} />
             <div className="pricing-col" style={{ paddingLeft: 56 }}>
-              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--red)", marginBottom: 28 }}>PAID</p>
+              <p style={{ fontSize: 12, letterSpacing: "0.06em", color: "var(--red)", marginBottom: 24, fontWeight: 700 }}>有料</p>
               <p style={{ fontSize: 56, fontWeight: 700, fontFamily: "monospace", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 4 }}>¥980</p>
-              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 36 }}>1 年間 · 3 台まで</p>
+              <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 36 }}>1年間ずっと · 3台まで使える</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 40 }}>
-                {["録音・文字起こし（無制限）", "話者分離（自分/相手）", "履歴・全文コピー", "AI 要約（Gemini）"].map((item) => (
+                {["録音（時間の制限なし）", "文字起こし（時間の制限なし）", "だれの発言か自動で分ける", "AIで議事録を作成"].map((item) => (
                   <p key={item} style={{ fontSize: 13, color: "var(--text-1)" }}>— {item}</p>
                 ))}
               </div>
@@ -192,10 +192,10 @@ export default function Home() {
               macOS 用ダウンロード
             </a>
             <span style={{ display: "inline-flex", alignItems: "center", padding: "14px 32px", border: "1px solid var(--border)", color: "var(--text-3)", fontSize: 12, letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
-              Windows — 準備中
+              Windows版 — 準備中
             </span>
           </div>
-          <p style={{ fontSize: 11, color: "var(--text-3)" }}>月 120 分まで無料 · 初回起動時に文字起こしモデル（約 1.5 GB）を自動ダウンロード</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.7 }}>1か月あたり120分まで無料。はじめて使うときに、必要なデータ（約1.5GB）を自動でダウンロードします。</p>
         </div>
       </section>
 

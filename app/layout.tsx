@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Giroku（議録）— 相手に気づかれない議事録AI",
-  description: "Zoom・Meet・Teams などのオンライン会議を、相手に一切通知せず録音・文字起こし。月120分まで無料。音声データはすべてデバイス内で処理。",
+  title: "Giroku（議録）— 相手に気づかれない議事録アプリ",
+  description: "会議に何も追加しないから、相手に気づかれず録音。オンライン会議も対面も講義も、パソコンの中だけで録音・文字起こし・AI議事録。1か月120分まで無料。",
   metadataBase: new URL("https://giroku-lp.vercel.app"),
   alternates: { canonical: "/" },
-  keywords: ["議事録", "AI", "文字起こし", "ステルス", "録音", "Zoom", "Meet", "Teams", "オンライン会議"],
+  keywords: ["議事録", "AI議事録", "文字起こし", "録音", "会議", "オンライン会議", "講義", "無料"],
   openGraph: {
-    title: "Giroku — 相手に気づかれない議事録AI",
-    description: "Zoom・Meet・Teams を相手に通知せず録音・文字起こし。月120分無料。音声はデバイス内処理。",
+    title: "Giroku — 相手に気づかれない議事録アプリ",
+    description: "会議に何も追加せず、相手に気づかれず録音。パソコンの中だけで録音・文字起こし・AI議事録。1か月120分まで無料。",
     url: "https://giroku-lp.vercel.app",
     siteName: "Giroku",
     locale: "ja_JP",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Giroku — 相手に気づかれない議事録AI",
-    description: "Zoom・Meet・Teams を相手に通知せず録音・文字起こし。月120分無料。",
+    title: "Giroku — 相手に気づかれない議事録アプリ",
+    description: "会議に何も追加せず、相手に気づかれず録音。パソコンの中だけで録音・文字起こし・AI議事録。1か月120分まで無料。",
   },
 };
 
