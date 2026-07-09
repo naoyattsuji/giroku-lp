@@ -23,16 +23,16 @@ export function HeroDiagram(): ReactElement {
         <rect x="8" y="44" width="156" height="60" rx="12" />
         <rect x="26" y="62" width="20" height="24" rx="4" />
         <g stroke={RED}><path d="M54 66c5 4 5 16 0 20" /><path d="M62 60c9 7 9 29 0 36" /></g>
-        <text x="92" y="79" fontSize="13" fill={INK} stroke="none" fontWeight="700">相手の声</text>
-        <text x="92" y="94" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">スピーカー</text>
+        <text x="92" y="79" fontSize="13" fill={INK} stroke="none" fontWeight="700">パソコンの音</text>
+        <text x="92" y="94" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">通話・動画</text>
       </g>
       {/* あなたの声（マイク） */}
       <g>
         <rect x="8" y="164" width="156" height="60" rx="12" />
         <rect x="30" y="176" width="14" height="22" rx="7" stroke={RED} />
         <path d="M25 194a12 12 0 0 0 24 0" stroke={RED} /><path d="M37 206v8" stroke={RED} /><path d="M30 214h14" stroke={RED} />
-        <text x="92" y="199" fontSize="13" fill={INK} stroke="none" fontWeight="700">あなたの声</text>
-        <text x="92" y="214" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">マイク</text>
+        <text x="92" y="199" fontSize="13" fill={INK} stroke="none" fontWeight="700">マイク</text>
+        <text x="92" y="214" fontSize="9.5" fill={INK} stroke="none" opacity="0.55">あなた・周り</text>
       </g>
 
       {/* 入力 → パソコン（集約） */}
@@ -139,45 +139,99 @@ export function IconOffline(): ReactElement {
   );
 }
 
-// ---- 利用シーン（清潔化） ----
+// ---- 利用シーン（作り込みイラスト） ----
 const sceneWrap = { width: "100%" as const, height: "auto" as const };
 
+/** 小さな人物（頭＋肩）。back=true で後ろ姿 */
+function Person(x: number, y: number, r: number, color = INK): ReactElement {
+  return (
+    <g stroke={color}>
+      <circle cx={x} cy={y} r={r} />
+      <path d={`M${x - r * 1.5} ${y + r * 3}c0-${r * 2} ${r * 0.9}-${r * 3} ${r * 1.5}-${r * 3}s${r * 1.5} ${r} ${r * 1.5} ${r * 3}`} />
+    </g>
+  );
+}
+
+/** オンライン会議：机の上のノートPCに通話グリッド＋録音キャプチャ */
 export function SceneOnline(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="オンライン会議" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="40" y="30" width="160" height="92" rx="10" />
-      {[0, 1, 2, 3].map((i) => (
-        <g key={i}>
-          <rect x={56 + (i % 2) * 72} y={44 + Math.floor(i / 2) * 38} width="60" height="30" rx="5" stroke={i === 0 ? RED : FAINT} />
-          <circle cx={72 + (i % 2) * 72} cy={55 + Math.floor(i / 2) * 38} r="5.5" stroke={i === 0 ? RED : INK} />
-          <path d={`M${64 + (i % 2) * 72} ${68 + Math.floor(i / 2) * 38}a8 8 0 0 1 16 0`} stroke={i === 0 ? RED : INK} />
-        </g>
-      ))}
-      <circle cx="200" cy="36" r="5.5" fill={RED} stroke="none" />
+    <svg viewBox="0 0 260 168" style={sceneWrap} role="img" aria-label="オンライン会議" fill="none" stroke={INK} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+      {/* 机 */}
+      <path d="M20 150h220" stroke={FAINT} strokeWidth="2.3" />
+      {/* ノートPC本体 */}
+      <path d="M64 142l9-16h114l9 16z" fill="#fff" />
+      <path d="M60 142h140" />
+      {/* 画面 */}
+      <rect x="70" y="34" width="120" height="86" rx="7" fill="#fff" />
+      {/* 通話グリッド 2x2（左上が発話中＝赤） */}
+      {[0, 1, 2, 3].map((i) => {
+        const gx = 80 + (i % 2) * 52;
+        const gy = 46 + Math.floor(i / 2) * 34;
+        const c = i === 0 ? RED : FAINT;
+        return (
+          <g key={i}>
+            <rect x={gx} y={gy} width="44" height="26" rx="4" stroke={c} />
+            <circle cx={gx + 22} cy={gy + 9} r="4.5" stroke={i === 0 ? RED : INK} />
+            <path d={`M${gx + 14} ${gy + 22}a8 8 0 0 1 16 0`} stroke={i === 0 ? RED : INK} />
+          </g>
+        );
+      })}
+      {/* 録音キャプチャ（赤い波形バッジ） */}
+      <g stroke={RED} strokeWidth="2.4">
+        <path d="M206 96v-8M213 100v-16M220 96v-8" />
+      </g>
+      <circle cx="213" cy="76" r="4" fill={RED} stroke="none" />
     </svg>
   );
 }
 
+/** 対面の打ち合わせ：テーブルを挟んで2人、中央のPCが両方の声を録る */
 export function SceneMeeting(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="対面の打ち合わせ" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="94" y="94" width="52" height="26" rx="5" stroke={RED} />
-      <g stroke={RED} strokeWidth="2"><path d="M104 110v-6" /><path d="M112 112v-10" /><path d="M120 111v-8" /><path d="M128 110v-6" /><path d="M136 112v-10" /></g>
-      <circle cx="60" cy="52" r="13" /><path d="M40 96c0-14 9-22 20-22s20 8 20 22" />
-      <circle cx="180" cy="52" r="13" /><path d="M160 96c0-14 9-22 20-22s20 8 20 22" />
+    <svg viewBox="0 0 260 168" style={sceneWrap} role="img" aria-label="対面の打ち合わせ" fill="none" stroke={INK} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+      {/* テーブル */}
+      <ellipse cx="130" cy="126" rx="96" ry="22" fill="#fff" />
+      {/* 2人（向かい合う） */}
+      {Person(52, 58, 14)}
+      {Person(208, 58, 14)}
+      {/* 会話（吹き出しの点） */}
+      <g stroke={FAINT} strokeWidth="2"><path d="M78 60h18M164 60h18" /></g>
+      {/* 中央のノートPC（録音中） */}
+      <path d="M104 128l6-14h40l6 14z" fill="#fff" />
+      <rect x="110" y="96" width="40" height="20" rx="4" fill="#fff" />
+      <g stroke={RED} strokeWidth="2.2"><path d="M120 110v-6M127 113v-12M134 111v-8M141 113v-12" /></g>
+      <circle cx="130" cy="88" r="4" fill={RED} stroke="none" />
+      {/* 両側から中央PCへ音が集まる */}
+      <path d="M74 84c14 6 22 8 30 12" stroke={RED} strokeWidth="1.6" opacity="0.6" />
+      <path d="M186 84c-14 6-22 8-30 12" stroke={RED} strokeWidth="1.6" opacity="0.6" />
     </svg>
   );
 }
 
+/** 講義・授業：スクリーンと講師、聴講席、前方PCが録音 */
 export function SceneLecture(): ReactElement {
   return (
-    <svg viewBox="0 0 240 150" style={sceneWrap} role="img" aria-label="大学の講義・授業" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="28" y="26" width="118" height="72" rx="6" />
-      <path d="M44 46h80M44 60h96M44 74h56" stroke={FAINT} strokeWidth="3.2" />
-      <circle cx="182" cy="46" r="13" /><path d="M162 92c0-14 9-22 20-22s20 8 20 22" />
-      <g fill={FAINT} stroke="none">{[0, 1, 2, 3, 4].map((i) => (<circle key={i} cx={44 + i * 22} cy={126} r="6" />))}</g>
-      <rect x="150" y="112" width="30" height="20" rx="4" fill="#fff" stroke={RED} />
-      <circle cx="165" cy="122" r="3.5" fill={RED} stroke="none" />
+    <svg viewBox="0 0 260 168" style={sceneWrap} role="img" aria-label="大学の講義・授業" fill="none" stroke={INK} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+      {/* スクリーン/黒板 */}
+      <rect x="26" y="20" width="150" height="88" rx="6" fill="#fff" />
+      <path d="M42 40h100M42 54h118M42 68h78" stroke={FAINT} strokeWidth="3" />
+      {/* 板書の図（赤アクセント） */}
+      <path d="M42 86l14-10 12 6 16-12" stroke={RED} strokeWidth="2.2" />
+      {/* 講師 */}
+      {Person(212, 44, 13)}
+      {/* 聴講席（2列の頭） */}
+      <g fill={FAINT} stroke="none">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <circle key={`a${i}`} cx={40 + i * 26} cy={132} r="6.5" />
+        ))}
+        {[0, 1, 2, 3].map((i) => (
+          <circle key={`b${i}`} cx={53 + i * 26} cy={150} r="6.5" />
+        ))}
+      </g>
+      {/* 前方PC（録音中） */}
+      <rect x="196" y="120" width="34" height="22" rx="4" fill="#fff" stroke={RED} />
+      <g stroke={RED} strokeWidth="2"><path d="M205 134v-6M212 137v-12M219 134v-6" /></g>
+      <circle cx="213" cy="114" r="3.5" fill={RED} stroke="none" />
     </svg>
   );
 }

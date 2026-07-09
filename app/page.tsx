@@ -43,7 +43,7 @@ const pillars = [
     Icon: IconBothVoices,
     no: "02",
     title: "自分の声も、相手の声も",
-    desc: "あなたのマイクと、相手のスピーカーの音。どちらもまとめて録れます。",
+    desc: "マイクの音も、パソコンが鳴らす通話や動画の音も。どちらもまとめて録れます。",
   },
   {
     Icon: IconOffline,
