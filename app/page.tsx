@@ -107,7 +107,7 @@ export default function Home() {
               </a>
               <a href="#scenes" style={{ fontSize: 13, color: "var(--text-3)", letterSpacing: "0.03em" }}>使い方を見る →</a>
             </div>
-            <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>月 120 分まで無料 · クレジットカード不要</p>
+            <p style={{ fontSize: 11, color: "var(--text-3)", letterSpacing: "0.05em" }}>1か月120分まで無料 · 登録不要ですぐ使える</p>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <HeroDiagram />
