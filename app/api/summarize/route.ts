@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isPaidLicense } from '../../lib/license'
+import { isPaidLicense, fetchWithRetry } from '../../lib/license'
 
 export const runtime = 'nodejs'
-export const maxDuration = 30
+export const maxDuration = 60
 
 interface TranscriptSegment {
   speaker: 'self' | 'other'
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       : SUMMARY_PROMPT_JA.replace('{LANG}', body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語')
 
   try {
-    const res = await fetch(
+    const res = await fetchWithRetry(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
       {
         method: 'POST',
