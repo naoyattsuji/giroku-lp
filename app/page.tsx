@@ -18,9 +18,24 @@ const scenes = [
 ];
 
 const pillars = [
-  { Icon: IconStealth, no: "01", title: "相手に気づかれない", desc: "会議に何も足さない。" },
-  { Icon: IconBothVoices, no: "02", title: "自分も相手も録れる", desc: "マイクもパソコンの音も。" },
-  { Icon: IconOffline, no: "03", title: "ネットがなくても使える", desc: "パソコンの中だけで動く。" },
+  {
+    Icon: IconStealth,
+    no: "01",
+    title: "相手に気づかれない",
+    desc: "会議に録音アプリを足さないから、相手に伝わりません。",
+  },
+  {
+    Icon: IconBothVoices,
+    no: "02",
+    title: "自分も相手も録れる",
+    desc: "あなたの声も、パソコンが流す相手の声も、まとめて録音。",
+  },
+  {
+    Icon: IconOffline,
+    no: "03",
+    title: "ネットがなくても使える",
+    desc: "パソコンの中だけで動くから、電波がなくても安心。",
+  },
 ];
 
 const btnDark = {
