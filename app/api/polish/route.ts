@@ -11,7 +11,7 @@ interface TranscriptSegment {
 
 // ローカル(whisper.cpp)で確定済みの文字起こしを、音声を送らずテキストだけで磨く。
 // 録音1本につき1回だけ呼ぶ（ライブ中は呼ばない）。音声トークン課金を避け、
-// 文章量に応じた安価なテキストトークン課金のみで「読点・誤字の補正」を提供する。
+// 文章量に応じた安価なテキストトークン課金のみで「読点・誤字の補正」と「短いタイトル」を提供する。
 function polishPrompt(lang: 'ja' | 'en' | 'auto' | undefined): string {
   const langLine =
     lang === 'en'
@@ -19,12 +19,15 @@ function polishPrompt(lang: 'ja' | 'en' | 'auto' | undefined): string {
       : lang === 'auto'
         ? 'テキストは日本語または英語です。'
         : 'テキストは日本語です。'
-  return `以下はローカルの音声認識が生成した文字起こしの配列です。各要素を、意味を変えずに読点・句点・誤字・不自然な言い回しだけを補正してください。
+  return `以下はローカルの音声認識が生成した文字起こしの配列です。
+1. 各要素を、意味を変えずに読点・句点・誤字・不自然な言い回しだけを補正してください
+2. 会話全体の内容から、一目で分かる短いタイトルを1つ作ってください（15文字程度、体言止め、絵文字や記号は使わない）
+
 - ${langLine}
 - 各要素は独立した発話です。要約したり、内容を追加/削除したりしないこと
 - 入力と同じ要素数の配列を、同じ順序で返すこと
 - 補正の必要がない要素はそのまま返すこと
-- 出力は次のJSON形式のみ: {"texts": ["補正後1", "補正後2", ...]}`
+- 出力は次のJSON形式のみ: {"title": "短いタイトル", "texts": ["補正後1", "補正後2", ...]}`
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const segments = body.segments ?? []
   if (segments.length === 0) {
-    return NextResponse.json({ segments: [] })
+    return NextResponse.json({ segments: [], title: null })
   }
 
   const texts = segments.map((s) => s.text)
@@ -77,9 +80,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
     let polished: string[] = []
+    let title: string | null = null
     try {
-      const parsed = JSON.parse(raw) as { texts?: unknown }
+      const parsed = JSON.parse(raw) as { texts?: unknown; title?: unknown }
       if (Array.isArray(parsed.texts)) polished = parsed.texts.map((t) => String(t))
+      if (typeof parsed.title === 'string' && parsed.title.trim()) title = parsed.title.trim()
     } catch {
       polished = []
     }
@@ -87,12 +92,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 件数が一致しない/失敗した場合は原文をそのまま返す（安全側フォールバック）
     if (polished.length !== segments.length) {
       return NextResponse.json({
-        segments: segments.map((s) => ({ speaker: s.speaker, text: s.text }))
+        segments: segments.map((s) => ({ speaker: s.speaker, text: s.text })),
+        title
       })
     }
 
     return NextResponse.json({
-      segments: segments.map((s, i) => ({ speaker: s.speaker, text: polished[i]?.trim() || s.text }))
+      segments: segments.map((s, i) => ({ speaker: s.speaker, text: polished[i]?.trim() || s.text })),
+      title
     })
   } catch {
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
