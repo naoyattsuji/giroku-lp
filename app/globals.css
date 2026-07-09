@@ -1,19 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #ffffff;
-  --surface: #f7f7f7;
-  --border: #e8e8e8;
-  --text-1: #0a0a0a;
-  --text-2: #666666;
-  --text-3: #aaaaaa;
+  /* アプリ本体（Apple ボイスメモ風）と統一したパレット */
+  --bg: #f4f4f6;
+  --surface: #ffffff;
+  --surface-2: #ececef;
+  --border: #e2e2e6;
+  --text-1: #1c1c1e;
+  --text-2: #6e6e73;
+  --text-3: #a1a1a6;
   --red: #e8192c;
+  --mic: #0a84ff;
+  --ok: #1a9d4b;
+  --radius-lg: 22px;
+  --radius: 16px;
+  --radius-sm: 11px;
 }
 
 body {
   background: var(--bg);
   color: var(--text-1);
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Hiragino Sans', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -24,9 +31,10 @@ a { text-decoration: none; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(244, 244, 246, 0.78);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
 }
 
 .lp-inner {
@@ -38,6 +46,12 @@ a { text-decoration: none; color: inherit; }
   box-sizing: border-box;
 }
 
+.lp-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
+}
+
 .feature-row {
   display: grid;
   grid-template-columns: 96px 1fr 1fr;
@@ -46,27 +60,20 @@ a { text-decoration: none; color: inherit; }
 }
 
 .pillar-col {
-  border-left: 1px solid var(--border);
-}
-.pillar-col:first-child {
   border-left: none;
-  padding-left: 0 !important;
 }
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: 1fr 1px 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   max-width: 680px;
 }
 
 @media (max-width: 768px) {
-  .lp-inner { padding-left: 24px; padding-right: 24px; }
+  .lp-inner { padding-left: 22px; padding-right: 22px; }
   .feature-row { grid-template-columns: 1fr !important; gap: 14px !important; }
   .pricing-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
-  .pricing-divider { display: none !important; }
-  .pricing-col { padding-left: 0 !important; padding-right: 0 !important; }
   .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
   .cards-3 { grid-template-columns: 1fr !important; gap: 20px !important; }
-  .pillar-col { border-left: none !important; border-top: 1px solid var(--border); padding: 28px 0 !important; }
-  .pillar-col:first-child { border-top: none; padding-top: 4px !important; }
 }
