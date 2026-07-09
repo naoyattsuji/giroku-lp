@@ -12,45 +12,15 @@ import {
 } from "./components/Illustrations";
 
 const scenes = [
-  {
-    Illust: SceneOnline,
-    tag: "オンライン会議",
-    benefit: "オンライン会議を、そのまま記録。",
-    detail: "会議に何も追加しないので、いつも通りに話せます。",
-  },
-  {
-    Illust: SceneMeeting,
-    tag: "対面の打ち合わせ・1対1",
-    benefit: "パソコンを置くだけで記録。",
-    detail: "メモを取らなくても、あとで全部読み返せます。",
-  },
-  {
-    Illust: SceneLecture,
-    tag: "大学の講義・授業",
-    benefit: "講義を録って、あとで見返す。",
-    detail: "黒板と話に集中。聞き逃しがなくなります。",
-  },
+  { Illust: SceneOnline, tag: "オンライン会議", benefit: "そのまま記録。" },
+  { Illust: SceneMeeting, tag: "対面・1対1", benefit: "置くだけで記録。" },
+  { Illust: SceneLecture, tag: "講義・授業", benefit: "録って、見返す。" },
 ];
 
 const pillars = [
-  {
-    Icon: IconStealth,
-    no: "01",
-    title: "相手に気づかれない",
-    desc: "会議に何も追加しないから、録音していることが相手に伝わりません。",
-  },
-  {
-    Icon: IconBothVoices,
-    no: "02",
-    title: "自分の声も、相手の声も",
-    desc: "マイクの音も、パソコンが鳴らす通話や動画の音も。どちらもまとめて録れます。",
-  },
-  {
-    Icon: IconOffline,
-    no: "03",
-    title: "ネットがなくても使える",
-    desc: "あなたのパソコンの中だけで動くから、電波のない場所でも安心です。",
-  },
+  { Icon: IconStealth, no: "01", title: "相手に気づかれない", desc: "会議に何も足さない。" },
+  { Icon: IconBothVoices, no: "02", title: "自分も相手も録れる", desc: "マイクもパソコンの音も。" },
+  { Icon: IconOffline, no: "03", title: "ネットがなくても使える", desc: "パソコンの中だけで動く。" },
 ];
 
 const btnDark = {
@@ -141,15 +111,14 @@ export default function Home() {
           </h2>
         </div>
         <div className="lp-inner cards-3" style={{ paddingBottom: 88, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24 }}>
-          {scenes.map(({ Illust, tag, benefit, detail }) => (
+          {scenes.map(({ Illust, tag, benefit }) => (
             <div key={tag} style={{ border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              <div style={{ background: "var(--surface)", padding: "22px 22px 8px", borderBottom: "1px solid var(--border)" }}>
+              <div style={{ background: "var(--surface)", padding: "24px 24px 10px", borderBottom: "1px solid var(--border)" }}>
                 <Illust />
               </div>
-              <div style={{ padding: "20px 22px 24px" }}>
-                <p style={{ fontSize: 10, letterSpacing: "0.15em", color: "var(--red)", fontWeight: 700, marginBottom: 10 }}>{tag}</p>
-                <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.01em", marginBottom: 8 }}>{benefit}</p>
-                <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.7 }}>{detail}</p>
+              <div style={{ padding: "18px 22px 20px", display: "flex", alignItems: "baseline", gap: 10 }}>
+                <span style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontWeight: 700 }}>{tag}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>{benefit}</span>
               </div>
             </div>
           ))}
@@ -214,7 +183,7 @@ export default function Home() {
               Windows版 — 準備中
             </span>
           </div>
-          <p style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.7 }}>1か月あたり120分まで無料。はじめて使うときに、必要なデータ（約1.5GB）を自動でダウンロードします。</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.7 }}>1か月120分まで無料 · 登録不要</p>
         </div>
       </section>
 
