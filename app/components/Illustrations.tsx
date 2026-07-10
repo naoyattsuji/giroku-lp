@@ -8,6 +8,23 @@ const FAINT = "#cfcfcf";
 const SW = 2.2; // 統一ストローク幅
 
 /**
+ * Girokuのマスコット「ひそか」のロゴマーク。ナビ等、ブランドを示す場所に使う。
+ * app/src/renderer/src/views/Icons.tsx の IconSpirit と同じパス。
+ */
+export function LogoMark({ size = 22 }: { size?: number }): ReactElement {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
+      <path
+        d="M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z"
+        fill={RED}
+      />
+      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+    </svg>
+  );
+}
+
+/**
  * ヒーロー図：相手の声（スピーカー）＋ 自分の声（マイク）→ あなたのパソコン（録音中・ネット不要）
  *  → 録音 / 文字起こし / AI議事録。3つのコアコンピタンスが一目で伝わる図。
  */

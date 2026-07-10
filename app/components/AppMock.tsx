@@ -1,15 +1,17 @@
 // Giroku アプリ本体（Apple ボイスメモ風UI）を模したヒーロー用モック。
 // LPとアプリの世界観を視覚的につなぐための実物ライクな静的モックアップ。
+// 実際のアプリUI（サイドバー4項目・音源トグルはMeet/Zoom風の丸ボタン+メーター・
+// 話者タグは赤一色・オンライン状態は緑ドット）と同期させておくこと。
 import type { ReactElement } from "react";
 
 const INK = "#1c1c1e";
 const DIM = "#8e8e93";
 const RED = "#e8192c";
-const MIC = "#0a84ff";
+const OK = "#1a9d4b";
 
 function MicIcon(): ReactElement {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="9" y="3" width="6" height="11" rx="3" />
       <path d="M6 11a6 6 0 0 0 12 0" />
       <path d="M12 17v3M9 20h6" />
@@ -18,7 +20,7 @@ function MicIcon(): ReactElement {
 }
 function SpeakerIcon(): ReactElement {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 9v6h4l5 4V5L8 9H4z" />
       <path d="M17 9c1.5 1.2 1.5 4.8 0 6M19.5 6.5c3 2.4 3 8.6 0 11" />
     </svg>
@@ -41,6 +43,13 @@ function ListGlyph(): ReactElement {
     </svg>
   );
 }
+function TrashGlyph(): ReactElement {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+    </svg>
+  );
+}
 function GearGlyph(): ReactElement {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -50,20 +59,44 @@ function GearGlyph(): ReactElement {
   );
 }
 
-const check = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 6,
-  fontSize: 11.5,
-  fontWeight: 600,
-  padding: "5px 10px",
-  borderRadius: 999,
-  background: "#f0f0f2",
-  color: INK,
-  whiteSpace: "nowrap",
-} as const;
+function SourcePill({ Icon, label, level }: { Icon: () => ReactElement; label: string; level: number }): ReactElement {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          border: "1.3px solid #e2e2e6",
+          background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Icon />
+      </span>
+      <div>
+        <div style={{ fontSize: 9, fontWeight: 700, color: INK, marginBottom: 3 }}>{label}</div>
+        <div style={{ width: 44, height: 4, borderRadius: 999, background: "#ececef", overflow: "hidden" }}>
+          <div style={{ width: `${level}%`, height: "100%", background: RED }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-const bars = [8, 16, 10, 20, 13, 22, 9, 17, 12];
+const sidebarItem = {
+  width: 44,
+  height: 44,
+  borderRadius: 11,
+  display: "flex",
+  flexDirection: "column" as const,
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 3,
+};
 
 export function AppMock(): ReactElement {
   return (
@@ -96,7 +129,7 @@ export function AppMock(): ReactElement {
       </div>
 
       <div style={{ display: "flex", height: 300 }}>
-        {/* サイドバー */}
+        {/* サイドバー（録音・履歴・ゴミ箱・設定の4項目＋オンライン表示） */}
         <div
           style={{
             width: 66,
@@ -109,56 +142,45 @@ export function AppMock(): ReactElement {
             gap: 4,
           }}
         >
-          <div style={{ width: 44, height: 44, borderRadius: 11, background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+          <div style={{ ...sidebarItem, background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
             <RecordGlyph />
             <span style={{ fontSize: 8.5, fontWeight: 700, color: RED }}>録音</span>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: 11, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+          <div style={sidebarItem}>
             <ListGlyph />
             <span style={{ fontSize: 8.5, fontWeight: 600, color: DIM }}>履歴</span>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: 11, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+          <div style={sidebarItem}>
+            <TrashGlyph />
+            <span style={{ fontSize: 8.5, fontWeight: 600, color: DIM }}>ゴミ箱</span>
+          </div>
+          <div style={sidebarItem}>
             <GearGlyph />
             <span style={{ fontSize: 8.5, fontWeight: 600, color: DIM }}>設定</span>
           </div>
           <div style={{ flex: 1 }} />
-          <div style={{ marginBottom: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: MIC }} />
-            <span style={{ fontSize: 8, fontWeight: 700, color: INK }}>高精度</span>
+          <div style={{ marginBottom: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: OK }} />
+            <span style={{ fontSize: 7.5, fontWeight: 700, color: DIM }}>オンライン</span>
           </div>
         </div>
 
         {/* メイン：録音中の画面 */}
         <div style={{ flex: 1, padding: "18px 22px", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: 10, columnGap: 10, paddingBottom: 12, borderBottom: "1px solid #e2e2e6", marginBottom: 14 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 20 }}>
-              {bars.map((h, i) => (
-                <span
-                  key={i}
-                  style={{ width: 2.6, height: h, borderRadius: 2, background: RED, opacity: 0.55 + (i % 3) * 0.15 }}
-                />
-              ))}
-            </div>
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: 10, columnGap: 16, paddingBottom: 14, borderBottom: "1px solid #e2e2e6", marginBottom: 14 }}>
             <span style={{ fontSize: 19, fontWeight: 300, color: INK, fontVariantNumeric: "tabular-nums" }}>04:12</span>
-            <span style={{ flex: 1, minWidth: 0 }} />
-            <span style={{ display: "inline-flex", gap: 8, flexWrap: "wrap" }}>
-              <span style={check}>
-                <MicIcon /> マイク
-              </span>
-              <span style={check}>
-                <SpeakerIcon /> パソコンの音
-              </span>
-            </span>
+            <SourcePill Icon={MicIcon} label="マイク" level={62} />
+            <SourcePill Icon={SpeakerIcon} label="パソコンの音" level={38} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, overflow: "hidden" }}>
             {[
-              { who: "マイク", color: MIC, text: "次回の打ち合わせは来週の水曜でどうでしょう。" },
-              { who: "パソコンの音", color: RED, text: "了解です、10時からでお願いします。" },
-              { who: "マイク", color: MIC, text: "承知しました。議事録はあとでまとめて送ります。" },
+              { who: "マイク", text: "次回の打ち合わせは来週の水曜でどうでしょう。" },
+              { who: "パソコンの音", text: "了解です、10時からでお願いします。" },
+              { who: "マイク", text: "承知しました。議事録はあとでまとめて送ります。" },
             ].map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                <span style={{ width: 64, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: s.color, textAlign: "right" }}>
+                <span style={{ width: 64, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: RED, textAlign: "right" }}>
                   {s.who}
                 </span>
                 <span style={{ fontSize: 12.5, lineHeight: 1.6, color: INK }}>{s.text}</span>

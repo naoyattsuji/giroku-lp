@@ -8,6 +8,7 @@ import {
   IconStealth,
   IconBothVoices,
   IconOffline,
+  LogoMark,
 } from "./components/Illustrations";
 import { AppMock } from "./components/AppMock";
 
@@ -55,7 +56,10 @@ export default function Home() {
       {/* Nav */}
       <header className="nav-sticky">
         <div className="lp-inner" style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-1)" }}>Giroku</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+            <LogoMark size={22} />
+            <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-1)" }}>Giroku</span>
+          </span>
           <div style={{ display: "flex", gap: 26, alignItems: "center" }}>
             <a href="#scenes" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>使い方</a>
             <a href="#pricing" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>料金</a>
