@@ -76,3 +76,9 @@ a { text-decoration: none; color: inherit; }
   .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
   .cards-3 { grid-template-columns: 1fr !important; gap: 20px !important; }
 }
+
+/* 幅の狭いスマートフォンではナビの「使い方」「料金」が折り返るため、
+   ロゴとダウンロードボタンだけを残す（本文はスクロールすれば辿り着ける） */
+@media (max-width: 420px) {
+  .nav-secondary-link { display: none; }
+}
