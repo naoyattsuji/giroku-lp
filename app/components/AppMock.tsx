@@ -166,24 +166,22 @@ export function AppMock(): ReactElement {
         </div>
 
         {/* メイン：録音中の画面 */}
-        <div style={{ flex: 1, padding: "18px 22px", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, minWidth: 0, padding: "18px 22px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: 10, columnGap: 16, paddingBottom: 14, borderBottom: "1px solid #e2e2e6", marginBottom: 14 }}>
             <span style={{ fontSize: 19, fontWeight: 300, color: INK, fontVariantNumeric: "tabular-nums" }}>04:12</span>
             <SourcePill Icon={MicIcon} label="マイク" level={62} />
             <SourcePill Icon={SpeakerIcon} label="パソコンの音" level={38} />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, overflow: "hidden" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, overflow: "hidden", minWidth: 0 }}>
             {[
               { who: "マイク", text: "次回の打ち合わせは来週の水曜でどうでしょう。" },
               { who: "パソコンの音", text: "了解です、10時からでお願いします。" },
               { who: "マイク", text: "承知しました。議事録はあとでまとめて送ります。" },
             ].map((s, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                <span style={{ width: 64, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: RED, textAlign: "right" }}>
-                  {s.who}
-                </span>
-                <span style={{ fontSize: 12.5, lineHeight: 1.6, color: INK }}>{s.text}</span>
+              <div key={i} style={{ minWidth: 0 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: RED }}>{s.who}</span>
+                <p style={{ margin: "2px 0 0", fontSize: 12.5, lineHeight: 1.6, color: INK, wordBreak: "break-word" }}>{s.text}</p>
               </div>
             ))}
           </div>

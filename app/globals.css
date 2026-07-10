@@ -73,8 +73,14 @@ a { text-decoration: none; color: inherit; }
   .lp-inner { padding-left: 22px; padding-right: 22px; }
   .feature-row { grid-template-columns: 1fr !important; gap: 14px !important; }
   .pricing-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
-  .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
   .cards-3 { grid-template-columns: 1fr !important; gap: 20px !important; }
+}
+
+/* hero-gridだけ閾値を広く取る。769〜1024px幅は2カラムのままだと右側の
+   AppMockカラムが480pxの想定幅より大きく削られ、中の文字起こしが詰まって
+   崩れて見えるため、その手前で先に1カラムへ落とす */
+@media (max-width: 1024px) {
+  .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
 }
 
 /* 幅の狭いスマートフォンではナビの「使い方」「料金」が折り返るため、
