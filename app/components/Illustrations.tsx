@@ -1,6 +1,7 @@
+"use client";
 // Giroku LP 用の軽量ラインアート・イラスト集（モノ＋赤アクセント）。
 // 文字に頼らず直感的に伝えるための図解・アイコン。線幅・角丸を統一して清潔に。
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 
 const INK = "#0a0a0a";
 const RED = "#e8192c";
@@ -114,45 +115,121 @@ export function HeroDiagram(): ReactElement {
   );
 }
 
-// ---- 3つのコアコンピタンス用アイコン（大きめ・清潔） ----
+// ---- 3つのコアコンピタンス用ミニ図解（単一アイコンより情報量を持たせる） ----
 
-/** 1. 相手に気づかれない（通知が飛ばない） */
-export function IconStealth(): ReactElement {
+/** 1. 相手に気づかれない：通話グリッドに「通知が飛ばない」バッジを添える */
+export function DiagramStealth(): ReactElement {
   return (
-    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="28" cy="20" r="8" />
-      <path d="M13 44c0-9 7-14 15-14s15 5 15 14" />
-      <path d="M9 9l38 38" stroke={RED} strokeWidth="3" />
-    </svg>
-  );
-}
-
-/** 2. 自分の声も相手の声も（マイク＋スピーカー） */
-export function IconBothVoices(): ReactElement {
-  return (
-    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      {/* マイク */}
-      <rect x="12" y="12" width="11" height="18" rx="5.5" />
-      <path d="M8 27a9.5 9.5 0 0 0 19 0" /><path d="M17.5 36v6" /><path d="M12 42h11" />
-      {/* スピーカー */}
-      <g stroke={RED}>
-        <rect x="34" y="20" width="9" height="12" rx="2.5" />
-        <path d="M46 22c3.5 3 3.5 9 0 12" /><path d="M50 18c6 5 6 17 0 22" />
+    <svg viewBox="0 0 140 110" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="通話に何も追加されず、通知も飛ばない"
+      fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="6" y="8" width="94" height="68" rx="9" fill="#fff" stroke={FAINT} />
+      {[0, 1, 2, 3].map((i) => {
+        const gx = 16 + (i % 2) * 40;
+        const gy = 18 + Math.floor(i / 2) * 28;
+        return (
+          <g key={i} stroke={FAINT}>
+            <rect x={gx} y={gy} width="34" height="20" rx="3" />
+            <circle cx={gx + 17} cy={gy + 7} r="3.5" />
+            <path d={`M${gx + 10} ${gy + 17}a7 7 0 0 1 14 0`} />
+          </g>
+        );
+      })}
+      <g transform="translate(94,64)">
+        <circle cx="18" cy="18" r="18" fill="#fff" stroke={INK} strokeWidth="1.7" />
+        <path d="M18 9a6 6 0 0 1 6 6v4.5l2.4 3.2H9.6L12 19.5V15a6 6 0 0 1 6-6z" strokeWidth="1.5" />
+        <path d="M14.6 24.7a3.4 3.4 0 0 0 6.8 0" strokeWidth="1.5" />
+        <path d="M7 7l22 22" stroke={RED} strokeWidth="2.2" />
       </g>
     </svg>
   );
 }
 
-/** 3. ネットがなくても使える（オフライン） */
-export function IconOffline(): ReactElement {
+/** 2. 自分の声も相手の声も：マイクとパソコンの音、両方がひとつの録音に集まる */
+export function DiagramBothVoices(): ReactElement {
   return (
-    <svg viewBox="0 0 56 56" width="52" height="52" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 24a22 22 0 0 1 32 0" />
-      <path d="M19 32a12 12 0 0 1 18 0" />
-      <path d="M25.5 39.5a4 4 0 0 1 5 0" />
-      <circle cx="28" cy="45" r="1.6" fill={INK} stroke="none" />
-      <path d="M10 12l36 36" stroke={RED} strokeWidth="3" />
+    <svg viewBox="0 0 160 100" width="100%" style={{ maxWidth: 200 }} role="img" aria-label="マイクとパソコンの音、両方をひとつの録音にする"
+      fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* マイク（アプリ本体のIconMicと同じパス） */}
+      <g transform="translate(6,5) scale(0.9)">
+        <rect x="9" y="3" width="6" height="11" rx="3" />
+        <path d="M6 11a6 6 0 0 0 12 0" />
+        <path d="M12 17v3M9 20h6" />
+      </g>
+      <text x="16" y="46" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">マイク</text>
+
+      {/* パソコンの音（アプリ本体のIconSpeakerと同じパス） */}
+      <g stroke={RED} transform="translate(118,5) scale(0.9)">
+        <path d="M4 9v6h4l5 4V5L8 9H4z" />
+        <path d="M17 9c1.5 1.2 1.5 4.8 0 6M19.5 6.5c3 2.4 3 8.6 0 11" />
+      </g>
+      <text x="124" y="46" fontSize="9" textAnchor="middle" fill={RED} stroke="none" fontWeight="700">パソコンの音</text>
+
+      <path d="M26 22C50 22 54 42 66 46" stroke={INK} />
+      <path d="M130 22C106 22 102 42 90 46" stroke={RED} />
+
+      <g stroke={RED} strokeWidth="2.4" transform="translate(58,58)">
+        <path d="M2 20v-9" /><path d="M10 24v-16" /><path d="M18 20v-9" /><path d="M26 26v-21" /><path d="M34 20v-9" />
+      </g>
+      <text x="78" y="94" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700" opacity="0.6">ひとつの録音に</text>
     </svg>
+  );
+}
+
+/** 3. ネットがなくても使える：Wi-Fiが無くても録音中の画面はそのまま動く */
+export function DiagramOffline(): ReactElement {
+  return (
+    <svg viewBox="0 0 140 104" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="インターネットが無くても、パソコンの中で録音が続く"
+      fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 82l6-13h72l6 13z" fill="#fff" />
+      <rect x="28" y="18" width="84" height="50" rx="7" fill="#fff" stroke={FAINT} />
+      <circle cx="44" cy="34" r="4" fill={RED} stroke="none" />
+      <text x="80" y="38" fontSize="10" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">録音中</text>
+      <path d="M40 50h56" stroke={FAINT} />
+      <path d="M40 58h38" stroke={FAINT} />
+      <g transform="translate(92,66)">
+        <circle cx="18" cy="18" r="18" fill="#fff" stroke={INK} strokeWidth="1.7" />
+        <path d="M7 15a16 16 0 0 1 22 0" strokeWidth="1.5" />
+        <path d="M11.5 20.5a10 10 0 0 1 13 0" strokeWidth="1.5" />
+        <circle cx="18" cy="26" r="1.4" fill={INK} stroke="none" />
+        <path d="M6 6l24 24" stroke={RED} strokeWidth="2.2" />
+      </g>
+    </svg>
+  );
+}
+
+/** 場面写真：public/scenes/にユーザーが用意した写真があればそれをフルブリードで表示し、
+ * まだ無い場合（読み込みエラー時）は既存のライン画イラストに余白付きでフォールバックする
+ * （写真が届く前でも安全にデプロイできる）。 */
+export function SceneImage({ src, alt, fallback }: { src: string; alt: string; fallback: ReactElement }): ReactElement {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {!loaded && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 32, boxSizing: "border-box" }}>
+          {fallback}
+        </div>
+      )}
+      {!errored && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          onLoad={() => setLoaded(true)}
+          onError={() => setErrored(true)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: loaded ? 1 : 0,
+            transition: "opacity 0.4s ease",
+          }}
+        />
+      )}
+    </div>
   );
 }
 

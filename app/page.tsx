@@ -5,9 +5,10 @@ import {
   SceneOnline,
   SceneMeeting,
   SceneLecture,
-  IconStealth,
-  IconBothVoices,
-  IconOffline,
+  DiagramStealth,
+  DiagramBothVoices,
+  DiagramOffline,
+  SceneImage,
   LogoMark,
 } from "./components/Illustrations";
 import { AppMock } from "./components/AppMock";
@@ -16,18 +17,21 @@ import { Reveal } from "./components/Reveal";
 const scenes = [
   {
     Illust: SceneOnline,
+    photo: "/scenes/online-meeting.jpg",
     tag: "オンライン会議",
     benefit: "そのまま記録。",
     desc: "Zoom・Meet・Teams、いつもの画面のまま。参加者に何かを追加してもらう必要はありません。",
   },
   {
     Illust: SceneMeeting,
+    photo: "/scenes/in-person.jpg",
     tag: "対面・1対1",
     benefit: "置くだけで記録。",
     desc: "机の上にパソコンを置いておくだけ。自分の声も、向かいの相手の声も両方拾います。",
   },
   {
     Illust: SceneLecture,
+    photo: "/scenes/lecture.jpg",
     tag: "講義・授業",
     benefit: "録って、見返す。",
     desc: "聞き逃したところも、あとから文字で確認。板書を写す手も止めずに済みます。",
@@ -36,17 +40,17 @@ const scenes = [
 
 const pillars = [
   {
-    Icon: IconStealth,
+    Diagram: DiagramStealth,
     title: "相手に気づかれない",
     desc: "あなたのパソコンの中だけで録るので、相手に通知は出ません。",
   },
   {
-    Icon: IconBothVoices,
+    Diagram: DiagramBothVoices,
     title: "マイクもパソコンの音も",
     desc: "周りの声（マイク）と、通話・動画の音（パソコンの音）を両方録れます。",
   },
   {
-    Icon: IconOffline,
+    Diagram: DiagramOffline,
     title: "ネットがなくても使える",
     desc: "インターネットにつながっていなくても使えます。",
   },
@@ -143,20 +147,19 @@ export default function Home() {
           <div className="cards-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
             {pillars.map((p, i) => (
               <Reveal key={p.title} delay={i * 90}>
-                <div className="lp-card" style={{ padding: "30px 26px", height: "100%", boxSizing: "border-box" }}>
+                <div className="lp-card" style={{ padding: "24px 24px 28px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
                   <div
                     style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 14,
                       background: "var(--surface-2)",
+                      borderRadius: 12,
+                      padding: "18px 14px",
+                      marginBottom: 20,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      marginBottom: 22,
                     }}
                   >
-                    <p.Icon />
+                    <p.Diagram />
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.4, marginBottom: 10, color: "var(--text-1)" }}>
                     {p.title}
@@ -180,11 +183,11 @@ export default function Home() {
           </Reveal>
         </div>
         <div className="lp-inner" style={{ paddingBottom: 100, display: "flex", flexDirection: "column", gap: 88 }}>
-          {scenes.map(({ Illust, tag, benefit, desc }, i) => (
+          {scenes.map(({ Illust, photo, tag, benefit, desc }, i) => (
             <Reveal key={tag}>
               <div className="feature-row">
-                <div style={{ order: i % 2 === 0 ? 0 : 1, background: "var(--surface)", borderRadius: "var(--radius-lg)", padding: "36px 32px", boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.12)" }}>
-                  <Illust />
+                <div style={{ order: i % 2 === 0 ? 0 : 1, background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", aspectRatio: "4 / 3", boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.12)" }}>
+                  <SceneImage src={photo} alt={tag} fallback={<Illust />} />
                 </div>
                 <div style={{ order: i % 2 === 0 ? 1 : 0 }}>
                   <span style={{ fontSize: 13, color: "var(--red)", fontWeight: 700 }}>{tag}</span>
