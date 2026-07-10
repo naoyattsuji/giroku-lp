@@ -1,13 +1,82 @@
+"use client";
 // Giroku アプリ本体（Apple ボイスメモ風UI）を模したヒーロー用モック。
 // LPとアプリの世界観を視覚的につなぐための実物ライクな静的モックアップ。
 // 実際のアプリUI（サイドバー4項目・音源トグルはMeet/Zoom風の丸ボタン+メーター・
 // 話者タグは赤一色・オンライン状態は緑ドット）と同期させておくこと。
-import type { ReactElement } from "react";
+// 「話すだけで議事録になる」ことが一目で伝わるよう、文字起こしが実際に
+// 流れていくライブ演出を付ける（prefers-reduced-motionでは静止表示）。
+import { useEffect, useState, type ReactElement } from "react";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 const INK = "#1c1c1e";
 const DIM = "#8e8e93";
 const RED = "#e8192c";
 const OK = "#1a9d4b";
+
+const SCRIPT = [
+  { who: "マイク", text: "次回の打ち合わせは来週の水曜でどうでしょう。" },
+  { who: "パソコンの音", text: "了解です、10時からでお願いします。" },
+  { who: "マイク", text: "承知しました。議事録はあとでまとめて送ります。" },
+  { who: "パソコンの音", text: "ありがとうございます、助かります。" },
+  { who: "マイク", text: "それでは今日はここまでにしましょう。" },
+  { who: "パソコンの音", text: "お疲れ様でした。" },
+];
+
+function useLiveTranscript(): { who: string; text: string; done: boolean }[] {
+  const reducedMotion = usePrefersReducedMotion();
+  const [idx, setIdx] = useState(0);
+  const [typed, setTyped] = useState(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const line = SCRIPT[idx % SCRIPT.length];
+    const timer =
+      typed < line.text.length
+        ? setTimeout(() => setTyped((t) => t + 1), 45)
+        : setTimeout(() => {
+            setIdx((i) => i + 1);
+            setTyped(0);
+          }, 1100);
+    return () => clearTimeout(timer);
+  }, [reducedMotion, idx, typed]);
+
+  if (reducedMotion) {
+    return SCRIPT.slice(0, 3).map((s) => ({ ...s, done: true }));
+  }
+
+  const current = SCRIPT[idx % SCRIPT.length];
+  const lines: { who: string; text: string; done: boolean }[] = [];
+  for (let back = 2; back >= 1; back--) {
+    const i = idx - back;
+    if (i >= 0) {
+      const s = SCRIPT[i % SCRIPT.length];
+      lines.push({ who: s.who, text: s.text, done: true });
+    }
+  }
+  lines.push({ who: current.who, text: current.text.slice(0, typed), done: typed >= current.text.length });
+  return lines;
+}
+
+function useLiveMeters(): { time: string; micLevel: number; pcLevel: number } {
+  const reducedMotion = usePrefersReducedMotion();
+  const [seconds, setSeconds] = useState(4 * 60 + 12);
+  const [micLevel, setMicLevel] = useState(62);
+  const [pcLevel, setPcLevel] = useState(38);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const t = setInterval(() => {
+      setSeconds((s) => s + 1);
+      setMicLevel(30 + Math.round(Math.random() * 55));
+      setPcLevel(20 + Math.round(Math.random() * 50));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [reducedMotion]);
+
+  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const ss = String(seconds % 60).padStart(2, "0");
+  return { time: `${mm}:${ss}`, micLevel, pcLevel };
+}
 
 function MicIcon(): ReactElement {
   return (
@@ -80,7 +149,7 @@ function SourcePill({ Icon, label, level }: { Icon: () => ReactElement; label: s
       <div>
         <div style={{ fontSize: 9, fontWeight: 700, color: INK, marginBottom: 3 }}>{label}</div>
         <div style={{ width: 44, height: 4, borderRadius: 999, background: "#ececef", overflow: "hidden" }}>
-          <div style={{ width: `${level}%`, height: "100%", background: RED }} />
+          <div style={{ width: `${level}%`, height: "100%", background: RED, transition: "width 0.5s ease" }} />
         </div>
       </div>
     </div>
@@ -99,6 +168,9 @@ const sidebarItem = {
 };
 
 export function AppMock(): ReactElement {
+  const lines = useLiveTranscript();
+  const { time, micLevel, pcLevel } = useLiveMeters();
+
   return (
     <div
       style={{
@@ -160,7 +232,7 @@ export function AppMock(): ReactElement {
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ marginBottom: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: OK }} />
+            <span className="mock-online-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: OK }} />
             <span style={{ fontSize: 7.5, fontWeight: 700, color: DIM }}>オンライン</span>
           </div>
         </div>
@@ -168,20 +240,19 @@ export function AppMock(): ReactElement {
         {/* メイン：録音中の画面 */}
         <div style={{ flex: 1, minWidth: 0, padding: "18px 22px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: 10, columnGap: 16, paddingBottom: 14, borderBottom: "1px solid #e2e2e6", marginBottom: 14 }}>
-            <span style={{ fontSize: 19, fontWeight: 300, color: INK, fontVariantNumeric: "tabular-nums" }}>04:12</span>
-            <SourcePill Icon={MicIcon} label="マイク" level={62} />
-            <SourcePill Icon={SpeakerIcon} label="パソコンの音" level={38} />
+            <span style={{ fontSize: 19, fontWeight: 300, color: INK, fontVariantNumeric: "tabular-nums", minWidth: 46 }}>{time}</span>
+            <SourcePill Icon={MicIcon} label="マイク" level={micLevel} />
+            <SourcePill Icon={SpeakerIcon} label="パソコンの音" level={pcLevel} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, overflow: "hidden", minWidth: 0 }}>
-            {[
-              { who: "マイク", text: "次回の打ち合わせは来週の水曜でどうでしょう。" },
-              { who: "パソコンの音", text: "了解です、10時からでお願いします。" },
-              { who: "マイク", text: "承知しました。議事録はあとでまとめて送ります。" },
-            ].map((s, i) => (
+            {lines.map((s, i) => (
               <div key={i} style={{ minWidth: 0 }}>
                 <span style={{ fontSize: 10.5, fontWeight: 700, color: RED }}>{s.who}</span>
-                <p style={{ margin: "2px 0 0", fontSize: 12.5, lineHeight: 1.6, color: INK, wordBreak: "break-word" }}>{s.text}</p>
+                <p style={{ margin: "2px 0 0", fontSize: 12.5, lineHeight: 1.6, color: INK, wordBreak: "break-word" }}>
+                  {s.text}
+                  {!s.done && <span className="mock-cursor">|</span>}
+                </p>
               </div>
             ))}
           </div>

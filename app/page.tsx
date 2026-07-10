@@ -11,11 +11,27 @@ import {
   LogoMark,
 } from "./components/Illustrations";
 import { AppMock } from "./components/AppMock";
+import { Reveal } from "./components/Reveal";
 
 const scenes = [
-  { Illust: SceneOnline, tag: "オンライン会議", benefit: "そのまま記録。" },
-  { Illust: SceneMeeting, tag: "対面・1対1", benefit: "置くだけで記録。" },
-  { Illust: SceneLecture, tag: "講義・授業", benefit: "録って、見返す。" },
+  {
+    Illust: SceneOnline,
+    tag: "オンライン会議",
+    benefit: "そのまま記録。",
+    desc: "Zoom・Meet・Teams、いつもの画面のまま。参加者に何かを追加してもらう必要はありません。",
+  },
+  {
+    Illust: SceneMeeting,
+    tag: "対面・1対1",
+    benefit: "置くだけで記録。",
+    desc: "机の上にパソコンを置いておくだけ。自分の声も、向かいの相手の声も両方拾います。",
+  },
+  {
+    Illust: SceneLecture,
+    tag: "講義・授業",
+    benefit: "録って、見返す。",
+    desc: "聞き逃したところも、あとから文字で確認。板書を写す手も止めずに済みます。",
+  },
 ];
 
 const pillars = [
@@ -80,9 +96,14 @@ export default function Home() {
           style={{ paddingTop: 76, paddingBottom: 90, display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: 48, alignItems: "center" }}
         >
           <div>
-            <p style={{ display: "inline-flex", fontSize: 12, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 22, fontWeight: 700, background: "rgba(232,25,44,0.08)", padding: "5px 12px", borderRadius: 999 }}>
-              録音 · 文字起こし · AI議事録
-            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+              <span className="hero-spirit">
+                <LogoMark size={34} />
+              </span>
+              <p style={{ display: "inline-flex", fontSize: 12, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, background: "rgba(232,25,44,0.08)", padding: "5px 12px", borderRadius: 999 }}>
+                録音 · 文字起こし · AI議事録
+              </p>
+            </div>
             <h1 style={{ fontSize: "clamp(32px, 3.6vw, 44px)", fontWeight: 800, lineHeight: 1.28, letterSpacing: "-0.03em", marginBottom: 22, color: "var(--text-1)" }}>
               相手に気づかれず、<br />会話をまるごと記録。
             </h1>
@@ -102,41 +123,47 @@ export default function Home() {
             </div>
             <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要ですぐ使える</p>
           </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <AppMock />
-          </div>
+          <Reveal delay={120}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <AppMock />
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* 3つのコアコンピタンス */}
       <section style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
-          <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
-          <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
-            他にはない、3つの理由。
-          </h2>
+          <Reveal>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
+            <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
+              他にはない、3つの理由。
+            </h2>
+          </Reveal>
           <div className="cards-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
-            {pillars.map((p) => (
-              <div key={p.title} className="lp-card" style={{ padding: "30px 26px" }}>
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 14,
-                    background: "var(--surface-2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 22,
-                  }}
-                >
-                  <p.Icon />
+            {pillars.map((p, i) => (
+              <Reveal key={p.title} delay={i * 90}>
+                <div className="lp-card" style={{ padding: "30px 26px", height: "100%", boxSizing: "border-box" }}>
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 14,
+                      background: "var(--surface-2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 22,
+                    }}
+                  >
+                    <p.Icon />
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.4, marginBottom: 10, color: "var(--text-1)" }}>
+                    {p.title}
+                  </h3>
+                  <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>{p.desc}</p>
                 </div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.4, marginBottom: 10, color: "var(--text-1)" }}>
-                  {p.title}
-                </h3>
-                <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>{p.desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -144,23 +171,30 @@ export default function Home() {
 
       {/* Scenes */}
       <section id="scenes" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 36 }}>
-          <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
-          <h2 style={{ fontSize: "clamp(26px, 3.4vw, 38px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, maxWidth: 620, color: "var(--text-1)" }}>
-            話すだけで、そのまま議事録になる。
-          </h2>
+        <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 56 }}>
+          <Reveal>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.4vw, 38px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, maxWidth: 620, color: "var(--text-1)" }}>
+              話すだけで、そのまま議事録になる。
+            </h2>
+          </Reveal>
         </div>
-        <div className="lp-inner cards-3" style={{ paddingBottom: 92, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
-          {scenes.map(({ Illust, tag, benefit }) => (
-            <div key={tag} className="lp-card" style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              <div style={{ background: "var(--surface-2)", padding: "26px 24px 12px" }}>
-                <Illust />
+        <div className="lp-inner" style={{ paddingBottom: 100, display: "flex", flexDirection: "column", gap: 88 }}>
+          {scenes.map(({ Illust, tag, benefit, desc }, i) => (
+            <Reveal key={tag}>
+              <div className="feature-row">
+                <div style={{ order: i % 2 === 0 ? 0 : 1, background: "var(--surface)", borderRadius: "var(--radius-lg)", padding: "36px 32px", boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.12)" }}>
+                  <Illust />
+                </div>
+                <div style={{ order: i % 2 === 0 ? 1 : 0 }}>
+                  <span style={{ fontSize: 13, color: "var(--red)", fontWeight: 700 }}>{tag}</span>
+                  <h3 style={{ fontSize: "clamp(22px, 2.6vw, 28px)", fontWeight: 800, letterSpacing: "-0.02em", margin: "8px 0 14px", color: "var(--text-1)" }}>
+                    {benefit}
+                  </h3>
+                  <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 420 }}>{desc}</p>
+                </div>
               </div>
-              <div style={{ padding: "18px 22px 22px", display: "flex", alignItems: "baseline", gap: 10 }}>
-                <span style={{ fontSize: 12, color: "var(--red)", fontWeight: 700 }}>{tag}</span>
-                <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text-1)" }}>{benefit}</span>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -168,7 +202,10 @@ export default function Home() {
       {/* Pricing */}
       <section id="pricing" style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 92 }}>
-          <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 44, fontWeight: 700 }}>料金</p>
+          <Reveal>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 44, fontWeight: 700 }}>料金</p>
+          </Reveal>
+          <Reveal delay={80}>
           <div className="pricing-grid">
             <div className="lp-card" style={{ padding: "34px 32px" }}>
               <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18, fontWeight: 700 }}>無料</p>
@@ -203,29 +240,35 @@ export default function Home() {
               </a>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Download */}
       <section id="download" style={{ background: "var(--bg)" }}>
         <div className="lp-inner" style={{ paddingTop: 92, paddingBottom: 92, textAlign: "center" }}>
-          <h2 style={{ fontSize: "clamp(28px, 4.4vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
-            今すぐ始める
-          </h2>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18, justifyContent: "center" }}>
-            <a
-              href="https://github.com/naoyattsuji/giroku-releases/releases/latest"
-              style={btnDark}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-            >
-              macOS 用ダウンロード
-            </a>
-            <span style={{ display: "inline-flex", alignItems: "center", padding: "14px 30px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
-              Windows版 — 準備中
+          <Reveal>
+            <span className="hero-spirit" style={{ display: "inline-flex", marginBottom: 18 }}>
+              <LogoMark size={40} />
             </span>
-          </div>
-          <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要</p>
+            <h2 style={{ fontSize: "clamp(28px, 4.4vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
+              今すぐ始める
+            </h2>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18, justifyContent: "center" }}>
+              <a
+                href="https://github.com/naoyattsuji/giroku-releases/releases/latest"
+                style={btnDark}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
+              >
+                macOS 用ダウンロード
+              </a>
+              <span style={{ display: "inline-flex", alignItems: "center", padding: "14px 30px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+                Windows版 — 準備中
+              </span>
+            </div>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要</p>
+          </Reveal>
         </div>
       </section>
 
