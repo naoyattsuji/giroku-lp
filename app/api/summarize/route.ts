@@ -83,6 +83,73 @@ Notes:
 - Do not output which format (A/B) you chose or any explanation — output only the chosen format's body
 - Write the output in English`
 
+type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
+
+const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
+## 概要
+（1〜2文で会議全体の要点）
+## 決定事項
+- （箇条書き。なければ「特になし」）
+## ToDo / ネクストアクション
+- （担当が分かれば「担当: 」を付記。なければ「特になし」）
+## 議論の要点
+- （重要な論点を箇条書き）
+注意:
+- 文字起こしに無い情報を創作しないこと
+- 話者は [マイク] / [パソコンの音] で示されています
+- 出力言語: {LANG}`
+
+const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
+## 概要
+（1〜2文でこの回の要点）
+## 重要ポイント
+- （内容の要点を箇条書き）
+## 復習・確認しておくこと
+- （聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+注意:
+- 文字起こしに無い情報を創作しないこと
+- 話者は [マイク] / [パソコンの音] で示されています
+- 出力言語: {LANG}`
+
+const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
+## 概要
+（1〜2文で今回の1on1の要点）
+## 現状・共有された内容
+- （近況や進捗など共有された内容の箇条書き）
+## 課題・気になっていること
+- （本人が挙げた悩みや課題。なければ「特になし」）
+## 次のアクション
+- （担当（本人/上長など）が分かれば付記。なければ「特になし」）
+## フィードバック・気づき
+- （伝えられたフィードバックや気づき。なければ「特になし」）
+注意:
+- 文字起こしに無い情報を創作しないこと
+- 話者は [マイク] / [パソコンの音] で示されています
+- 出力言語: {LANG}`
+
+const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
+## 概要
+（対象者・ポジションなど分かる範囲で1〜2文）
+## 経歴・スキルの要点
+- （語られた経歴・経験・スキルの箇条書き）
+## 質疑応答のポイント
+- （やり取りの中で重要だった質問と回答）
+## 懸念点・確認したいこと
+- （気になった点や追加で確認すべきこと。なければ「特になし」）
+## 総合所感
+（面接官の視点でのメモ。決めつけず事実ベースで簡潔に）
+注意:
+- 文字起こしに無い情報を創作しないこと。評価や合否の断定はしないこと
+- 話者は [マイク] / [パソコンの音] で示されています
+- 出力言語: {LANG}`
+
+const TEMPLATE_PROMPTS_JA: Record<Exclude<SummaryTemplate, 'auto'>, string> = {
+  meeting: MEETING_PROMPT_JA,
+  lecture: LECTURE_PROMPT_JA,
+  oneOnOne: ONE_ON_ONE_PROMPT_JA,
+  interview: INTERVIEW_PROMPT_JA
+}
+
 function formatTranscript(segments: TranscriptSegment[]): string {
   return segments
     .map((s) => `[${s.speaker === 'self' ? 'マイク' : 'パソコンの音'}] ${s.text}`)
@@ -95,7 +162,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
   }
 
-  let body: { licenseKey?: string; segments?: TranscriptSegment[]; lang?: 'ja' | 'en' | 'auto' }
+  let body: {
+    licenseKey?: string
+    segments?: TranscriptSegment[]
+    lang?: 'ja' | 'en' | 'auto'
+    template?: SummaryTemplate
+  }
   try {
     body = await req.json()
   } catch {
@@ -112,10 +184,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
   }
 
+  const template = body.template ?? 'auto'
+  const langLabel =
+    body.lang === 'en' ? 'English' : body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語'
   const prompt =
-    body.lang === 'en'
-      ? SUMMARY_PROMPT_EN
-      : SUMMARY_PROMPT_JA.replace('{LANG}', body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語')
+    template === 'auto'
+      ? body.lang === 'en'
+        ? SUMMARY_PROMPT_EN
+        : SUMMARY_PROMPT_JA.replace('{LANG}', langLabel)
+      : TEMPLATE_PROMPTS_JA[template].replace('{LANG}', langLabel)
 
   try {
     const res = await fetchWithRetry(
