@@ -76,8 +76,9 @@ export default function Home() {
       {/* Nav */}
       <header className="nav-sticky">
         <div className="lp-inner" style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-            <LogoMark size={22} />
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/app-icon.png" alt="" width={26} height={26} style={{ display: "block" }} />
             <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-1)" }}>Giroku</span>
           </span>
           <div style={{ display: "flex", gap: 26, alignItems: "center" }}>
