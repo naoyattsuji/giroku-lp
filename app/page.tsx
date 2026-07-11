@@ -36,12 +36,10 @@ const scenes = [
   },
 ];
 
-type CompareCell = { text: string } | { cross: true };
-
-const compareRows: { label: string; zoom: CompareCell; other: CompareCell }[] = [
-  { label: "相手に気づかれない", zoom: { text: "録画中と表示される" }, other: { text: "Botが会議に参加" } },
-  { label: "マイクもスマホ・パソコンの音も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
-  { label: "ネットがなくても使える", zoom: { cross: true }, other: { cross: true } },
+const reasons = [
+  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。" },
+  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。" },
+  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。" },
 ];
 
 function CheckIcon(): ReactElement {
@@ -58,13 +56,6 @@ function CrossIcon(): ReactElement {
       <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
-}
-
-function CompareCellContent({ cell }: { cell: CompareCell }): ReactElement {
-  if ("cross" in cell) {
-    return <CrossIcon />;
-  }
-  return <span style={{ fontSize: 12.5, color: "var(--text-3)" }}>{cell.text}</span>;
 }
 
 const btnDark = {
@@ -147,42 +138,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 他の方法との比較 */}
+      {/* Girokuだけの3つ */}
       <section style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 14, color: "var(--text-1)" }}>
-              他の方法だと、<br className="br-narrow" />ここで詰まる。
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12, textAlign: "center" }}>Girokuだけの3つ</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", textAlign: "center" }}>
+              他にはない、3つの理由。
             </h2>
-            <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 480, marginBottom: 36 }}>
-              Zoom・Meetの録音機能や他の文字起こしアプリと並べると、Girokuだけができることがはっきりします。
-            </p>
           </Reveal>
-          <Reveal delay={80}>
-            <div className="lp-card compare-table-wrap">
-              <table className="compare-table">
-                <thead>
-                  <tr>
-                    <th scope="col" className="compare-corner"></th>
-                    <th scope="col" className="compare-th-giroku">Giroku</th>
-                    <th scope="col">Zoom・Meetの<br />標準録音</th>
-                    <th scope="col">他の文字起こし<br />アプリ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {compareRows.map((row) => (
-                    <tr key={row.label}>
-                      <th scope="row" className="compare-row-label">{row.label}</th>
-                      <td className="compare-cell-giroku"><CheckIcon /></td>
-                      <td><CompareCellContent cell={row.zoom} /></td>
-                      <td><CompareCellContent cell={row.other} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
+          <div>
+            {reasons.map((r, i) => (
+              <Reveal key={r.title} delay={i * 80}>
+                <div style={{ padding: "36px 0", textAlign: "center", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+                  <h3 style={{ fontSize: "clamp(22px, 2.6vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 10, lineHeight: 1.3 }}>
+                    {r.title}
+                  </h3>
+                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 420, margin: "0 auto" }}>
+                    {r.desc}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 

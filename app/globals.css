@@ -58,61 +58,6 @@ h1, h2, h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
 }
 
-/* 他の方法との比較表。「他にはない」を実際に見比べて確かめてもらうための表で、
-   狭い画面では潰さず横スクロールさせる（テキストが読めなくなるより、
-   スクロールできる方がまだわかりやすい） */
-.compare-table-wrap {
-  overflow-x: auto;
-  padding: 4px;
-}
-.compare-table {
-  width: 100%;
-  min-width: 520px;
-  border-collapse: collapse;
-}
-.compare-table th, .compare-table td {
-  padding: 16px 16px;
-  text-align: center;
-  vertical-align: middle;
-  text-wrap: balance;
-}
-.compare-table thead th {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-2);
-  line-height: 1.4;
-  min-width: 108px;
-  border-bottom: 1px solid var(--border);
-}
-.compare-table thead th.compare-th-giroku {
-  color: var(--red);
-}
-.compare-table .compare-corner {
-  min-width: 150px;
-}
-.compare-table .compare-row-label {
-  text-align: left;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-1);
-  white-space: nowrap;
-}
-.compare-table tbody tr:not(:last-child) th,
-.compare-table tbody tr:not(:last-child) td {
-  border-bottom: 1px solid var(--border);
-}
-.compare-table .compare-cell-giroku {
-  background: rgba(232, 25, 44, 0.05);
-}
-.compare-table thead th.compare-th-giroku,
-.compare-table td.compare-cell-giroku {
-  border-left: 1px solid rgba(232, 25, 44, 0.12);
-  border-right: 1px solid rgba(232, 25, 44, 0.12);
-}
-.compare-table svg {
-  display: inline-block;
-}
-
 /* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる） */
 .feature-row {
   display: grid;
