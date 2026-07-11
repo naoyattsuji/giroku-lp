@@ -218,6 +218,9 @@ export function SceneImage({ src, alt, fallback }: { src: string; alt: string; f
         <img
           src={src}
           alt={alt}
+          ref={(el) => {
+            if (el && el.complete && el.naturalWidth > 0) setLoaded(true);
+          }}
           onLoad={() => setLoaded(true)}
           onError={() => setErrored(true)}
           style={{
