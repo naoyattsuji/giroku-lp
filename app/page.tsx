@@ -142,19 +142,19 @@ export default function Home() {
       <section style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12, textAlign: "center" }}>Girokuだけの3つ</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", textAlign: "center" }}>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)" }}>
               他にはない、3つの理由。
             </h2>
           </Reveal>
           <div>
             {reasons.map((r, i) => (
               <Reveal key={r.title} delay={i * 80}>
-                <div style={{ padding: "36px 0", textAlign: "center", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <h3 style={{ fontSize: "clamp(22px, 2.6vw, 30px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 10, lineHeight: 1.3 }}>
+                <div style={{ padding: "32px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+                  <h3 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 8, lineHeight: 1.3 }}>
                     {r.title}
                   </h3>
-                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 420, margin: "0 auto" }}>
+                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 640 }}>
                     {r.desc}
                   </p>
                 </div>
