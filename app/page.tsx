@@ -124,7 +124,7 @@ export default function Home() {
               相手に<br className="br-narrow" />気づかれず、<br />会話をまるごと<br className="br-narrow" />記録。
             </h1>
             <p style={{ fontSize: 17, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 440, marginBottom: 34 }}>
-              マイク（周りの声）も、スマホ・パソコンの音（通話・動画）も。ネットがなくても、あなたのスマホ・パソコンだけで議事録に。
+              マイクも、スマホ・パソコンの音も。ネットがなくても、あなたの端末だけで議事録に。
             </p>
             <div style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
               <a
