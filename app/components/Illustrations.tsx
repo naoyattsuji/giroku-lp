@@ -120,12 +120,12 @@ export function HeroDiagram(): ReactElement {
 /** 1. 相手に気づかれない：通話グリッドに「通知が飛ばない」バッジを添える */
 export function DiagramStealth(): ReactElement {
   return (
-    <svg viewBox="0 0 140 110" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="通話に何も追加されず、通知も飛ばない"
+    <svg viewBox="0 0 150 118" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="通話に何も追加されず、通知も飛ばない"
       fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="6" y="8" width="94" height="68" rx="9" fill="#fff" stroke={FAINT} />
+      <rect x="8" y="10" width="94" height="68" rx="9" fill="#fff" stroke={FAINT} />
       {[0, 1, 2, 3].map((i) => {
-        const gx = 16 + (i % 2) * 40;
-        const gy = 18 + Math.floor(i / 2) * 28;
+        const gx = 18 + (i % 2) * 40;
+        const gy = 20 + Math.floor(i / 2) * 28;
         return (
           <g key={i} stroke={FAINT}>
             <rect x={gx} y={gy} width="34" height="20" rx="3" />
@@ -134,11 +134,11 @@ export function DiagramStealth(): ReactElement {
           </g>
         );
       })}
-      <g transform="translate(94,64)">
-        <circle cx="18" cy="18" r="18" fill="#fff" stroke={INK} strokeWidth="1.7" />
-        <path d="M18 9a6 6 0 0 1 6 6v4.5l2.4 3.2H9.6L12 19.5V15a6 6 0 0 1 6-6z" strokeWidth="1.5" />
-        <path d="M14.6 24.7a3.4 3.4 0 0 0 6.8 0" strokeWidth="1.5" />
-        <path d="M7 7l22 22" stroke={RED} strokeWidth="2.2" />
+      <g transform="translate(90,62)">
+        <circle cx="20" cy="20" r="20" fill="#fff" stroke={INK} strokeWidth="1.7" />
+        <path d="M20 10a6.5 6.5 0 0 1 6.5 6.5v5l2.6 3.5H10.9l2.6-3.5v-5A6.5 6.5 0 0 1 20 10z" strokeWidth="1.5" />
+        <path d="M16.3 27.5a3.7 3.7 0 0 0 7.4 0" strokeWidth="1.5" />
+        <path d="M8 8l24 24" stroke={RED} strokeWidth="2.2" />
       </g>
     </svg>
   );
@@ -147,30 +147,32 @@ export function DiagramStealth(): ReactElement {
 /** 2. 自分の声も相手の声も：マイクとパソコンの音、両方がひとつの録音に集まる */
 export function DiagramBothVoices(): ReactElement {
   return (
-    <svg viewBox="0 0 160 100" width="100%" style={{ maxWidth: 200 }} role="img" aria-label="マイクとパソコンの音、両方をひとつの録音にする"
+    <svg viewBox="0 0 160 116" width="100%" style={{ maxWidth: 200 }} role="img" aria-label="マイクとパソコンの音、両方をひとつの録音にする"
       fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       {/* マイク（アプリ本体のIconMicと同じパス） */}
-      <g transform="translate(6,5) scale(0.9)">
+      <g transform="translate(8,6) scale(0.9)">
         <rect x="9" y="3" width="6" height="11" rx="3" />
         <path d="M6 11a6 6 0 0 0 12 0" />
         <path d="M12 17v3M9 20h6" />
       </g>
-      <text x="16" y="46" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">マイク</text>
+      <text x="18" y="48" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">マイク</text>
 
       {/* パソコンの音（アプリ本体のIconSpeakerと同じパス） */}
-      <g stroke={RED} transform="translate(118,5) scale(0.9)">
+      <g stroke={RED} transform="translate(118,6) scale(0.9)">
         <path d="M4 9v6h4l5 4V5L8 9H4z" />
         <path d="M17 9c1.5 1.2 1.5 4.8 0 6M19.5 6.5c3 2.4 3 8.6 0 11" />
       </g>
-      <text x="124" y="46" fontSize="9" textAnchor="middle" fill={RED} stroke="none" fontWeight="700">パソコンの音</text>
+      <text x="124" y="48" fontSize="9" textAnchor="middle" fill={RED} stroke="none" fontWeight="700">パソコンの音</text>
 
-      <path d="M26 22C50 22 54 42 66 46" stroke={INK} />
-      <path d="M130 22C106 22 102 42 90 46" stroke={RED} />
+      {/* マイク・パソコンの音、それぞれから中央の録音バーへ届く直線 */}
+      <path d="M28 26L64 66" stroke={INK} />
+      <path d="M128 26L92 66" stroke={RED} />
 
-      <g stroke={RED} strokeWidth="2.4" transform="translate(58,58)">
-        <path d="M2 20v-9" /><path d="M10 24v-16" /><path d="M18 20v-9" /><path d="M26 26v-21" /><path d="M34 20v-9" />
+      {/* 中央：ひとつの録音バー（波形の頂点が接続線の終点と一致するよう配置） */}
+      <g stroke={RED} strokeWidth="2.4" transform="translate(60,66)">
+        <path d="M2 30v-13" /><path d="M11 34v-22" /><path d="M20 30v-13" /><path d="M29 37v-30" /><path d="M38 30v-13" />
       </g>
-      <text x="78" y="94" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700" opacity="0.6">ひとつの録音に</text>
+      <text x="80" y="110" fontSize="9" textAnchor="middle" fill={INK} stroke="none" fontWeight="700" opacity="0.6">ひとつの録音に</text>
     </svg>
   );
 }
@@ -178,20 +180,20 @@ export function DiagramBothVoices(): ReactElement {
 /** 3. ネットがなくても使える：Wi-Fiが無くても録音中の画面はそのまま動く */
 export function DiagramOffline(): ReactElement {
   return (
-    <svg viewBox="0 0 140 104" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="インターネットが無くても、パソコンの中で録音が続く"
+    <svg viewBox="0 0 150 112" width="100%" style={{ maxWidth: 190 }} role="img" aria-label="インターネットが無くても、パソコンの中で録音が続く"
       fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 82l6-13h72l6 13z" fill="#fff" />
-      <rect x="28" y="18" width="84" height="50" rx="7" fill="#fff" stroke={FAINT} />
-      <circle cx="44" cy="34" r="4" fill={RED} stroke="none" />
-      <text x="80" y="38" fontSize="10" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">録音中</text>
-      <path d="M40 50h56" stroke={FAINT} />
-      <path d="M40 58h38" stroke={FAINT} />
-      <g transform="translate(92,66)">
-        <circle cx="18" cy="18" r="18" fill="#fff" stroke={INK} strokeWidth="1.7" />
-        <path d="M7 15a16 16 0 0 1 22 0" strokeWidth="1.5" />
-        <path d="M11.5 20.5a10 10 0 0 1 13 0" strokeWidth="1.5" />
-        <circle cx="18" cy="26" r="1.4" fill={INK} stroke="none" />
-        <path d="M6 6l24 24" stroke={RED} strokeWidth="2.2" />
+      <path d="M22 86l6-13h72l6 13z" fill="#fff" />
+      <rect x="32" y="20" width="84" height="50" rx="7" fill="#fff" stroke={FAINT} />
+      <circle cx="48" cy="36" r="4" fill={RED} stroke="none" />
+      <text x="84" y="40" fontSize="10" textAnchor="middle" fill={INK} stroke="none" fontWeight="700">録音中</text>
+      <path d="M44 52h56" stroke={FAINT} />
+      <path d="M44 60h38" stroke={FAINT} />
+      <g transform="translate(88,62)">
+        <circle cx="20" cy="20" r="20" fill="#fff" stroke={INK} strokeWidth="1.7" />
+        <path d="M8 17a17.5 17.5 0 0 1 24 0" strokeWidth="1.5" />
+        <path d="M12.8 22.8a11 11 0 0 1 14.4 0" strokeWidth="1.5" />
+        <circle cx="20" cy="29" r="1.5" fill={INK} stroke="none" />
+        <path d="M7 7l26 26" stroke={RED} strokeWidth="2.2" />
       </g>
     </svg>
   );

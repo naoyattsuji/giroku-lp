@@ -41,17 +41,17 @@ const scenes = [
 const pillars = [
   {
     Diagram: DiagramStealth,
-    title: "相手に気づかれない",
+    titleLines: ["相手に気づかれない"],
     desc: "あなたのパソコンの中だけで録るので、相手に通知は出ません。",
   },
   {
     Diagram: DiagramBothVoices,
-    title: "マイクもパソコンの音も",
+    titleLines: ["マイクも", "パソコンの音も"],
     desc: "周りの声（マイク）と、通話・動画の音（パソコンの音）を両方録れます。",
   },
   {
     Diagram: DiagramOffline,
-    title: "ネットがなくても使える",
+    titleLines: ["ネットがなくても", "使える"],
     desc: "インターネットにつながっていなくても使えます。",
   },
 ];
@@ -146,7 +146,7 @@ export default function Home() {
           </Reveal>
           <div className="cards-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
             {pillars.map((p, i) => (
-              <Reveal key={p.title} delay={i * 90}>
+              <Reveal key={p.titleLines.join("")} delay={i * 90}>
                 <div className="lp-card" style={{ padding: "24px 24px 28px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
                   <div
                     style={{
@@ -162,7 +162,12 @@ export default function Home() {
                     <p.Diagram />
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.4, marginBottom: 10, color: "var(--text-1)" }}>
-                    {p.title}
+                    {p.titleLines.map((line, li) => (
+                      <span key={li}>
+                        {li > 0 && <br />}
+                        {line}
+                      </span>
+                    ))}
                   </h3>
                   <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>{p.desc}</p>
                 </div>
