@@ -40,7 +40,7 @@ type CompareCell = { text: string } | { cross: true };
 
 const compareRows: { label: string; zoom: CompareCell; other: CompareCell }[] = [
   { label: "相手に気づかれない", zoom: { text: "録画中と表示される" }, other: { text: "Botが会議に参加" } },
-  { label: "マイク（自分）もパソコンの音（相手）も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
+  { label: "マイク（周りの声）もパソコンの音（通話・動画）も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
   { label: "ネットがなくても使える", zoom: { cross: true }, other: { cross: true } },
 ];
 
@@ -124,7 +124,7 @@ export default function Home() {
               相手に<br className="br-narrow" />気づかれず、<br />会話をまるごと<br className="br-narrow" />記録。
             </h1>
             <p style={{ fontSize: 17, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 440, marginBottom: 34 }}>
-              マイク（自分の声）も、パソコンの音（相手の声）も。ネットがなくても、あなたのパソコンだけで議事録に。
+              マイク（周りの声）も、パソコンの音（通話・動画）も。ネットがなくても、あなたのパソコンだけで議事録に。
             </p>
             <div style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
               <a
