@@ -129,3 +129,12 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 420px) {
   .nav-secondary-link { display: none; }
 }
+
+/* 見出しは通常2行の手動改行だけで組んでいるが、400px以下の狭い画面では
+   その1行がさらにブラウザの自動折り返しで中途半端な位置（「〜づかれ／ず、」等）
+   に割れて不格好になる。あらかじめ意味の切れ目に予備の改行を仕込んでおき、
+   狭い画面でだけ有効化することで、どの幅でも不自然な改行が起きないようにする */
+.br-narrow { display: none; }
+@media (max-width: 400px) {
+  .br-narrow { display: inline; }
+}

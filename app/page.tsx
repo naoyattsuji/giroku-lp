@@ -110,7 +110,7 @@ export default function Home() {
               </p>
             </div>
             <h1 style={{ fontSize: "clamp(32px, 3.6vw, 44px)", fontWeight: 800, lineHeight: 1.28, letterSpacing: "-0.03em", marginBottom: 22, color: "var(--text-1)" }}>
-              相手に気づかれず、<br />会話をまるごと記録。
+              相手に<br className="br-narrow" />気づかれず、<br />会話をまるごと<br className="br-narrow" />記録。
             </h1>
             <p style={{ fontSize: 17, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 440, marginBottom: 34 }}>
               自分の声も、相手の声も。ネットがなくても、あなたのパソコンだけで議事録に。
@@ -142,7 +142,7 @@ export default function Home() {
           <Reveal>
             <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
             <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
-              他にはない、3つの理由。
+              他にはない、<br className="br-narrow" />3つの理由。
             </h2>
           </Reveal>
           <div className="cards-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
