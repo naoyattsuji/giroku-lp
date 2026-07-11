@@ -26,6 +26,13 @@ body {
 html { scroll-behavior: smooth; }
 a { text-decoration: none; color: inherit; }
 
+/* 見出しは幅に応じて自動折り返しされるが、素の折り返しだと「る。」のような
+   1文字だけの孤立行ができることがある。text-wrap: balanceで各行の長さを
+   均等化し、意味の切れ目とは無関係な不格好な改行を防ぐ */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
 .nav-sticky {
   position: sticky;
   top: 0;
@@ -49,6 +56,59 @@ a { text-decoration: none; color: inherit; }
   background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
+}
+
+/* 他の方法との比較表。「他にはない」を実際に見比べて確かめてもらうための表で、
+   狭い画面では潰さず横スクロールさせる（テキストが読めなくなるより、
+   スクロールできる方がまだわかりやすい） */
+.compare-table-wrap {
+  overflow-x: auto;
+  padding: 4px;
+}
+.compare-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+}
+.compare-table th, .compare-table td {
+  padding: 16px 16px;
+  text-align: center;
+  vertical-align: middle;
+}
+.compare-table thead th {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  line-height: 1.4;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table thead th.compare-th-giroku {
+  color: var(--red);
+}
+.compare-table .compare-corner {
+  min-width: 150px;
+}
+.compare-table .compare-row-label {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+.compare-table tbody tr:not(:last-child) th,
+.compare-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--border);
+}
+.compare-table .compare-cell-giroku {
+  background: rgba(232, 25, 44, 0.05);
+}
+.compare-table thead th.compare-th-giroku,
+.compare-table td.compare-cell-giroku {
+  border-left: 1px solid rgba(232, 25, 44, 0.12);
+  border-right: 1px solid rgba(232, 25, 44, 0.12);
+}
+.compare-table svg {
+  display: inline-block;
 }
 
 /* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる） */
@@ -109,7 +169,6 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 768px) {
   .lp-inner { padding-left: 22px; padding-right: 22px; }
   .pricing-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
-  .cards-3 { grid-template-columns: 1fr !important; gap: 20px !important; }
 }
 
 /* feature-rowもhero-gridと同じ理由（中間幅での圧迫）で閾値を広めに取る */

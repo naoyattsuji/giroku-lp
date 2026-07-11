@@ -1,13 +1,11 @@
 "use client";
 
+import type { ReactElement } from "react";
 import Link from "next/link";
 import {
   SceneOnline,
   SceneMeeting,
   SceneLecture,
-  DiagramStealth,
-  DiagramBothVoices,
-  DiagramOffline,
   SceneImage,
   LogoMark,
 } from "./components/Illustrations";
@@ -38,23 +36,36 @@ const scenes = [
   },
 ];
 
-const pillars = [
-  {
-    Diagram: DiagramStealth,
-    titleLines: ["相手に気づかれない"],
-    desc: "あなたのパソコンの中だけで録るので、相手に通知は出ません。",
-  },
-  {
-    Diagram: DiagramBothVoices,
-    titleLines: ["マイクも", "パソコンの音も"],
-    desc: "周りの声（マイク）と、通話・動画の音（パソコンの音）を両方録れます。",
-  },
-  {
-    Diagram: DiagramOffline,
-    titleLines: ["ネットがなくても", "使える"],
-    desc: "インターネットにつながっていなくても使えます。",
-  },
+type CompareCell = { text: string } | { cross: true };
+
+const compareRows: { label: string; zoom: CompareCell; other: CompareCell }[] = [
+  { label: "相手に気づかれない", zoom: { text: "録画中と表示される" }, other: { text: "Botが会議に参加" } },
+  { label: "自分の声も相手の声も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
+  { label: "ネットがなくても使える", zoom: { cross: true }, other: { cross: true } },
 ];
+
+function CheckIcon(): ReactElement {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M3.5 9.5l3.5 3.5 7.5-8" stroke="#1a9d4b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CrossIcon(): ReactElement {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CompareCellContent({ cell }: { cell: CompareCell }): ReactElement {
+  if ("cross" in cell) {
+    return <CrossIcon />;
+  }
+  return <span style={{ fontSize: 12.5, color: "var(--text-3)" }}>{cell.text}</span>;
+}
 
 const btnDark = {
   display: "inline-flex",
@@ -136,45 +147,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3つのコアコンピタンス */}
+      {/* 他の方法との比較 */}
       <section style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
           <Reveal>
             <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
-            <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
-              他にはない、<br className="br-narrow" />3つの理由。
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 14, color: "var(--text-1)" }}>
+              他の方法だと、<br className="br-narrow" />ここで詰まる。
             </h2>
+            <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.8, maxWidth: 480, marginBottom: 36 }}>
+              Zoom・Meetの録音機能や他の文字起こしアプリと並べると、Girokuだけができることがはっきりします。
+            </p>
           </Reveal>
-          <div className="cards-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
-            {pillars.map((p, i) => (
-              <Reveal key={p.titleLines.join("")} delay={i * 90}>
-                <div className="lp-card" style={{ padding: "24px 24px 28px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
-                  <div
-                    style={{
-                      background: "var(--surface-2)",
-                      borderRadius: 12,
-                      padding: "18px 14px",
-                      marginBottom: 20,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <p.Diagram />
-                  </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.4, marginBottom: 10, color: "var(--text-1)" }}>
-                    {p.titleLines.map((line, li) => (
-                      <span key={li}>
-                        {li > 0 && <br />}
-                        {line}
-                      </span>
-                    ))}
-                  </h3>
-                  <p style={{ fontSize: 14, color: "var(--text-2)", lineHeight: 1.7 }}>{p.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <Reveal delay={80}>
+            <div className="lp-card compare-table-wrap">
+              <table className="compare-table">
+                <thead>
+                  <tr>
+                    <th scope="col" className="compare-corner"></th>
+                    <th scope="col" className="compare-th-giroku">Giroku</th>
+                    <th scope="col">Zoom・Meetの<br />標準録音</th>
+                    <th scope="col">他の文字起こし<br />アプリ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {compareRows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="compare-row-label">{row.label}</th>
+                      <td className="compare-cell-giroku"><CheckIcon /></td>
+                      <td><CompareCellContent cell={row.zoom} /></td>
+                      <td><CompareCellContent cell={row.other} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -183,7 +191,7 @@ export default function Home() {
         <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 56 }}>
           <Reveal>
             <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.4vw, 38px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, maxWidth: 620, color: "var(--text-1)" }}>
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, maxWidth: 620, color: "var(--text-1)" }}>
               話すだけで、そのまま議事録になる。
             </h2>
           </Reveal>
@@ -212,31 +220,45 @@ export default function Home() {
       <section id="pricing" style={{ background: "var(--surface-2)" }}>
         <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 92 }}>
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 44, fontWeight: 700 }}>料金</p>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>料金</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
+              シンプルな2プラン。
+            </h2>
           </Reveal>
           <Reveal delay={80}>
           <div className="pricing-grid">
             <div className="lp-card" style={{ padding: "34px 32px" }}>
-              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18, fontWeight: 700 }}>無料</p>
-              <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 6, color: "var(--text-1)" }}>¥0</p>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1か月あたり120分まで</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 11, marginBottom: 32 }}>
+              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18, fontWeight: 700 }}>無料プラン</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
+                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥0</p>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>ずっと無料 · 1か月120分まで</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {["録音", "文字起こし", "だれの発言か自動で分ける", "記録の保存とコピー"].map((item) => (
-                  <p key={item} style={{ fontSize: 13.5, color: "var(--text-2)" }}>— {item}</p>
+                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.5 }}>
+                    <CheckIcon />{item}
+                  </p>
                 ))}
-                <p style={{ fontSize: 13.5, color: "var(--text-3)" }}>— AIで議事録を作成</p>
+                <p style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-3)", lineHeight: 1.5 }}>
+                  <CrossIcon />AIで議事録を作成（有料プランのみ）
+                </p>
               </div>
               <a href="#download" style={{ display: "block", padding: "13px 0", background: "var(--surface-2)", color: "var(--text-1)", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center" }}>
                 無料で始める
               </a>
             </div>
             <div className="lp-card" style={{ padding: "34px 32px", border: "2px solid var(--red)" }}>
-              <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 18, fontWeight: 700 }}>有料</p>
-              <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 6, color: "var(--text-1)" }}>¥980</p>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年間ずっと · 3台まで使える</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 11, marginBottom: 32 }}>
+              <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 18, fontWeight: 700 }}>有料プラン</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
+                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥980</p>
+                <p style={{ fontSize: 15, color: "var(--text-3)", fontWeight: 700 }}>/ 年</p>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>買い切り（1年間有効）· 3台まで使える</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {["録音（時間の制限なし）", "文字起こし（時間の制限なし）", "だれの発言か自動で分ける", "AIで議事録を作成"].map((item) => (
-                  <p key={item} style={{ fontSize: 13.5, color: "var(--text-1)" }}>— {item}</p>
+                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.5 }}>
+                    <CheckIcon />{item}
+                  </p>
                 ))}
               </div>
               <a
@@ -260,7 +282,7 @@ export default function Home() {
             <span className="hero-spirit" style={{ display: "inline-flex", marginBottom: 18 }}>
               <LogoMark size={40} />
             </span>
-            <h2 style={{ fontSize: "clamp(28px, 4.4vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
+            <h2 style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
               今すぐ始める
             </h2>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18, justifyContent: "center" }}>
