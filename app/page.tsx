@@ -40,7 +40,7 @@ type CompareCell = { text: string } | { cross: true };
 
 const compareRows: { label: string; zoom: CompareCell; other: CompareCell }[] = [
   { label: "相手に気づかれない", zoom: { text: "録画中と表示される" }, other: { text: "Botが会議に参加" } },
-  { label: "マイク（周りの声）もパソコンの音（通話・動画）も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
+  { label: "マイクもパソコンの音も", zoom: { text: "別途設定が必要" }, other: { text: "片方だけの場合も" } },
   { label: "ネットがなくても使える", zoom: { cross: true }, other: { cross: true } },
 ];
 

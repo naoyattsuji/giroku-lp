@@ -74,12 +74,14 @@ h1, h2, h3 {
   padding: 16px 16px;
   text-align: center;
   vertical-align: middle;
+  text-wrap: balance;
 }
 .compare-table thead th {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-2);
   line-height: 1.4;
+  min-width: 108px;
   border-bottom: 1px solid var(--border);
 }
 .compare-table thead th.compare-th-giroku {
