@@ -58,11 +58,12 @@ function SpiritMicIcon(): ReactElement {
       <path d={SPIRIT_BODY} fill="#e8192c" />
       <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
       <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* 小さなマイクを持っている＝音を両方拾う */}
-      <g transform="translate(15.5,13.2)">
-        <rect x="0" y="0" width="3" height="5.2" rx="1.5" fill="#1c1c1e" />
-        <path d="M-1.1 3a4.1 4.1 0 0 0 5.2 0" stroke="#1c1c1e" strokeWidth="1.1" strokeLinecap="round" fill="none" />
-        <path d="M1.5 6.4v1.4" stroke="#1c1c1e" strokeWidth="1.1" strokeLinecap="round" />
+      {/* 小さなマイク（丸頭+スタンド）を持っている＝音を両方拾う。定番の
+          マイクのシルエットの方が小さいサイズでも一目でわかるため採用 */}
+      <g transform="translate(15,12.4)">
+        <circle cx="1.8" cy="1.8" r="2.9" fill="#1c1c1e" />
+        <path d="M1.8 4.8v3.2" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M-0.4 8h4.4" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
       </g>
     </svg>
   );

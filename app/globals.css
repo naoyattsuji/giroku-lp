@@ -91,33 +91,43 @@ h1, h2, h3 {
   .hero-spirit { animation: none; }
 }
 
-/* 「Girokuだけの3つ」のひそかアイコン。動きだけでも意味が伝わるように、
-   理由ごとに性質の異なるアニメーションを充てている：
-   気づかれない＝フッと消える、両方録れる＝生き生き脈打つ、
-   ネット不要＝何があっても浮かび続ける */
+/* 「Girokuだけの3つ」のひそかアイコン。3つとも見た瞬間に違いがわかる
+   よう、テンポも動き方も意図的にバラバラにしている：
+   気づかれない＝スッと消えてしばらく戻らない（長い不在）、
+   両方録れる＝左右に弾んでノリノリで音を拾う（速いグルーヴ）、
+   ネット不要＝何度弾かれても跳ね返って浮かび続ける（力強い連続ジャンプ） */
 .spirit-hook {
   display: inline-block;
 }
 .spirit-hook-stealth {
-  animation: spirit-flicker 2.8s ease-in-out infinite;
+  animation: spirit-vanish 3.6s ease-in-out infinite;
 }
-@keyframes spirit-flicker {
-  0%, 45%, 100% { opacity: 1; }
-  22% { opacity: 0.12; }
+@keyframes spirit-vanish {
+  0%, 26% { opacity: 1; transform: scale(1) translateY(0); }
+  38% { opacity: 0; transform: scale(0.25) translateY(16px); }
+  84% { opacity: 0; transform: scale(0.25) translateY(16px); }
+  94% { opacity: 1; transform: scale(1.15) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .spirit-hook-mic {
-  animation: spirit-pulse 1.4s ease-in-out infinite;
+  animation: spirit-groove 1s ease-in-out infinite;
 }
-@keyframes spirit-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+@keyframes spirit-groove {
+  0%, 100% { transform: rotate(0deg) scale(1, 1); }
+  20% { transform: rotate(-12deg) scale(1.1, 0.92); }
+  45% { transform: rotate(5deg) scale(0.94, 1.1); }
+  70% { transform: rotate(10deg) scale(1.08, 0.94); }
+  88% { transform: rotate(-5deg) scale(1, 1); }
 }
 .spirit-hook-offline {
-  animation: spirit-float 1.8s ease-in-out infinite;
+  animation: spirit-defy 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
-@keyframes spirit-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+@keyframes spirit-defy {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  18% { transform: translateY(-16px) rotate(-10deg); }
+  36% { transform: translateY(0) rotate(8deg); }
+  54% { transform: translateY(-9px) rotate(-5deg); }
+  72% { transform: translateY(0) rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .spirit-hook-stealth, .spirit-hook-mic, .spirit-hook-offline { animation: none; }
