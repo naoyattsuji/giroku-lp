@@ -42,7 +42,7 @@ const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.
 
 function SpiritStealthIcon(): ReactElement {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-stealth">
       <path d={SPIRIT_BODY} fill="#e8192c" />
       {/* サングラス＝気づかれずこっそり見ている */}
       <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
@@ -54,7 +54,7 @@ function SpiritStealthIcon(): ReactElement {
 
 function SpiritMicIcon(): ReactElement {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-mic">
       <path d={SPIRIT_BODY} fill="#e8192c" />
       <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
       <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
@@ -70,11 +70,11 @@ function SpiritMicIcon(): ReactElement {
 
 function SpiritOfflineIcon(): ReactElement {
   return (
-    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-offline">
       <path d={SPIRIT_BODY} fill="#e8192c" />
       <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
       <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* wifi-offバッジ＝ネットなしでも平気 */}
+      {/* wifi-offバッジ＝ネットなしでも平気（ひそかは止まらず浮遊し続ける） */}
       <g transform="translate(14.6,13.6)">
         <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
         <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
@@ -198,8 +198,8 @@ export default function Home() {
           <div>
             {reasons.map((r, i) => (
               <Reveal key={r.title} delay={i * 80}>
-                <div style={{ display: "flex", gap: 20, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(232,25,44,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+                  <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <r.Icon />
                   </div>
                   <div>

@@ -91,6 +91,38 @@ h1, h2, h3 {
   .hero-spirit { animation: none; }
 }
 
+/* 「Girokuだけの3つ」のひそかアイコン。動きだけでも意味が伝わるように、
+   理由ごとに性質の異なるアニメーションを充てている：
+   気づかれない＝フッと消える、両方録れる＝生き生き脈打つ、
+   ネット不要＝何があっても浮かび続ける */
+.spirit-hook {
+  display: inline-block;
+}
+.spirit-hook-stealth {
+  animation: spirit-flicker 2.8s ease-in-out infinite;
+}
+@keyframes spirit-flicker {
+  0%, 45%, 100% { opacity: 1; }
+  22% { opacity: 0.12; }
+}
+.spirit-hook-mic {
+  animation: spirit-pulse 1.4s ease-in-out infinite;
+}
+@keyframes spirit-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.spirit-hook-offline {
+  animation: spirit-float 1.8s ease-in-out infinite;
+}
+@keyframes spirit-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spirit-hook-stealth, .spirit-hook-mic, .spirit-hook-offline { animation: none; }
+}
+
 /* AppMockのライブ文字起こしのカーソル点滅 */
 .mock-cursor {
   display: inline-block;
