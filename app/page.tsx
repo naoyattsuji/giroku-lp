@@ -36,40 +36,58 @@ const scenes = [
   },
 ];
 
-function EyeOffIcon(): ReactElement {
+// マスコット「ひそか」の胴体（LogoMarkと同じパス）。3つの理由アイコンでは
+// 目・小道具だけを変え、体形は常に同じにして「ひそか」だと一目でわかるようにする。
+const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z";
+
+function SpiritStealthIcon(): ReactElement {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="12" r="3" stroke="#fff" strokeWidth="2" />
-      <path d="M3 3l18 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      {/* サングラス＝気づかれずこっそり見ている */}
+      <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
+      <rect x="13" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
+      <path d="M11 11.4h2" stroke="#1c1c1e" strokeWidth="1" strokeLinecap="round" />
     </svg>
   );
 }
 
-function MicHookIcon(): ReactElement {
+function SpiritMicIcon(): ReactElement {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#fff" strokeWidth="2" />
-      <path d="M5 11a7 7 0 0 0 14 0" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-      <path d="M12 18v3M8.5 21h7" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+      {/* 小さなマイクを持っている＝音を両方拾う */}
+      <g transform="translate(15.5,13.2)">
+        <rect x="0" y="0" width="3" height="5.2" rx="1.5" fill="#1c1c1e" />
+        <path d="M-1.1 3a4.1 4.1 0 0 0 5.2 0" stroke="#1c1c1e" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+        <path d="M1.5 6.4v1.4" stroke="#1c1c1e" strokeWidth="1.1" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
 
-function WifiOffIcon(): ReactElement {
+function SpiritOfflineIcon(): ReactElement {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M8.5 12.3a9 9 0 0 1 7 0M5.3 8.7a15 15 0 0 1 5.4-2.8M18.7 8.7a15 15 0 0 1 2.3 1.2M2.3 5.5a19 19 0 0 1 3.3-2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
-      <circle cx="12" cy="17.3" r="1.1" fill="#fff" stroke="none" />
-      <path d="M3 3l18 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+      {/* wifi-offバッジ＝ネットなしでも平気 */}
+      <g transform="translate(14.6,13.6)">
+        <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
+        <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
+        <path d="M-0.6 0.4l7.6 5.8" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
 
 const reasons = [
-  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: EyeOffIcon },
-  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: MicHookIcon },
-  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: WifiOffIcon },
+  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: SpiritStealthIcon },
+  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: SpiritMicIcon },
+  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
 ];
 
 function CheckIcon(): ReactElement {
@@ -181,7 +199,7 @@ export default function Home() {
             {reasons.map((r, i) => (
               <Reveal key={r.title} delay={i * 80}>
                 <div style={{ display: "flex", gap: 20, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--red)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(232,25,44,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <r.Icon />
                   </div>
                   <div>
