@@ -36,10 +36,40 @@ const scenes = [
   },
 ];
 
+function EyeOffIcon(): ReactElement {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="3" stroke="#fff" strokeWidth="2" />
+      <path d="M3 3l18 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MicHookIcon(): ReactElement {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="9" y="2" width="6" height="12" rx="3" stroke="#fff" strokeWidth="2" />
+      <path d="M5 11a7 7 0 0 0 14 0" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M12 18v3M8.5 21h7" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function WifiOffIcon(): ReactElement {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8.5 12.3a9 9 0 0 1 7 0M5.3 8.7a15 15 0 0 1 5.4-2.8M18.7 8.7a15 15 0 0 1 2.3 1.2M2.3 5.5a19 19 0 0 1 3.3-2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+      <circle cx="12" cy="17.3" r="1.1" fill="#fff" stroke="none" />
+      <path d="M3 3l18 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const reasons = [
-  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。" },
-  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。" },
-  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。" },
+  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: EyeOffIcon },
+  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: MicHookIcon },
+  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: WifiOffIcon },
 ];
 
 function CheckIcon(): ReactElement {
@@ -150,13 +180,18 @@ export default function Home() {
           <div>
             {reasons.map((r, i) => (
               <Reveal key={r.title} delay={i * 80}>
-                <div style={{ padding: "32px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <h3 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 8, lineHeight: 1.3 }}>
-                    {r.title}
-                  </h3>
-                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 640 }}>
-                    {r.desc}
-                  </p>
+                <div style={{ display: "flex", gap: 20, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--red)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <r.Icon />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 8, lineHeight: 1.3 }}>
+                      {r.title}
+                    </h3>
+                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 600 }}>
+                      {r.desc}
+                    </p>
+                  </div>
                 </div>
               </Reveal>
             ))}
