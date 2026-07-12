@@ -59,13 +59,13 @@ h1, h2, h3 {
 }
 
 /* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる）。
-   テキストは画像の高さに対して中央揃えにすると、行数が少ない分だけ
-   上下に余白が浮いて見えるため、画像の上端に揃える */
+   写真を主役にして3:2の比率で大きく見せ、見出しを大きく太くすることで
+   余白を「余った隙間」ではなく意図的な間として感じさせる */
 .feature-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: start;
+  grid-template-columns: 3fr 2fr;
+  gap: 64px;
+  align-items: center;
 }
 
 .pillar-col {

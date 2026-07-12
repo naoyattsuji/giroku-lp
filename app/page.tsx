@@ -220,27 +220,27 @@ export default function Home() {
 
       {/* Scenes */}
       <section id="scenes" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 48 }}>
+        <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 64 }}>
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, maxWidth: 620, color: "var(--text-1)" }}>
-              話すだけで、そのまま議事録になる。
+            <p style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", marginBottom: 14, fontWeight: 700 }}>こんな場面で</p>
+            <h2 style={{ fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
+              話すだけで、<br />そのまま議事録になる。
             </h2>
           </Reveal>
         </div>
-        <div className="lp-inner" style={{ paddingBottom: 80, display: "flex", flexDirection: "column", gap: 56 }}>
+        <div className="lp-inner" style={{ paddingBottom: 96, display: "flex", flexDirection: "column", gap: 88 }}>
           {scenes.map(({ Illust, photo, tag, benefit, desc }, i) => (
             <Reveal key={tag}>
               <div className="feature-row">
-                <div style={{ order: i % 2 === 0 ? 0 : 1, background: "var(--surface)", borderRadius: "var(--radius-lg)", overflow: "hidden", aspectRatio: "16 / 11", boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.12)" }}>
+                <div style={{ order: i % 2 === 0 ? 0 : 1, borderRadius: 28, overflow: "hidden", aspectRatio: "4 / 3" }}>
                   <SceneImage src={photo} alt={tag} fallback={<Illust />} />
                 </div>
-                <div style={{ order: i % 2 === 0 ? 1 : 0, paddingTop: 4 }}>
-                  <span style={{ fontSize: 13, color: "var(--red)", fontWeight: 700 }}>{tag}</span>
-                  <h3 style={{ fontSize: "clamp(22px, 2.6vw, 28px)", fontWeight: 800, letterSpacing: "-0.02em", margin: "8px 0 12px", color: "var(--text-1)" }}>
+                <div style={{ order: i % 2 === 0 ? 1 : 0 }}>
+                  <span style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", fontWeight: 700 }}>{tag}</span>
+                  <h3 style={{ fontSize: "clamp(26px, 3vw, 36px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "10px 0 14px", color: "var(--text-1)" }}>
                     {benefit}
                   </h3>
-                  <p style={{ fontSize: 15, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 420 }}>{desc}</p>
+                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 400 }}>{desc}</p>
                 </div>
               </div>
             </Reveal>
