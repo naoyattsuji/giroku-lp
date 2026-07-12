@@ -58,12 +58,14 @@ h1, h2, h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
 }
 
-/* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる） */
+/* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる）。
+   テキストは画像の高さに対して中央揃えにすると、行数が少ない分だけ
+   上下に余白が浮いて見えるため、画像の上端に揃える */
 .feature-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 52px;
-  align-items: center;
+  gap: 48px;
+  align-items: start;
 }
 
 .pillar-col {
