@@ -84,7 +84,6 @@ Notes:
 - Write the output in English`
 
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
-type SummaryAdjust = 'longer' | 'shorter'
 
 const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
 ## 概要
@@ -151,33 +150,51 @@ const TEMPLATE_PROMPTS_JA: Record<Exclude<SummaryTemplate, 'auto'>, string> = {
   interview: INTERVIEW_PROMPT_JA
 }
 
-// 「長く／短く」ボタン用：文字起こし全文をふまえて既存の議事録を書き直す。
-// 見出し構成は維持し、文字起こしに無い情報は追加しない。
-const ADJUST_LONGER_JA = `あなたは議事録編集アシスタントです。
-以下は会話の文字起こしと、そこから作成した議事録です。
-議事録の見出し構成（##以下の項目）はそのまま保ち、各項目の内容をより詳細に書き直してください。
-文字起こしにある具体的な発言・数字・固有名詞・やり取りの経緯を補い、簡潔すぎる箇所を掘り下げてください。
-文字起こしに無い情報を創作しないこと。出力は書き直した議事録本文のみ（前置きや説明は不要）。
+// AI議事録の下のチャット欄用：ユーザーの自由入力が「書き直し依頼」か「質問」かを
+// AI自身に判定させ、判定結果に応じて出力の種類を切り替える（1回の呼び出しで完結）。
+const CHAT_PROMPT_JA = `あなたは議事録編集・質問応答アシスタントです。
+以下は会話の文字起こしと、そこから作成した議事録、そしてユーザーからのメッセージです。
+
+まずユーザーのメッセージの意図を判定してください。
+- 議事録の書き直し・修正（例:「もっと詳しく」「短くして」「ToDoを増やして」）→ REVISE
+- 内容についての質問・コメント（例:「何時に終わった？」「誰が反対してた？」）→ ANSWER
+
+判定結果に応じて、次の形式で出力してください（1行目はREVISEかANSWERのどちらか、2行目は---のみ）。
+
+REVISEの場合:
+REVISE
+---
+（書き直した議事録の本文全体。見出し構成（## 項目）はできるだけ維持し、
+ユーザーの依頼に沿って内容を調整する。文字起こしに無い情報は創作しない）
+
+ANSWERの場合:
+ANSWER
+---
+（ユーザーへの回答を会話文で。文字起こし・議事録に基づいて答え、
+分からない場合は「文字起こしからは分かりません」のように正直に答える）
+
 出力言語: {LANG}`
 
-const ADJUST_SHORTER_JA = `あなたは議事録編集アシスタントです。
-以下は会話の文字起こしと、そこから作成した議事録です。
-議事録の見出し構成（##以下の項目）はそのまま保ち、各項目をより簡潔に書き直してください。
-重要度の低い詳細や重複を削り、要点だけがパッと伝わるようにしてください。
-出力は書き直した議事録本文のみ（前置きや説明は不要）。
-出力言語: {LANG}`
+const CHAT_PROMPT_EN = `You are a meeting notes editing and Q&A assistant.
+Below is a transcript, the meeting notes generated from it, and a message from the user.
 
-const ADJUST_LONGER_EN = `You are a meeting notes editing assistant.
-Below is a transcript and the meeting notes generated from it.
-Keep the same heading structure (## sections) but rewrite each section in more detail.
-Add specific statements, numbers, names, and context from the transcript where the current text is too brief.
-Do not invent information not in the transcript. Output only the rewritten notes body (no preamble).`
+First decide the user's intent:
+- A request to rewrite/revise the notes (e.g. "make it more detailed", "shorter please", "add more action items") → REVISE
+- A question or comment about the content (e.g. "when did it end?", "who disagreed?") → ANSWER
 
-const ADJUST_SHORTER_EN = `You are a meeting notes editing assistant.
-Below is a transcript and the meeting notes generated from it.
-Keep the same heading structure (## sections) but rewrite each section more concisely.
-Cut lower-importance details and redundancy so the key points come across quickly.
-Output only the rewritten notes body (no preamble).`
+Output in this exact format (line 1 is REVISE or ANSWER, line 2 is just ---):
+
+If REVISE:
+REVISE
+---
+(the full rewritten notes body. Keep the same heading structure (## sections) as much as
+possible, adjusting the content per the user's request. Do not invent information not in the transcript)
+
+If ANSWER:
+ANSWER
+---
+(a conversational answer to the user, grounded in the transcript/notes. If you don't know,
+say so honestly, e.g. "The transcript doesn't show that.")`
 
 function formatTranscript(segments: TranscriptSegment[]): string {
   return segments
@@ -196,7 +213,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
     template?: SummaryTemplate
-    adjust?: SummaryAdjust
+    instruction?: string
     previousSummary?: string
   }
   try {
@@ -217,23 +234,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const langLabel =
     body.lang === 'en' ? 'English' : body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語'
+  const isChat = Boolean(body.instruction && body.previousSummary)
 
-  let prompt: string
   let userContent: string
-  if (body.adjust && body.previousSummary) {
-    const isEn = body.lang === 'en'
-    prompt = isEn
-      ? body.adjust === 'longer'
-        ? ADJUST_LONGER_EN
-        : ADJUST_SHORTER_EN
-      : (body.adjust === 'longer' ? ADJUST_LONGER_JA : ADJUST_SHORTER_JA).replace(
-          '{LANG}',
-          langLabel
-        )
-    userContent = `${prompt}\n\n---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}`
+  if (isChat) {
+    const prompt =
+      body.lang === 'en' ? CHAT_PROMPT_EN : CHAT_PROMPT_JA.replace('{LANG}', langLabel)
+    userContent = `${prompt}\n\n---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}\n\n---ユーザーのメッセージ---\n${body.instruction}`
   } else {
     const template = body.template ?? 'auto'
-    prompt =
+    const prompt =
       template === 'auto'
         ? body.lang === 'en'
           ? SUMMARY_PROMPT_EN
@@ -262,6 +272,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
     if (!text) {
       return NextResponse.json({ error: '要約の生成に失敗しました（空の応答）' }, { status: 502 })
+    }
+
+    if (isChat) {
+      const match = text.match(/^(REVISE|ANSWER)\s*\n-{2,}\s*\n([\s\S]*)$/)
+      const type = match?.[1] === 'REVISE' ? 'revise' : 'answer'
+      const content = (match?.[2] ?? text).trim()
+      return NextResponse.json({ type, content })
     }
     return NextResponse.json({ summary: text })
   } catch {
