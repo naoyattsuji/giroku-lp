@@ -19,7 +19,7 @@ const scenes = [
     photo: "/scenes/online-meeting.jpg",
     tag: "オンライン会議",
     benefit: "そのまま記録。",
-    desc: "Zoom・Meet・Teams、いつもの画面のまま。参加者に何かを追加してもらう必要はありません。",
+    desc: "Zoom・Meet・Teams、画面はそのまま。気づかれないから、録音を断られる心配もありません。",
   },
   {
     Illust: SceneMeeting,
@@ -269,7 +269,7 @@ export default function Home() {
             </h2>
           </Reveal>
         </div>
-        <div style={{ paddingBottom: 96 }}>
+        <div className="lp-inner" style={{ paddingBottom: 96 }}>
           <Reveal>
             <SceneCarousel />
           </Reveal>
