@@ -58,14 +58,45 @@ h1, h2, h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
 }
 
-/* 利用シーンの非対称レイアウト（画像とテキストが交互に入れ替わる）。
-   写真を主役にして3:2の比率で大きく見せ、見出しを大きく太くすることで
-   余白を「余った隙間」ではなく意図的な間として感じさせる */
-.feature-row {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 64px;
-  align-items: center;
+/* 利用シーンの横スクロール・カルーセル。写真の下に見出しを白文字で
+   重ねるカード3枚を並べる。3枚とも収まる画面幅ではスクロールせず
+   自然なグリッドとして見え、収まらない幅（タブレット・スマホ）では
+   2枚目が少し覗くことでスワイプできると伝わる */
+.scene-carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 64px;
+}
+.scene-carousel::-webkit-scrollbar {
+  display: none;
+}
+.scene-card {
+  position: relative;
+  flex: 0 0 calc((100% - 32px) / 3);
+  aspect-ratio: 3 / 4;
+  border-radius: 24px;
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--surface-2);
+}
+.scene-card-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.62) 100%);
+  pointer-events: none;
+}
+.scene-card-text {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
 }
 
 .pillar-col {
@@ -155,11 +186,13 @@ h1, h2, h3 {
 @media (max-width: 768px) {
   .lp-inner { padding-left: 22px; padding-right: 22px; }
   .pricing-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
+  .scene-carousel { padding: 0 22px !important; }
 }
 
-/* feature-rowもhero-gridと同じ理由（中間幅での圧迫）で閾値を広めに取る */
+/* scene-cardも中間幅で3枚がぎゅうぎゅうに詰まるため、この幅から
+   1枚あたりの幅を広げて隣のカードが少し覗くスワイプ形に切り替える */
 @media (max-width: 900px) {
-  .feature-row { grid-template-columns: 1fr !important; gap: 28px !important; }
+  .scene-card { flex-basis: 78% !important; }
 }
 
 /* hero-gridだけ閾値を広く取る。769〜1024px幅は2カラムのままだと右側の

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import type { ReactElement } from "react";
 import Link from "next/link";
 import {
@@ -104,6 +105,46 @@ function CrossIcon(): ReactElement {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" />
     </svg>
+  );
+}
+
+// 「こんな場面で」の横スクロール・カルーセル。写真の下部に見出しを白文字で
+// 重ね、スクロール位置に応じてドットが追従する。3枚とも収まる画面幅では
+// スクロールせずそのまま並んで見える（自然にグリッドとしても機能する）。
+function SceneCarousel(): ReactElement {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const handleScroll = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const cardWidth = track.scrollWidth / scenes.length;
+    setActive(Math.round(track.scrollLeft / cardWidth));
+  };
+
+  return (
+    <div>
+      <div ref={trackRef} className="scene-carousel" onScroll={handleScroll}>
+        {scenes.map(({ Illust, photo, tag, benefit, desc }) => (
+          <div key={tag} className="scene-card">
+            <SceneImage src={photo} alt={tag} fallback={<Illust />} />
+            <div className="scene-card-scrim" />
+            <div className="scene-card-text">
+              <span style={{ fontSize: 12, letterSpacing: "0.03em", color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{tag}</span>
+              <h3 style={{ fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, margin: "6px 0 8px", color: "#fff" }}>
+                {benefit}
+              </h3>
+              <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20 }}>
+        {scenes.map((s, i) => (
+          <div key={s.tag} style={{ width: 6, height: 6, borderRadius: "50%", background: i === active ? "var(--text-1)" : "var(--border)", transition: "background 0.2s" }} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -220,7 +261,7 @@ export default function Home() {
 
       {/* Scenes */}
       <section id="scenes" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 64 }}>
+        <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 40 }}>
           <Reveal>
             <p style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", marginBottom: 14, fontWeight: 700 }}>こんな場面で</p>
             <h2 style={{ fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
@@ -228,23 +269,10 @@ export default function Home() {
             </h2>
           </Reveal>
         </div>
-        <div className="lp-inner" style={{ paddingBottom: 96, display: "flex", flexDirection: "column", gap: 88 }}>
-          {scenes.map(({ Illust, photo, tag, benefit, desc }, i) => (
-            <Reveal key={tag}>
-              <div className="feature-row">
-                <div style={{ order: i % 2 === 0 ? 0 : 1, borderRadius: 28, overflow: "hidden", aspectRatio: "4 / 3" }}>
-                  <SceneImage src={photo} alt={tag} fallback={<Illust />} />
-                </div>
-                <div style={{ order: i % 2 === 0 ? 1 : 0 }}>
-                  <span style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", fontWeight: 700 }}>{tag}</span>
-                  <h3 style={{ fontSize: "clamp(26px, 3vw, 36px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, margin: "10px 0 14px", color: "var(--text-1)" }}>
-                    {benefit}
-                  </h3>
-                  <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 400 }}>{desc}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+        <div style={{ paddingBottom: 96 }}>
+          <Reveal>
+            <SceneCarousel />
+          </Reveal>
         </div>
       </section>
 
