@@ -74,10 +74,12 @@ h1, h2, h3 {
 .scene-carousel::-webkit-scrollbar {
   display: none;
 }
+/* 元写真が横長(4:3)で人物が画面端まで広がっているため、縦長にトリミング
+   すると人物が見切れる。元の比率のまま使い、クロップを発生させない */
 .scene-card {
   position: relative;
   flex: 0 0 calc((100% - 32px) / 3);
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 3;
   border-radius: 24px;
   overflow: hidden;
   scroll-snap-align: start;
