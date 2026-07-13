@@ -170,8 +170,10 @@ REVISE
 ANSWERの場合:
 ANSWER
 ---
-（ユーザーへの回答を会話文で。文字起こし・議事録に基づいて答え、
-分からない場合は「文字起こしからは分かりません」のように正直に答える）
+（ユーザーへの回答。文字起こし・議事録に基づいて答え、分からない場合は
+「文字起こしからは分かりません」のように正直に答える。他のアプリに
+そのまま貼り付けても読みやすいよう、Markdown記法（箇条書き・太字など）
+を必要に応じて使って整形する）
 
 出力言語: {LANG}`
 
@@ -193,8 +195,9 @@ possible, adjusting the content per the user's request. Do not invent informatio
 If ANSWER:
 ANSWER
 ---
-(a conversational answer to the user, grounded in the transcript/notes. If you don't know,
-say so honestly, e.g. "The transcript doesn't show that.")`
+(an answer to the user, grounded in the transcript/notes. If you don't know, say so honestly,
+e.g. "The transcript doesn't show that." Use Markdown formatting (bullets, bold, etc.) where
+it helps readability, so the answer pastes cleanly into other apps.)`
 
 function formatTranscript(segments: TranscriptSegment[]): string {
   return segments
