@@ -84,6 +84,7 @@ Notes:
 - Write the output in English`
 
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
+type SummaryAdjust = 'longer' | 'shorter'
 
 const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
 ## 概要
@@ -150,6 +151,34 @@ const TEMPLATE_PROMPTS_JA: Record<Exclude<SummaryTemplate, 'auto'>, string> = {
   interview: INTERVIEW_PROMPT_JA
 }
 
+// 「長く／短く」ボタン用：文字起こし全文をふまえて既存の議事録を書き直す。
+// 見出し構成は維持し、文字起こしに無い情報は追加しない。
+const ADJUST_LONGER_JA = `あなたは議事録編集アシスタントです。
+以下は会話の文字起こしと、そこから作成した議事録です。
+議事録の見出し構成（##以下の項目）はそのまま保ち、各項目の内容をより詳細に書き直してください。
+文字起こしにある具体的な発言・数字・固有名詞・やり取りの経緯を補い、簡潔すぎる箇所を掘り下げてください。
+文字起こしに無い情報を創作しないこと。出力は書き直した議事録本文のみ（前置きや説明は不要）。
+出力言語: {LANG}`
+
+const ADJUST_SHORTER_JA = `あなたは議事録編集アシスタントです。
+以下は会話の文字起こしと、そこから作成した議事録です。
+議事録の見出し構成（##以下の項目）はそのまま保ち、各項目をより簡潔に書き直してください。
+重要度の低い詳細や重複を削り、要点だけがパッと伝わるようにしてください。
+出力は書き直した議事録本文のみ（前置きや説明は不要）。
+出力言語: {LANG}`
+
+const ADJUST_LONGER_EN = `You are a meeting notes editing assistant.
+Below is a transcript and the meeting notes generated from it.
+Keep the same heading structure (## sections) but rewrite each section in more detail.
+Add specific statements, numbers, names, and context from the transcript where the current text is too brief.
+Do not invent information not in the transcript. Output only the rewritten notes body (no preamble).`
+
+const ADJUST_SHORTER_EN = `You are a meeting notes editing assistant.
+Below is a transcript and the meeting notes generated from it.
+Keep the same heading structure (## sections) but rewrite each section more concisely.
+Cut lower-importance details and redundancy so the key points come across quickly.
+Output only the rewritten notes body (no preamble).`
+
 function formatTranscript(segments: TranscriptSegment[]): string {
   return segments
     .map((s) => `[${s.speaker === 'self' ? 'マイク' : 'パソコンの音'}] ${s.text}`)
@@ -167,6 +196,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
     template?: SummaryTemplate
+    adjust?: SummaryAdjust
+    previousSummary?: string
   }
   try {
     body = await req.json()
@@ -184,15 +215,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
   }
 
-  const template = body.template ?? 'auto'
   const langLabel =
     body.lang === 'en' ? 'English' : body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語'
-  const prompt =
-    template === 'auto'
-      ? body.lang === 'en'
-        ? SUMMARY_PROMPT_EN
-        : SUMMARY_PROMPT_JA.replace('{LANG}', langLabel)
-      : TEMPLATE_PROMPTS_JA[template].replace('{LANG}', langLabel)
+
+  let prompt: string
+  let userContent: string
+  if (body.adjust && body.previousSummary) {
+    const isEn = body.lang === 'en'
+    prompt = isEn
+      ? body.adjust === 'longer'
+        ? ADJUST_LONGER_EN
+        : ADJUST_SHORTER_EN
+      : (body.adjust === 'longer' ? ADJUST_LONGER_JA : ADJUST_SHORTER_JA).replace(
+          '{LANG}',
+          langLabel
+        )
+    userContent = `${prompt}\n\n---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}`
+  } else {
+    const template = body.template ?? 'auto'
+    prompt =
+      template === 'auto'
+        ? body.lang === 'en'
+          ? SUMMARY_PROMPT_EN
+          : SUMMARY_PROMPT_JA.replace('{LANG}', langLabel)
+        : TEMPLATE_PROMPTS_JA[template].replace('{LANG}', langLabel)
+    userContent = `${prompt}\n\n---\n\n${formatTranscript(segments)}`
+  }
 
   try {
     const res = await fetchWithRetry(
@@ -201,9 +249,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
-          contents: [
-            { role: 'user', parts: [{ text: `${prompt}\n\n---\n\n${formatTranscript(segments)}` }] }
-          ]
+          contents: [{ role: 'user', parts: [{ text: userContent }] }]
         })
       }
     )
