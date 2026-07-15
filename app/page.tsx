@@ -313,7 +313,7 @@ export default function Home() {
                 <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥980</p>
                 <p style={{ fontSize: 15, color: "var(--text-3)", fontWeight: 700 }}>/ 年</p>
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>買い切り（1年間有効）· 3台まで使える</p>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年分を一括購入（自動更新なし）· 3台まで使える</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {["録音（時間の制限なし）", "文字起こし（時間の制限なし）", "だれの発言か自動で分ける", "AIで議事録を作成"].map((item) => (
                   <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.5 }}>
@@ -346,14 +346,9 @@ export default function Home() {
               今すぐ始める
             </h2>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18, justifyContent: "center" }}>
-              <a
-                href="https://github.com/naoyattsuji/giroku-releases/releases/latest"
-                style={btnDark}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-              >
-                macOS 用ダウンロード
-              </a>
+              <span style={{ ...btnDark, opacity: 0.55, cursor: "not-allowed" }} aria-disabled="true">
+                macOS版 — 公開準備中
+              </span>
               <span style={{ display: "inline-flex", alignItems: "center", padding: "14px 30px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
                 Windows版 — 準備中
               </span>

@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isPaidLicense, fetchWithRetry } from '../../lib/license'
+import {
+  allowApiRequest,
+  allowLicenseRequest,
+  fetchWithRetry,
+  isPaidLicense,
+  requestBodyIsTooLarge,
+  validTranscriptSegments
+} from '../../lib/license'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -55,6 +62,12 @@ function digestForTitle(texts: string[]): string {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!allowApiRequest(req)) {
+    return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
+  }
+  if (requestBodyIsTooLarge(req)) {
+    return NextResponse.json({ error: '文字起こしが長すぎます' }, { status: 413 })
+  }
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
     return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
@@ -67,12 +80,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '不正なリクエストです' }, { status: 400 })
   }
 
+  if (
+    typeof body.licenseKey !== 'string' ||
+    body.licenseKey.trim().length === 0 ||
+    body.licenseKey.length > 256 ||
+    !Array.isArray(body.segments) ||
+    (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang))
+  ) {
+    return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
+  }
+
+  if (!allowLicenseRequest(body.licenseKey)) {
+    return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
+  }
+
   const paid = await isPaidLicense(body.licenseKey)
   if (!paid) {
     return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
   }
 
-  const segments = body.segments ?? []
+  const segments = body.segments
+  if (!validTranscriptSegments(segments)) {
+    return NextResponse.json({ error: '文字起こしの形式または長さが不正です' }, { status: 400 })
+  }
   if (segments.length === 0) {
     return NextResponse.json({ segments: [], title: null })
   }
@@ -85,24 +115,27 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // 並列に実行し、2回分のGemini待ち時間が直列に積み上がらないようにする。
   const titlePromise = (async (): Promise<string | null> => {
     try {
-    const res = await fetchWithRetry(GEMINI_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [
-          { role: 'user', parts: [{ text: `${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}` }] }
-        ],
-        generationConfig: { maxOutputTokens: 60 }
+      const res = await fetchWithRetry(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}` }]
+            }
+          ],
+          generationConfig: { maxOutputTokens: 60 }
+        })
       })
-    })
-    if (res.ok) {
-      const data = (await res.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+      if (res.ok) {
+        const data = (await res.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+        }
+        const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim()
+        const cleaned = raw.replace(/^["「『]|["」』]$/g, '').trim()
+        return cleaned || null
       }
-      const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim()
-      const cleaned = raw.replace(/^["「『]|["」』]$/g, '').trim()
-      return cleaned || null
-    }
       return null
     } catch {
       // タイトル生成の失敗は無視（保存側でデフォルトタイトルにフォールバックする）
@@ -111,42 +144,92 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   })()
 
   // 本文の読点・誤字補正（件数が一致しない/失敗した場合は原文をそのまま返す＝安全側フォールバック）
-  const polishPromise = (async (): Promise<TranscriptSegment[]> => {
+  const polishPromise = (async (): Promise<{
+    segments: TranscriptSegment[]
+    complete: boolean
+  }> => {
     const original = segments.map((s) => ({ speaker: s.speaker, text: s.text }))
-    try {
-      const res = await fetchWithRetry(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: `${polishPrompt(body.lang)}\n\n${JSON.stringify(texts)}` }]
+    const batches: Array<{ start: number; texts: string[] }> = []
+    const MAX_BATCH_CHARACTERS = 35_000
+    let start = 0
+    let batch: string[] = []
+    let characters = 0
+    for (let i = 0; i < texts.length; i++) {
+      const text = texts[i] ?? ''
+      if (batch.length > 0 && characters + text.length > MAX_BATCH_CHARACTERS) {
+        batches.push({ start, texts: batch })
+        start = i
+        batch = []
+        characters = 0
+      }
+      batch.push(text)
+      characters += text.length
+    }
+    if (batch.length > 0) batches.push({ start, texts: batch })
+
+    const output = [...original]
+    let complete = true
+    let nextBatch = 0
+    const worker = async (): Promise<void> => {
+      for (;;) {
+        const index = nextBatch++
+        const current = batches[index]
+        if (!current) return
+        try {
+          const res = await fetchWithRetry(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [
+                    {
+                      text: `${polishPrompt(body.lang)}\n\n${JSON.stringify(current.texts)}`
+                    }
+                  ]
+                }
+              ],
+              generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
+            })
+          })
+          if (!res.ok) {
+            complete = false
+            continue
+          }
+          const data = (await res.json()) as {
+            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+          }
+          const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+          const parsed = JSON.parse(raw) as { texts?: unknown }
+          const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
+          if (polished.length !== current.texts.length) {
+            complete = false
+            continue
+          }
+          for (let offset = 0; offset < polished.length; offset++) {
+            const originalSegment = segments[current.start + offset]
+            if (!originalSegment) continue
+            output[current.start + offset] = {
+              speaker: originalSegment.speaker,
+              text: polished[offset]?.trim() || originalSegment.text
             }
-          ],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
-        })
-      })
-      if (res.ok) {
-        const data = (await res.json()) as {
-          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-        }
-        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-        const parsed = JSON.parse(raw) as { texts?: unknown }
-        const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
-        if (polished.length === segments.length) {
-          return segments.map((s, i) => ({
-            speaker: s.speaker,
-            text: polished[i]?.trim() || s.text
-          }))
+          }
+        } catch {
+          complete = false
+          // 失敗したバッチだけ原文を維持し、他の区間は処理を続ける。
         }
       }
-    } catch {
-      // 補正の失敗は無視し、原文のまま返す
     }
-    return original
+    // 長文は最大2バッチだけ並列にし、待ち時間を縮めつつ瞬間的なAPI負荷を抑える。
+    await Promise.all(Array.from({ length: Math.min(2, batches.length) }, () => worker()))
+    return { segments: output, complete }
   })()
 
-  const [title, polishedSegments] = await Promise.all([titlePromise, polishPromise])
-  return NextResponse.json({ segments: polishedSegments, title })
+  const [title, polishedResult] = await Promise.all([titlePromise, polishPromise])
+  return NextResponse.json({
+    segments: polishedResult.segments,
+    title,
+    polished: polishedResult.complete
+  })
 }

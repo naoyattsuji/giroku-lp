@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isPaidLicense, fetchWithRetry } from '../../lib/license'
+import {
+  allowApiRequest,
+  allowLicenseRequest,
+  fetchWithRetry,
+  isPaidLicense,
+  requestBodyIsTooLarge,
+  validTranscriptSegments
+} from '../../lib/license'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -206,6 +213,12 @@ function formatTranscript(segments: TranscriptSegment[]): string {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!allowApiRequest(req)) {
+    return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
+  }
+  if (requestBodyIsTooLarge(req)) {
+    return NextResponse.json({ error: '文字起こしが長すぎます' }, { status: 413 })
+  }
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
     return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
@@ -225,12 +238,36 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '不正なリクエストです' }, { status: 400 })
   }
 
+  if (
+    typeof body.licenseKey !== 'string' ||
+    body.licenseKey.trim().length === 0 ||
+    body.licenseKey.length > 256 ||
+    !Array.isArray(body.segments) ||
+    (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang)) ||
+    (body.template !== undefined &&
+      !['auto', 'meeting', 'lecture', 'oneOnOne', 'interview'].includes(body.template)) ||
+    (body.instruction !== undefined && typeof body.instruction !== 'string') ||
+    (body.previousSummary !== undefined && typeof body.previousSummary !== 'string')
+  ) {
+    return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
+  }
+
+  if (!allowLicenseRequest(body.licenseKey)) {
+    return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
+  }
+
   const paid = await isPaidLicense(body.licenseKey)
   if (!paid) {
     return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
   }
 
-  const segments = body.segments ?? []
+  const segments = body.segments
+  if (!validTranscriptSegments(segments)) {
+    return NextResponse.json({ error: '文字起こしの形式または長さが不正です' }, { status: 400 })
+  }
+  if ((body.instruction?.length ?? 0) > 2000 || (body.previousSummary?.length ?? 0) > 100_000) {
+    return NextResponse.json({ error: '編集依頼または議事録が長すぎます' }, { status: 400 })
+  }
   if (segments.length === 0) {
     return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
   }

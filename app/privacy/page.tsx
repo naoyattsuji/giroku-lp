@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
         <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>PRIVACY POLICY</p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>プライバシーポリシー</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年6月18日</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年7月15日</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>収集する情報</h2>
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>デバイス上にのみ保存される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-              {["録音した音声データ（.webm形式）", "音声の文字起こしデータ（JSON形式）", "使用時間の記録（月別・分単位）", "ライセンスキー（暗号化して保存）", "Gemini APIキー（有料プランのみ・暗号化して保存）"].map((item) => (
+              {["録音した音声データ（.webm形式）", "音声の文字起こし・AI議事録（JSON形式）", "使用時間・設定・学習語彙の記録", "ライセンスキー（OSの安全な保管機能で暗号化）", "クラッシュ診断ファイル（外部へ自動送信しません）"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>外部に送信される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-              {["ライセンス認証時：ライセンスキーおよびデバイスID（LemonSqueezy社のサーバー）", "AI要約機能使用時：文字起こしテキスト（Google Gemini APIサーバー）※有料プランのみ", "アプリ更新確認時：バージョン情報（GitHub Releases）"].map((item) => (
+              {["ライセンス認証時：ライセンスキーおよび端末名（LemonSqueezy）", "AI機能使用時：ライセンスキー、文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。このうちAI処理に必要なテキストだけをGoogle Gemini APIへ送信 ※有料プランのみ", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -95,7 +95,15 @@ export default function PrivacyPage() {
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Vercel</strong>：Giroku APIの提供（文字起こしテキスト、ライセンスキー、IPアドレス等の通信情報）</span>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                 <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Google Gemini API</strong>：AI要約生成時（文字起こしテキスト）</span>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Hugging Face / GitHub</strong>：モデル取得・更新確認時（IPアドレス等の通信情報）</span>
               </div>
             </div>
           </section>
@@ -108,6 +116,7 @@ export default function PrivacyPage() {
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。
               アプリ自体のアンインストール後も、データディレクトリは残る場合があります。
+              外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。
             </p>
           </section>
 
@@ -117,7 +126,7 @@ export default function PrivacyPage() {
             <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>06</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>セキュリティ</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              ライセンスキーおよびAPIキーはOSのキーチェーンまたは暗号化ストアに保存されます。
+              ライセンスキーはOSのキーチェーン等を利用して暗号化して保存されます。AIサービスのAPIキーは本アプリ内に保存せず、Girokuのサーバー側で管理します。
               ただし、本アプリは個人利用を前提としており、エンタープライズグレードのセキュリティ要件には
               対応していない場合があります。
             </p>
