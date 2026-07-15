@@ -81,10 +81,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const GEMINI_URL =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-  // タイトルは発話数が多い録音でも軽量な入力で必ず生成できるよう、
-  // 本文の一括補正とは独立した呼び出しにする（片方が失敗しても他方に影響させない）。
-  let title: string | null = null
-  try {
+  // タイトルと本文補正は互いに依存しない。同じモデル・プロンプト・出力条件のまま
+  // 並列に実行し、2回分のGemini待ち時間が直列に積み上がらないようにする。
+  const titlePromise = (async (): Promise<string | null> => {
+    try {
     const res = await fetchWithRetry(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -101,45 +101,52 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
       const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim()
       const cleaned = raw.replace(/^["「『]|["」』]$/g, '').trim()
-      if (cleaned) title = cleaned
+      return cleaned || null
     }
-  } catch {
-    // タイトル生成の失敗は無視（保存側でデフォルトタイトルにフォールバックする）
-  }
+      return null
+    } catch {
+      // タイトル生成の失敗は無視（保存側でデフォルトタイトルにフォールバックする）
+      return null
+    }
+  })()
 
   // 本文の読点・誤字補正（件数が一致しない/失敗した場合は原文をそのまま返す＝安全側フォールバック）
-  let polishedSegments = segments.map((s) => ({ speaker: s.speaker, text: s.text }))
-  try {
-    const res = await fetchWithRetry(GEMINI_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: `${polishPrompt(body.lang)}\n\n${JSON.stringify(texts)}` }]
-          }
-        ],
-        generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
+  const polishPromise = (async (): Promise<TranscriptSegment[]> => {
+    const original = segments.map((s) => ({ speaker: s.speaker, text: s.text }))
+    try {
+      const res = await fetchWithRetry(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${polishPrompt(body.lang)}\n\n${JSON.stringify(texts)}` }]
+            }
+          ],
+          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
+        })
       })
-    })
-    if (res.ok) {
-      const data = (await res.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+      if (res.ok) {
+        const data = (await res.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+        }
+        const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+        const parsed = JSON.parse(raw) as { texts?: unknown }
+        const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
+        if (polished.length === segments.length) {
+          return segments.map((s, i) => ({
+            speaker: s.speaker,
+            text: polished[i]?.trim() || s.text
+          }))
+        }
       }
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-      const parsed = JSON.parse(raw) as { texts?: unknown }
-      const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
-      if (polished.length === segments.length) {
-        polishedSegments = segments.map((s, i) => ({
-          speaker: s.speaker,
-          text: polished[i]?.trim() || s.text
-        }))
-      }
+    } catch {
+      // 補正の失敗は無視し、原文のまま返す
     }
-  } catch {
-    // 補正の失敗は無視し、原文のまま返す
-  }
+    return original
+  })()
 
+  const [title, polishedSegments] = await Promise.all([titlePromise, polishPromise])
   return NextResponse.json({ segments: polishedSegments, title })
 }
