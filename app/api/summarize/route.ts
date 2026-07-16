@@ -206,6 +206,29 @@ ANSWER
 e.g. "The transcript doesn't show that." Use Markdown formatting (bullets, bold, etc.) where
 it helps readability, so the answer pastes cleanly into other apps.)`
 
+const TITLE_OUTPUT_JA = `
+
+出力の先頭に、会話全体を表すタイトルを次の形式で必ず付けてください。
+TITLE: （15〜25文字程度の具体的なタイトル）
+---
+（この下に指定されたMarkdown本文）
+
+タイトルは冒頭の最初の話題だけで決めず、会話の後半まで見て、最終的に決まったこと・最も長く議論した中心テーマを優先してください。「〜の」「〜について」など助詞で終わる未完成な表現は禁止です。`
+
+const TITLE_OUTPUT_EN = `
+
+Start the output with a concise, specific title for the entire conversation in this exact format:
+TITLE: (a 5-10 word title)
+---
+(the requested Markdown body below)
+
+Do not choose a title from only the opening topic. Prefer the final decision or the central topic discussed across the conversation.`
+
+function validGeneratedTitle(title: string): boolean {
+  if (title.length < 4 || title.length > 40) return false
+  return !/(?:の|について|に関する|における|ための)$/.test(title)
+}
+
 function formatTranscript(segments: TranscriptSegment[]): string {
   return segments
     .map((s) => `[${s.speaker === 'self' ? 'マイク' : 'パソコンの音'}] ${s.text}`)
@@ -289,7 +312,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           ? SUMMARY_PROMPT_EN
           : SUMMARY_PROMPT_JA.replace('{LANG}', langLabel)
         : TEMPLATE_PROMPTS_JA[template].replace('{LANG}', langLabel)
-    userContent = `${prompt}\n\n---\n\n${formatTranscript(segments)}`
+    const titleInstruction = body.lang === 'en' ? TITLE_OUTPUT_EN : TITLE_OUTPUT_JA
+    userContent = `${prompt}${titleInstruction}\n\n---文字起こし---\n${formatTranscript(segments)}`
   }
 
   try {
@@ -320,7 +344,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const content = (match?.[2] ?? text).trim()
       return NextResponse.json({ type, content })
     }
-    return NextResponse.json({ summary: text })
+    const match = text.match(/^TITLE[:：]\s*(.+?)\s*\n-{3,}\s*\n([\s\S]+)$/i)
+    const generatedTitle = match?.[1]?.trim() ?? ''
+    const summary = (match?.[2] ?? text).trim()
+    return NextResponse.json({
+      summary,
+      title: validGeneratedTitle(generatedTitle) ? generatedTitle : null
+    })
   } catch {
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
   }

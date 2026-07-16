@@ -43,10 +43,18 @@ function titlePrompt(lang: 'ja' | 'en' | 'auto' | undefined): string {
       : lang === 'auto'
         ? 'テキストは日本語または英語です。'
         : 'テキストは日本語です。'
-  return `以下は会話の文字起こしです。会話全体の内容から、一目で分かる短いタイトルを1つ作ってください（15文字程度、体言止め、絵文字や記号は使わない）。
+  return `以下は会話全体から均等に抜粋した文字起こしです。一目で内容が分かる具体的なタイトルを1つ作ってください（15〜25文字程度）。
 
 - ${langLine}
-- タイトルの文字列だけを出力し、説明や引用符は付けないこと`
+- 冒頭に出た最初の話題だけで判断せず、会話の後半まで読み、最終的に決まったこと・最も長く議論した中心テーマを優先する
+- 「〜の」「〜について」など助詞で終わる未完成なタイトルは禁止
+- 「会議」「打ち合わせ」だけの抽象的な表現ではなく、対象と目的を含める
+- 出力は次のJSON形式のみ: {"title":"タイトル"}`
+}
+
+function validGeneratedTitle(title: string): boolean {
+  if (title.length < 4 || title.length > 40) return false
+  return !/(?:の|について|に関する|における|ための)$/.test(title)
 }
 
 // 発話数が多い録音では入力テキスト量に比例して要約が長くなるが、
@@ -56,9 +64,14 @@ function digestForTitle(texts: string[]): string {
   const joined = texts.join('\n')
   const LIMIT = 6000
   if (joined.length <= LIMIT) return joined
-  const head = texts.slice(0, 40).join('\n')
-  const tail = texts.slice(-20).join('\n')
-  return `${head}\n…(中略)…\n${tail}`.slice(0, LIMIT)
+  // 冒頭・末尾だけでは、途中で比較検討して最終決定した主題を取り逃がす。
+  // 全発話から等間隔に抜き、会話全体の論点と結論をタイトル生成へ渡す。
+  const SAMPLE_COUNT = Math.min(100, texts.length)
+  const sampled = Array.from({ length: SAMPLE_COUNT }, (_, index) => {
+    const sourceIndex = Math.round((index * (texts.length - 1)) / Math.max(1, SAMPLE_COUNT - 1))
+    return texts[sourceIndex] ?? ''
+  })
+  return sampled.join('\n').slice(0, LIMIT)
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -125,7 +138,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               parts: [{ text: `${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}` }]
             }
           ],
-          generationConfig: { maxOutputTokens: 60 }
+          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 100 }
         })
       })
       if (res.ok) {
@@ -133,8 +146,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
         }
         const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim()
-        const cleaned = raw.replace(/^["「『]|["」』]$/g, '').trim()
-        return cleaned || null
+        const parsed = JSON.parse(raw) as { title?: unknown }
+        const cleaned = typeof parsed.title === 'string' ? parsed.title.trim() : ''
+        return validGeneratedTitle(cleaned) ? cleaned : null
       }
       return null
     } catch {
@@ -151,12 +165,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const original = segments.map((s) => ({ speaker: s.speaker, text: s.text }))
     const batches: Array<{ start: number; texts: string[] }> = []
     const MAX_BATCH_CHARACTERS = 35_000
+    const MAX_BATCH_SEGMENTS = 60
     let start = 0
     let batch: string[] = []
     let characters = 0
     for (let i = 0; i < texts.length; i++) {
       const text = texts[i] ?? ''
-      if (batch.length > 0 && characters + text.length > MAX_BATCH_CHARACTERS) {
+      if (
+        batch.length > 0 &&
+        (characters + text.length > MAX_BATCH_CHARACTERS || batch.length >= MAX_BATCH_SEGMENTS)
+      ) {
         batches.push({ start, texts: batch })
         start = i
         batch = []
@@ -195,6 +213,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           })
           if (!res.ok) {
             complete = false
+            console.warn(`[polish] batch ${index + 1}/${batches.length}: Gemini ${res.status}`)
             continue
           }
           const data = (await res.json()) as {
@@ -205,6 +224,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
           if (polished.length !== current.texts.length) {
             complete = false
+            console.warn(
+              `[polish] batch ${index + 1}/${batches.length}: item count ${polished.length}/${current.texts.length}`
+            )
             continue
           }
           for (let offset = 0; offset < polished.length; offset++) {
@@ -215,8 +237,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               text: polished[offset]?.trim() || originalSegment.text
             }
           }
-        } catch {
+        } catch (error) {
           complete = false
+          console.warn(
+            `[polish] batch ${index + 1}/${batches.length}: ${error instanceof Error ? error.name : 'unknown error'}`
+          )
           // 失敗したバッチだけ原文を維持し、他の区間は処理を続ける。
         }
       }
