@@ -323,7 +323,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: userContent }] }]
+          contents: [{ role: 'user', parts: [{ text: userContent }] }],
+          generationConfig: {
+            // 2.5 Flashの動的thinkingは長い会話で待ち時間が大きく振れるため上限を固定する。
+            // 要約・質問に必要な推論余地は残しつつ、数万thinking tokenへ膨らむのを防ぐ。
+            thinkingConfig: { thinkingBudget: 1024 },
+            maxOutputTokens: isChat ? 8192 : 4096
+          }
         })
       }
     )

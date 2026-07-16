@@ -19,21 +19,23 @@ interface TranscriptSegment {
 // ローカル(whisper.cpp)で確定済みの文字起こしを、音声を送らずテキストだけで磨く。
 // 録音1本につき1回だけ呼ぶ（ライブ中は呼ばない）。音声トークン課金を避け、
 // 文章量に応じた安価なテキストトークン課金のみで「読点・誤字の補正」と「短いタイトル」を提供する。
-function polishPrompt(lang: 'ja' | 'en' | 'auto' | undefined): string {
+function polishPrompt(lang: 'ja' | 'en' | 'auto' | undefined, includeTitle: boolean): string {
   const langLine =
     lang === 'en'
       ? 'The text is in English.'
       : lang === 'auto'
         ? 'テキストは日本語または英語です。'
         : 'テキストは日本語です。'
-  return `以下はローカルの音声認識が生成した文字起こしの配列です。
-1. 各要素を、意味を変えずに読点・句点・誤字・不自然な言い回しだけを補正してください
+  return `以下はローカルの音声認識が生成した文字起こしです。
+各要素を、意味を変えずに読点・句点・誤字・不自然な言い回しだけを補正してください。
 
 - ${langLine}
 - 各要素は独立した発話です。要約したり、内容を追加/削除したりしないこと
-- 入力と同じ要素数の配列を、同じ順序で返すこと
+- 入力された全てのidを、同じidのまま1回ずつ返すこと
 - 補正の必要がない要素はそのまま返すこと
-- 出力は次のJSON形式のみ: {"texts": ["補正後1", "補正後2", ...]}`
+- 出力は次のJSON形式のみ: {"items":[{"id":0,"text":"補正後"}]${includeTitle ? ',"title":"会話全体のタイトル"' : ''}}
+${includeTitle ? `- titleは15〜25文字程度。冒頭だけで判断せず、後述のタイトル用抜粋から最終決定・中心テーマを優先する
+- 「〜の」「〜について」など助詞で終わる未完成なtitleは禁止` : ''}`
 }
 
 function titlePrompt(lang: 'ja' | 'en' | 'auto' | undefined): string {
@@ -124,50 +126,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const GEMINI_URL =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-  // タイトルと本文補正は互いに依存しない。同じモデル・プロンプト・出力条件のまま
-  // 並列に実行し、2回分のGemini待ち時間が直列に積み上がらないようにする。
-  const titlePromise = (async (): Promise<string | null> => {
-    try {
-      const res = await fetchWithRetry(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: `${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}` }]
-            }
-          ],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 100 }
-        })
-      })
-      if (res.ok) {
-        const data = (await res.json()) as {
-          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-        }
-        const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim()
-        const parsed = JSON.parse(raw) as { title?: unknown }
-        const cleaned = typeof parsed.title === 'string' ? parsed.title.trim() : ''
-        return validGeneratedTitle(cleaned) ? cleaned : null
-      }
-      return null
-    } catch {
-      // タイトル生成の失敗は無視（保存側でデフォルトタイトルにフォールバックする）
-      return null
-    }
-  })()
-
-  // 本文の読点・誤字補正（件数が一致しない/失敗した場合は原文をそのまま返す＝安全側フォールバック）
-  const polishPromise = (async (): Promise<{
+  // 通常の録音は1リクエストで本文補正とタイトル生成を完了する。長文だけ分割する。
+  // 発話IDで対応付けるため、モデルが順序を変えても別の発話へ文章を上書きしない。
+  const polishResult = await (async (): Promise<{
     segments: TranscriptSegment[]
+    title: string | null
     complete: boolean
   }> => {
     const original = segments.map((s) => ({ speaker: s.speaker, text: s.text }))
-    const batches: Array<{ start: number; texts: string[] }> = []
+    const batches: Array<{ items: Array<{ id: number; text: string }> }> = []
     const MAX_BATCH_CHARACTERS = 35_000
-    const MAX_BATCH_SEGMENTS = 60
-    let start = 0
-    let batch: string[] = []
+    const MAX_BATCH_SEGMENTS = 300
+    let batch: Array<{ id: number; text: string }> = []
     let characters = 0
     for (let i = 0; i < texts.length; i++) {
       const text = texts[i] ?? ''
@@ -175,18 +145,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         batch.length > 0 &&
         (characters + text.length > MAX_BATCH_CHARACTERS || batch.length >= MAX_BATCH_SEGMENTS)
       ) {
-        batches.push({ start, texts: batch })
-        start = i
+        batches.push({ items: batch })
         batch = []
         characters = 0
       }
-      batch.push(text)
+      batch.push({ id: i, text })
       characters += text.length
     }
-    if (batch.length > 0) batches.push({ start, texts: batch })
+    if (batch.length > 0) batches.push({ items: batch })
 
     const output = [...original]
     let complete = true
+    let generatedTitle: string | null = null
     let nextBatch = 0
     const worker = async (): Promise<void> => {
       for (;;) {
@@ -194,6 +164,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const current = batches[index]
         if (!current) return
         try {
+          const includeTitle = index === 0
+          const titleContext =
+            includeTitle && batches.length > 1
+              ? `\n\n${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}`
+              : ''
           const res = await fetchWithRetry(GEMINI_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -203,12 +178,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                   role: 'user',
                   parts: [
                     {
-                      text: `${polishPrompt(body.lang)}\n\n${JSON.stringify(current.texts)}`
+                      text: `${polishPrompt(body.lang, includeTitle)}\n\n${JSON.stringify(current.items)}${titleContext}`
                     }
                   ]
                 }
               ],
-              generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
+              generationConfig: {
+                responseMimeType: 'application/json',
+                maxOutputTokens: 65536,
+                thinkingConfig: { thinkingBudget: 512 }
+              }
             })
           })
           if (!res.ok) {
@@ -220,22 +199,39 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
           }
           const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-          const parsed = JSON.parse(raw) as { texts?: unknown }
-          const polished = Array.isArray(parsed.texts) ? parsed.texts.map((t) => String(t)) : []
-          if (polished.length !== current.texts.length) {
+          const parsed = JSON.parse(raw) as { items?: unknown; title?: unknown }
+          const returned = Array.isArray(parsed.items) ? parsed.items : []
+          const expectedIds = new Set(current.items.map((item) => item.id))
+          const seenIds = new Set<number>()
+          for (const value of returned) {
+            if (!value || typeof value !== 'object') continue
+            const item = value as { id?: unknown; text?: unknown }
+            if (
+              typeof item.id !== 'number' ||
+              !Number.isInteger(item.id) ||
+              !expectedIds.has(item.id) ||
+              seenIds.has(item.id) ||
+              typeof item.text !== 'string'
+            ) {
+              continue
+            }
+            seenIds.add(item.id)
+            const originalSegment = segments[item.id]
+            if (!originalSegment) continue
+            output[item.id] = {
+              speaker: originalSegment.speaker,
+              text: item.text.trim() || originalSegment.text
+            }
+          }
+          if (seenIds.size !== expectedIds.size) {
             complete = false
             console.warn(
-              `[polish] batch ${index + 1}/${batches.length}: item count ${polished.length}/${current.texts.length}`
+              `[polish] batch ${index + 1}/${batches.length}: item count ${seenIds.size}/${expectedIds.size}`
             )
-            continue
           }
-          for (let offset = 0; offset < polished.length; offset++) {
-            const originalSegment = segments[current.start + offset]
-            if (!originalSegment) continue
-            output[current.start + offset] = {
-              speaker: originalSegment.speaker,
-              text: polished[offset]?.trim() || originalSegment.text
-            }
+          if (includeTitle && typeof parsed.title === 'string') {
+            const cleaned = parsed.title.trim()
+            generatedTitle = validGeneratedTitle(cleaned) ? cleaned : null
           }
         } catch (error) {
           complete = false
@@ -246,15 +242,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
       }
     }
-    // 長文は最大2バッチだけ並列にし、待ち時間を縮めつつ瞬間的なAPI負荷を抑える。
+    // 300発話/35,000文字を超える長文だけ最大2並列にする。通常録音は1回で完了する。
     await Promise.all(Array.from({ length: Math.min(2, batches.length) }, () => worker()))
-    return { segments: output, complete }
+    return { segments: output, title: generatedTitle, complete }
   })()
 
-  const [title, polishedResult] = await Promise.all([titlePromise, polishPromise])
   return NextResponse.json({
-    segments: polishedResult.segments,
-    title,
-    polished: polishedResult.complete
+    segments: polishResult.segments,
+    title: polishResult.title,
+    polished: polishResult.complete
   })
 }
