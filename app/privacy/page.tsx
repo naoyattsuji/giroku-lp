@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
         <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>PRIVACY POLICY</p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>プライバシーポリシー</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年7月15日</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年7月18日</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>外部に送信される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-              {["ライセンス認証時：ライセンスキーおよび端末名（LemonSqueezy）", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）"].map((item) => (
+              {["デスクトップ版のライセンス認証時：ライセンスキーおよび端末名（LemonSqueezy）", "モバイル有料版の購入・復元時：ストア購入情報、購入権利、匿名の購入者ID（Apple、Google、RevenueCat）", "有料アカウント利用時：メールアドレス、ユーザーID、利用端末ID・OS・最終利用日時（Supabase）。無料版では登録を求めません", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
             <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>03</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>データの利用目的</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {["音声の文字起こし処理（すべてデバイス内で実行）", "AI議事録・質問・修正の生成（Gemini APIを使用）", "使用量の制限管理（無料プランの月120分・AI議事録月2件・各10回）", "ライセンスの有効性確認", "アプリの自動更新"].map((item) => (
+              {["音声の文字起こし処理（すべてデバイス内で実行）", "AI議事録・質問・修正の生成（Gemini APIを使用）", "使用量の制限管理（無料プランの月120分・AI議事録月2件・各10回）", "有料プランの購入・復元・有効性確認と最大2台の端末管理", "アプリの自動更新"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -95,6 +95,14 @@ export default function PrivacyPage() {
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Apple / Google / RevenueCat</strong>：モバイル有料版の購入、購入検証、復元、利用期限の管理</span>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Supabase</strong>：有料アカウントのメール認証と最大2台の端末管理</span>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                 <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Vercel</strong>：Giroku APIの提供（文字起こしテキスト、ライセンスキー、IPアドレス等の通信情報）</span>
               </div>
               <div style={{ display: "flex", gap: 12 }}>
@@ -116,6 +124,7 @@ export default function PrivacyPage() {
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。
               アプリ自体のアンインストール後も、データディレクトリは残る場合があります。
+              有料アカウントは、モバイルアプリの設定画面にある「アカウントを削除」からメールアドレスと端末登録を削除できます。
               外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。
             </p>
           </section>

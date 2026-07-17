@@ -19,7 +19,7 @@ export default function TermsPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
         <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>TERMS OF SERVICE</p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>利用規約</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年6月18日</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年7月18日</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
@@ -111,8 +111,9 @@ export default function TermsPage() {
                 "有料プランのライセンスは購入日から1年間有効です。",
                 "変更後に購入されたライセンスは、1人のユーザーが所有する最大2台のデバイスで使用できます。変更前に3台の条件で購入された有効なライセンスには、購入時の条件を適用します。",
                 "無料プランは登録不要で、この端末ごとに月120分の文字起こし、月2件のAI議事録、各議事録10回のAIへの質問・修正を利用できます。失敗・キャンセル時はAI議事録枠を消費しません。",
+                "モバイル有料版では、購入・復元と最大2台の端末管理のためメール認証を利用します。購入は1年分の一括購入で、自動更新されません。",
                 "ライセンスキーの他者への譲渡・共有は禁止します。",
-                "購入後のキャンセル・返金については、LemonSqueezyのポリシーに従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
+                "購入後のキャンセル・返金は、購入元であるLemonSqueezy、Apple App StoreまたはGoogle Playのポリシーに従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                   <span style={{ fontSize: 10, color: "var(--text-3)", flexShrink: 0, fontFamily: "monospace", marginTop: 3 }}>{String(i + 1).padStart(2, "0")}</span>

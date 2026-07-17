@@ -3,9 +3,12 @@ import {
   allowApiRequest,
   allowLicenseRequest,
   allowAnonymousRequest,
+  allowMobilePaidRequest,
   isValidAnonymousDeviceId,
   fetchWithRetry,
   isPaidLicense,
+  isPaidMobileAccount,
+  isPaidMobileDevice,
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
@@ -280,10 +283,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const anonymous = !body.licenseKey && isValidAnonymousDeviceId(body.deviceId)
-  if ((body.licenseKey && !allowLicenseRequest(body.licenseKey)) || (anonymous && !allowAnonymousRequest(body.deviceId!))) {
+  const mobilePaid = anonymous
+    ? (await isPaidMobileAccount(req, body.deviceId!)) || (await isPaidMobileDevice(body.deviceId!))
+    : false
+  if (
+    (body.licenseKey && !allowLicenseRequest(body.licenseKey)) ||
+    (anonymous && mobilePaid && !allowMobilePaidRequest(body.deviceId!)) ||
+    (anonymous && !mobilePaid && !allowAnonymousRequest(body.deviceId!))
+  ) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
-  const paid = body.licenseKey ? await isPaidLicense(body.licenseKey) : false
+  const paid = (body.licenseKey ? await isPaidLicense(body.licenseKey) : false) || mobilePaid
 
   if (!paid && !anonymous) {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })

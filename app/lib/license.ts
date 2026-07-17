@@ -12,6 +12,9 @@ const licenseMinuteBuckets = new Map<string, { count: number; resetAt: number }>
 const licenseHourBuckets = new Map<string, { count: number; resetAt: number }>()
 const anonymousMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
 const anonymousHourBuckets = new Map<string, { count: number; resetAt: number }>()
+const mobilePaidMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
+const mobilePaidHourBuckets = new Map<string, { count: number; resetAt: number }>()
+const revenueCatCache = new Map<string, { paid: boolean; expires: number }>()
 
 /**
  * Geminiが一時的に混雑(429/503)を返すことがあるため、短い間隔で自動リトライする。
@@ -122,6 +125,88 @@ export function isValidAnonymousDeviceId(deviceId: unknown): deviceId is string 
   return typeof deviceId === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(deviceId)
 }
 
+/** RevenueCatで購入したモバイル端末のpro権利をサーバー側でも確認する。 */
+export async function isPaidMobileDevice(deviceId: string): Promise<boolean> {
+  if (!isValidAnonymousDeviceId(deviceId)) return false
+  const secret = process.env.REVENUECAT_SECRET_API_KEY?.trim()
+  if (!secret) return false
+  const key = createHash('sha256').update(deviceId).digest('hex')
+  const cached = revenueCatCache.get(key)
+  if (cached && cached.expires > Date.now()) return cached.paid
+  try {
+    const appUserId = `device:${deviceId}`
+    const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(appUserId)}`, {
+      headers: { Authorization: `Bearer ${secret}`, Accept: 'application/json' },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!response.ok) return false
+    const data = await response.json() as {
+      subscriber?: { entitlements?: Record<string, { expires_date?: string | null }> }
+    }
+    const entitlement = data.subscriber?.entitlements?.pro
+    const expiresAt = entitlement?.expires_date ? new Date(entitlement.expires_date).getTime() : null
+    const paid = Boolean(entitlement && (expiresAt === null || expiresAt > Date.now()))
+    revenueCatCache.set(key, { paid, expires: Date.now() + (paid ? LICENSE_CACHE_MS : 60_000) })
+    return paid
+  } catch {
+    return false
+  }
+}
+
+/** Supabaseログインと有効端末枠を検証し、共通アカウントのRevenueCat権利を確認する。 */
+export async function isPaidMobileAccount(req: Request, deviceId: string): Promise<boolean> {
+  if (!isValidAnonymousDeviceId(deviceId)) return false
+  const supabaseUrl = process.env.SUPABASE_URL?.trim()
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY?.trim()
+  const secret = process.env.REVENUECAT_SECRET_API_KEY?.trim()
+  const authorization = req.headers.get('authorization')
+  if (!supabaseUrl || !publishableKey || !secret || !authorization?.startsWith('Bearer ')) return false
+
+  try {
+    const authHeaders = { Authorization: authorization, apikey: publishableKey, Accept: 'application/json' }
+    const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: authHeaders,
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!userResponse.ok) return false
+    const user = await userResponse.json() as { id?: string }
+    if (!user.id || !/^[0-9a-f-]{36}$/i.test(user.id)) return false
+
+    const query = new URLSearchParams({
+      select: 'id',
+      device_id: `eq.${deviceId}`,
+      active: 'eq.true',
+      limit: '1',
+    })
+    const deviceResponse = await fetch(`${supabaseUrl}/rest/v1/device_activations?${query}`, {
+      headers: authHeaders,
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!deviceResponse.ok) return false
+    const devices = await deviceResponse.json() as Array<{ id?: string }>
+    if (!devices.length) return false
+
+    const cacheKey = createHash('sha256').update(`account:${user.id}`).digest('hex')
+    const cached = revenueCatCache.get(cacheKey)
+    if (cached && cached.expires > Date.now()) return cached.paid
+    const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(user.id)}`, {
+      headers: { Authorization: `Bearer ${secret}`, Accept: 'application/json' },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!response.ok) return false
+    const data = await response.json() as {
+      subscriber?: { entitlements?: Record<string, { expires_date?: string | null }> }
+    }
+    const entitlement = data.subscriber?.entitlements?.pro
+    const expiresAt = entitlement?.expires_date ? new Date(entitlement.expires_date).getTime() : null
+    const paid = Boolean(entitlement && (expiresAt === null || expiresAt > Date.now()))
+    revenueCatCache.set(cacheKey, { paid, expires: Date.now() + (paid ? LICENSE_CACHE_MS : 60_000) })
+    return paid
+  } catch {
+    return false
+  }
+}
+
 /** 無料版の直接API濫用を抑える。月2件/各10回のUX上限は端末側でも管理する。 */
 export function allowAnonymousRequest(deviceId: string): boolean {
   const key = createHash('sha256').update(deviceId).digest('hex')
@@ -141,6 +226,27 @@ export function allowAnonymousRequest(deviceId: string): boolean {
     return true
   }
   return take(anonymousMinuteBuckets, 4, 60_000) && take(anonymousHourBuckets, 24, 60 * 60_000)
+}
+
+/** 有料モバイル版にも不正な自動連打だけを止める安全上限を設ける。 */
+export function allowMobilePaidRequest(deviceId: string): boolean {
+  const key = createHash('sha256').update(deviceId).digest('hex')
+  const now = Date.now()
+  const take = (
+    buckets: Map<string, { count: number; resetAt: number }>,
+    limit: number,
+    windowMs: number
+  ): boolean => {
+    const current = buckets.get(key)
+    if (!current || current.resetAt <= now) {
+      buckets.set(key, { count: 1, resetAt: now + windowMs })
+      return true
+    }
+    if (current.count >= limit) return false
+    current.count++
+    return true
+  }
+  return take(mobilePaidMinuteBuckets, 6, 60_000) && take(mobilePaidHourBuckets, 30, 60 * 60_000)
 }
 
 export function requestBodyIsTooLarge(req: Request, maxBytes = 2_000_000): boolean {
