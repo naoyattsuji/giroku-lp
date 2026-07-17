@@ -10,6 +10,8 @@ const licenseCache = new Map<string, { paid: boolean; expires: number }>()
 const rateBuckets = new Map<string, { count: number; resetAt: number }>()
 const licenseMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
 const licenseHourBuckets = new Map<string, { count: number; resetAt: number }>()
+const anonymousMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
+const anonymousHourBuckets = new Map<string, { count: number; resetAt: number }>()
 
 /**
  * Geminiが一時的に混雑(429/503)を返すことがあるため、短い間隔で自動リトライする。
@@ -113,6 +115,32 @@ export function allowLicenseRequest(licenseKey: string | undefined | null): bool
     return true
   }
   return take(licenseMinuteBuckets, 6, 60_000) && take(licenseHourBuckets, 30, 60 * 60_000)
+}
+
+/** 登録不要の無料版を匿名端末IDで認可する。個人情報や端末名は受け取らない。 */
+export function isValidAnonymousDeviceId(deviceId: unknown): deviceId is string {
+  return typeof deviceId === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(deviceId)
+}
+
+/** 無料版の直接API濫用を抑える。月2件/各10回のUX上限は端末側でも管理する。 */
+export function allowAnonymousRequest(deviceId: string): boolean {
+  const key = createHash('sha256').update(deviceId).digest('hex')
+  const now = Date.now()
+  const take = (
+    buckets: Map<string, { count: number; resetAt: number }>,
+    limit: number,
+    windowMs: number
+  ): boolean => {
+    const current = buckets.get(key)
+    if (!current || current.resetAt <= now) {
+      buckets.set(key, { count: 1, resetAt: now + windowMs })
+      return true
+    }
+    if (current.count >= limit) return false
+    current.count++
+    return true
+  }
+  return take(anonymousMinuteBuckets, 4, 60_000) && take(anonymousHourBuckets, 24, 60 * 60_000)
 }
 
 export function requestBodyIsTooLarge(req: Request, maxBytes = 2_000_000): boolean {

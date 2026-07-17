@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   allowApiRequest,
   allowLicenseRequest,
+  allowAnonymousRequest,
+  isValidAnonymousDeviceId,
   fetchWithRetry,
   isPaidLicense,
   requestBodyIsTooLarge,
@@ -249,6 +251,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   let body: {
     licenseKey?: string
+    deviceId?: string
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
     template?: SummaryTemplate
@@ -262,9 +265,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   if (
-    typeof body.licenseKey !== 'string' ||
-    body.licenseKey.trim().length === 0 ||
-    body.licenseKey.length > 256 ||
+    !(
+      (typeof body.licenseKey === 'string' && body.licenseKey.trim().length > 0 && body.licenseKey.length <= 256) ||
+      isValidAnonymousDeviceId(body.deviceId)
+    ) ||
     !Array.isArray(body.segments) ||
     (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang)) ||
     (body.template !== undefined &&
@@ -275,13 +279,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
 
-  if (!allowLicenseRequest(body.licenseKey)) {
+  const anonymous = !body.licenseKey && isValidAnonymousDeviceId(body.deviceId)
+  if ((body.licenseKey && !allowLicenseRequest(body.licenseKey)) || (anonymous && !allowAnonymousRequest(body.deviceId!))) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
+  const paid = body.licenseKey ? await isPaidLicense(body.licenseKey) : false
 
-  const paid = await isPaidLicense(body.licenseKey)
-  if (!paid) {
-    return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
+  if (!paid && !anonymous) {
+    return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })
   }
 
   const segments = body.segments

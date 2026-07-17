@@ -100,14 +100,6 @@ function CheckIcon(): ReactElement {
   );
 }
 
-function CrossIcon(): ReactElement {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // 「こんな場面で」の横スクロール・カルーセル。写真の下部に見出しを白文字で
 // 重ね、スクロール位置に応じてドットが追従する。3枚とも収まる画面幅では
 // スクロールせずそのまま並んで見える（自然にグリッドとしても機能する）。
@@ -292,16 +284,13 @@ export default function Home() {
               <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
                 <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥0</p>
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>ずっと無料 · 1か月120分まで</p>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>登録不要 · 文字起こし月120分まで</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音", "文字起こし", "だれの発言か自動で分ける", "記録の保存とコピー"].map((item) => (
+                {["録音", "文字起こし（月120分）", "AI議事録（月2件）", "AIへの質問・修正（各10回）", "記録の保存・編集・コピー"].map((item) => (
                   <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.5 }}>
                     <CheckIcon />{item}
                   </p>
                 ))}
-                <p style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-3)", lineHeight: 1.5 }}>
-                  <CrossIcon />AIで議事録を作成（有料プランのみ）
-                </p>
               </div>
               <a href="#download" style={{ display: "block", padding: "13px 0", background: "var(--surface-2)", color: "var(--text-1)", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center" }}>
                 無料で始める
@@ -313,9 +302,9 @@ export default function Home() {
                 <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥980</p>
                 <p style={{ fontSize: 15, color: "var(--text-3)", fontWeight: 700 }}>/ 年</p>
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年分を一括購入（自動更新なし）· 3台まで使える</p>
+              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年分を一括購入（自動更新なし）· 2台まで使える</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音（時間の制限なし）", "文字起こし（時間の制限なし）", "だれの発言か自動で分ける", "AIで議事録を作成"].map((item) => (
+                {["録音・文字起こし", "AI議事録・質問・修正", "利用量を気にせず使える", "2台まで利用可能"].map((item) => (
                   <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.5 }}>
                     <CheckIcon />{item}
                   </p>
