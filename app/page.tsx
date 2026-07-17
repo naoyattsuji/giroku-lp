@@ -210,7 +210,7 @@ export default function Home() {
               </a>
               <a href="#scenes" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>使い方を見る →</a>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要ですぐ使える</p>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · Mac / Windows / iPhone / Androidに対応予定</p>
           </div>
           <Reveal delay={120}>
             <div style={{ display: "flex", justifyContent: "center" }}>
@@ -316,8 +316,11 @@ export default function Home() {
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
               >
-                ¥980 で購入
+                デスクトップ版を ¥980 で購入
               </a>
+              <p style={{ fontSize: 11.5, color: "var(--text-3)", lineHeight: 1.55, marginTop: 12, textAlign: "center" }}>
+                iPhone・Android版は公開後、アプリ内から購入できます
+              </p>
             </div>
           </div>
           </Reveal>
@@ -334,12 +337,18 @@ export default function Home() {
             <h2 style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
               今すぐ始める
             </h2>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18, justifyContent: "center" }}>
-              <span style={{ ...btnDark, opacity: 0.55, cursor: "not-allowed" }} aria-disabled="true">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 12, width: "min(100%, 620px)", margin: "0 auto 18px" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }} aria-disabled="true">
                 macOS版 — 公開準備中
               </span>
-              <span style={{ display: "inline-flex", alignItems: "center", padding: "14px 30px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
                 Windows版 — 準備中
+              </span>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+                iPhone版 — 準備中
+              </span>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+                Android版 — 準備中
               </span>
             </div>
             <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要</p>
