@@ -20,7 +20,7 @@ const scenes = [
     photo: "/scenes/online-meeting.jpg",
     tag: "オンライン会議",
     title: "会議画面は、そのまま。",
-    desc: "通話にボットを追加しないため、相手の画面には何も表示されず、録音に気づかれません。",
+    desc: "通話にボットを追加しないため、相手の画面に録音表示は出ません。",
     lines: [
       { speaker: "マイク", text: "次回は水曜日の10時でどうでしょう。" },
       { speaker: "パソコンの音", text: "了解です。予定を入れておきます。" },
@@ -347,11 +347,13 @@ export default function Home() {
                 <article className="plan-head">
                   <p className="plan-name">無料</p>
                   <div className="plan-price"><strong>¥0</strong></div>
+                  <p className="plan-meta" aria-hidden="true">&nbsp;</p>
                   <a href="#download" className="plan-button plan-button-free">無料で始める</a>
                 </article>
                 <article className="plan-head plan-head-paid">
                   <p className="plan-name">有料</p>
                   <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
+                  <p className="plan-meta">月約82円 · 1年間利用 · 自動更新なし</p>
                   <a
                     href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
                     className="plan-button plan-button-paid"
@@ -382,9 +384,6 @@ export default function Home() {
                   <div className="comparison-value" role="cell"><strong>登録不要</strong></div>
                   <div className="comparison-value paid-value" role="cell"><strong>2台まで</strong></div>
                 </div>
-              </div>
-              <div className="pricing-footnote">
-                <p>有料プランは1年分を一括購入。自動更新はありません。</p>
               </div>
             </div>
           </Reveal>
