@@ -269,60 +269,73 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 92 }}>
+      <section id="pricing" className="pricing-section">
+        <div className="lp-inner pricing-inner">
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>料金</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
-              シンプルな2プラン。
-            </h2>
+            <div className="pricing-heading">
+              <p>料金</p>
+              <h2>違いは、これだけ。</h2>
+              <span>無料でも基本機能は同じ。有料なら、利用上限を気にせず2台まで使えます。</span>
+            </div>
           </Reveal>
           <Reveal delay={80}>
-          <div className="pricing-grid">
-            <div className="lp-card" style={{ padding: "34px 32px" }}>
-              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18, fontWeight: 700 }}>無料プラン</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
-                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥0</p>
+            <div className="pricing-compare">
+              <div className="plan-head-row">
+                <div className="comparison-corner">プラン</div>
+                <article className="plan-head">
+                  <p className="plan-name">無料</p>
+                  <div className="plan-price"><strong>¥0</strong></div>
+                  <p className="plan-for">まず試したい人に</p>
+                  <a href="#download" className="plan-button plan-button-free">無料で始める</a>
+                </article>
+                <article className="plan-head plan-head-paid">
+                  <div className="plan-name-line">
+                    <p className="plan-name">有料</p>
+                    <span>おすすめ</span>
+                  </div>
+                  <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
+                  <p className="plan-for">日常的に使う人に</p>
+                  <a
+                    href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
+                    className="plan-button plan-button-paid"
+                  >
+                    購入する
+                  </a>
+                </article>
               </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>登録不要 · 文字起こし月120分まで</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音", "文字起こし（月120分）", "AI議事録（月2件）", "AIへの質問・修正（各10回）", "記録の保存・編集・コピー"].map((item) => (
-                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.5 }}>
-                    <CheckIcon />{item}
-                  </p>
-                ))}
+
+              <div className="comparison-body" role="table" aria-label="無料プランと有料プランの比較">
+                <div className="comparison-row" role="row">
+                  <div className="comparison-label" role="rowheader">文字起こし</div>
+                  <div className="comparison-value" role="cell"><strong>月120分</strong><span>毎月リセット</span></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>時間を気にせず使える</span></div>
+                </div>
+                <div className="comparison-row" role="row">
+                  <div className="comparison-label" role="rowheader">AI議事録</div>
+                  <div className="comparison-value" role="cell"><strong>月2件</strong><span>毎月リセット</span></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>何件でも作成</span></div>
+                </div>
+                <div className="comparison-row" role="row">
+                  <div className="comparison-label" role="rowheader">AIへの質問・修正</div>
+                  <div className="comparison-value" role="cell"><strong>各10回</strong><span>議事録ごと</span></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>何度でも質問</span></div>
+                </div>
+                <div className="comparison-row" role="row">
+                  <div className="comparison-label" role="rowheader">端末での利用</div>
+                  <div className="comparison-value" role="cell"><strong>この端末で</strong><span>登録不要</span></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>2台まで</strong><span>Mac・Windows対応予定</span></div>
+                </div>
+                <div className="comparison-row comparison-row-common" role="row">
+                  <div className="comparison-label" role="rowheader">録音・保存・編集・コピー</div>
+                  <div className="comparison-value" role="cell"><span className="included-mark"><CheckIcon />すべて利用可能</span></div>
+                  <div className="comparison-value paid-value" role="cell"><span className="included-mark"><CheckIcon />すべて利用可能</span></div>
+                </div>
               </div>
-              <a href="#download" style={{ display: "block", padding: "13px 0", background: "var(--surface-2)", color: "var(--text-1)", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center" }}>
-                無料で始める
-              </a>
+              <div className="pricing-footnote">
+                <p>有料プランは1年分を一括購入。自動更新はありません。</p>
+                <span>iPhone・Android版は公開後、アプリ内から購入できます。</span>
+              </div>
             </div>
-            <div className="lp-card" style={{ padding: "34px 32px", border: "2px solid var(--red)" }}>
-              <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 18, fontWeight: 700 }}>有料プラン</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
-                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥980</p>
-                <p style={{ fontSize: 15, color: "var(--text-3)", fontWeight: 700 }}>/ 年</p>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年分を一括購入（自動更新なし）· 2台まで使える</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音・文字起こし", "AI議事録・質問・修正", "利用量を気にせず使える", "2台まで利用可能"].map((item) => (
-                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.5 }}>
-                    <CheckIcon />{item}
-                  </p>
-                ))}
-              </div>
-              <a
-                href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
-                style={{ display: "block", padding: "13px 0", background: "var(--red)", color: "#fff", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center", transition: "opacity 0.15s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-              >
-                デスクトップ版を ¥980 で購入
-              </a>
-              <p style={{ fontSize: 11.5, color: "var(--text-3)", lineHeight: 1.55, marginTop: 12, textAlign: "center" }}>
-                iPhone・Android版は公開後、アプリ内から購入できます
-              </p>
-            </div>
-          </div>
           </Reveal>
         </div>
       </section>
