@@ -24,6 +24,10 @@ const scenes = [
     lines: [
       { speaker: "マイク", text: "次回は水曜日の10時でどうでしょう。" },
       { speaker: "パソコンの音", text: "了解です。予定を入れておきます。" },
+      { speaker: "マイク", text: "資料は前日までに共有します。" },
+      { speaker: "パソコンの音", text: "ありがとうございます。確認しておきます。" },
+      { speaker: "マイク", text: "それでは、水曜日にお願いします。" },
+      { speaker: "パソコンの音", text: "はい、よろしくお願いします。" },
     ],
   },
   {
@@ -34,7 +38,11 @@ const scenes = [
     desc: "自分と相手の声をその場で文字に。会話を止めず、メモを取る手間を減らせます。",
     lines: [
       { speaker: "マイク", text: "まずは画面案から確認しましょう。" },
+      { speaker: "マイク", text: "この配置なら見やすそうですね。" },
+      { speaker: "マイク", text: "色だけ少し調整できますか。" },
+      { speaker: "マイク", text: "今日中に修正版を作ります。" },
       { speaker: "マイク", text: "金曜日までに共有をお願いします。" },
+      { speaker: "マイク", text: "分かりました。進めておきます。" },
     ],
   },
   {
@@ -45,7 +53,11 @@ const scenes = [
     desc: "聞き逃した箇所を、あとから文字と音声で確認。大切な説明を探し直せます。",
     lines: [
       { speaker: "マイク", text: "ここが今日の重要なポイントです。" },
+      { speaker: "マイク", text: "まず、前回の内容を振り返ります。" },
+      { speaker: "マイク", text: "この図を資料に残しておいてください。" },
+      { speaker: "マイク", text: "試験でも扱う予定です。" },
       { speaker: "マイク", text: "次回までに資料を読んでおいてください。" },
+      { speaker: "マイク", text: "それでは、今日はここまでです。" },
     ],
   },
 ];
@@ -116,6 +128,7 @@ function LiveSceneTranscript({
   const reducedMotion = usePrefersReducedMotion();
   const [lineIndex, setLineIndex] = useState(0);
   const [typed, setTyped] = useState(0);
+  const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -129,6 +142,7 @@ function LiveSceneTranscript({
               setTyped(0);
             }, 760)
           : window.setTimeout(() => {
+              setCycle((value) => value + 1);
               setLineIndex(0);
               setTyped(0);
             }, 2400);
@@ -137,28 +151,32 @@ function LiveSceneTranscript({
   }, [lineIndex, lines, reducedMotion, typed]);
 
   const fullTranscript = lines.map((line) => `${line.speaker}：${line.text}`).join(" ");
+  const displayedLines = reducedMotion ? lines.slice(0, 3) : lines;
+  const scrollOffset = reducedMotion ? 0 : Math.max(0, lineIndex - 2);
 
   return (
     <div className="scene-transcript" aria-label={fullTranscript}>
-      {lines.map((line, index) => {
-        const visible = reducedMotion || index <= lineIndex;
-        const complete = reducedMotion || index < lineIndex || typed >= line.text.length;
-        const text = complete ? line.text : index === lineIndex ? line.text.slice(0, typed) : "";
+      <div key={cycle} className={`scene-transcript-track scene-offset-${scrollOffset}`}>
+        {displayedLines.map((line, index) => {
+          const visible = reducedMotion || index <= lineIndex;
+          const complete = reducedMotion || index < lineIndex || typed >= line.text.length;
+          const text = complete ? line.text : index === lineIndex ? line.text.slice(0, typed) : "";
 
-        return (
-          <div
-            key={`${line.speaker}-${index}`}
-            className={`scene-transcript-line${visible ? " is-visible" : ""}`}
-            aria-hidden="true"
-          >
-            <span>{line.speaker}</span>
-            <p>
-              {text}
-              {visible && !complete && <i className="scene-cursor" />}
-            </p>
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={`${line.speaker}-${index}`}
+              className={`scene-transcript-line${visible ? " is-visible" : ""}`}
+              aria-hidden="true"
+            >
+              <span>{line.speaker}</span>
+              <p>
+                {text}
+                {visible && !complete && <i className="scene-cursor" />}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
