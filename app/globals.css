@@ -14,6 +14,12 @@
   --radius-lg: 22px;
   --radius: 16px;
   --radius-sm: 11px;
+  --section-space: clamp(72px, 8vw, 92px);
+  --section-title: clamp(30px, 3.4vw, 36px);
+  --card-title: clamp(21px, 2.2vw, 26px);
+  --body-size: 16px;
+  --body-leading: 1.75;
+  --small-size: 12.5px;
 }
 
 body {
@@ -31,6 +37,15 @@ a { text-decoration: none; color: inherit; }
    均等化し、意味の切れ目とは無関係な不格好な改行を防ぐ */
 h1, h2, h3 {
   text-wrap: balance;
+  word-break: auto-phrase;
+  line-break: strict;
+}
+
+.site-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--bg);
 }
 
 .nav-sticky {
@@ -52,37 +67,172 @@ h1, h2, h3 {
   box-sizing: border-box;
 }
 
+.nav-inner {
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand,
+.nav-actions {
+  display: inline-flex;
+  align-items: center;
+}
+.nav-brand { gap: 8px; }
+.nav-brand img { display: block; }
+.nav-brand span {
+  color: var(--text-1);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.nav-actions { gap: 26px; }
+.nav-secondary-link {
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.nav-download {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding-top: 76px;
+  padding-bottom: 90px;
+}
+.hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.hero-kicker p {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(232, 25, 44, 0.08);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.hero-copy h1 {
+  max-width: 10.5em;
+  margin-bottom: 22px;
+  color: var(--text-1);
+  font-size: clamp(34px, 3.8vw, 46px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+.hero-description {
+  max-width: 440px;
+  margin-bottom: 32px;
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: var(--body-leading);
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 30px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.button:hover { opacity: 0.84; transform: translateY(-1px); }
+.button-dark { background: var(--text-1); color: #fff; }
+.text-link { color: var(--text-2); font-size: 14px; font-weight: 500; }
+.hero-note,
+.download-note,
+.footer { color: var(--text-3); font-size: var(--small-size); }
+.hero-product { display: flex; justify-content: center; }
+
+.section-muted,
+.pricing-section { background: var(--surface-2); }
+.scenes-section,
+.download-section { background: var(--bg); }
+.section-inner { padding-top: var(--section-space); padding-bottom: var(--section-space); }
+.section-heading {
+  max-width: 720px;
+  margin-bottom: 38px;
+}
+.section-eyebrow {
+  margin-bottom: 12px;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.section-title {
+  color: var(--text-1);
+  font-size: var(--section-title);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+}
+.reasons-list { max-width: 760px; }
+.reason-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 28px 0;
+  border-top: 0;
+}
+.reasons-list > div + div .reason-row { border-top: 1px solid var(--border); }
+.reason-icon {
+  display: flex;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  align-items: center;
+  justify-content: center;
+}
+.reason-copy { padding-top: 1px; }
+.reason-copy h3 {
+  margin-bottom: 8px;
+  color: var(--text-1);
+  font-size: var(--card-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.reason-copy p {
+  max-width: 620px;
+  color: var(--text-2);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+}
+
 .lp-card {
   background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
 }
 
-.scenes-section {
-  background: #f5f5f7;
-}
-.scenes-inner {
-  padding-top: 92px;
-  padding-bottom: 96px;
-}
-.scenes-heading {
-  margin-bottom: 38px;
-}
-.scenes-heading > p {
-  margin-bottom: 12px;
-  color: var(--red);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.scenes-heading h2 {
-  max-width: 680px;
-  color: var(--text-1);
-  font-size: clamp(26px, 3.2vw, 36px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
 .scene-tabs {
   display: inline-flex;
   gap: 3px;
@@ -190,8 +340,8 @@ h1, h2, h3 {
 .scene-description {
   margin-top: 16px;
   color: var(--text-2);
-  font-size: 15px;
-  line-height: 1.75;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
 }
 .scene-transcript {
   display: grid;
@@ -221,31 +371,6 @@ h1, h2, h3 {
   border-left: none;
 }
 
-.pricing-section {
-  background: #f5f5f7;
-}
-.pricing-inner {
-  padding-top: 80px;
-  padding-bottom: 84px;
-}
-.pricing-heading {
-  max-width: 780px;
-  margin-bottom: 34px;
-}
-.pricing-heading > p {
-  color: var(--red);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  margin-bottom: 12px;
-}
-.pricing-heading h2 {
-  color: var(--text-1);
-  font-size: clamp(26px, 3.2vw, 36px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
 .pricing-compare {
   overflow: hidden;
   background: var(--surface);
@@ -370,6 +495,57 @@ h1, h2, h3 {
   line-height: 1.55;
 }
 
+.download-inner { text-align: center; }
+.download-spirit {
+  display: inline-flex;
+  margin-bottom: 18px;
+}
+.download-description {
+  margin-top: 12px;
+  color: var(--text-2);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+}
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 620px);
+  margin: 28px auto 18px;
+}
+.download-option {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.download-option-primary {
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+}
+.footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 22px;
+  padding-bottom: 22px;
+}
+.footer-links { display: flex; gap: 22px; }
+
 /* ヒーローに添えるひそか。ふわっと浮かぶ */
 .hero-spirit {
   display: inline-flex;
@@ -445,18 +621,20 @@ h1, h2, h3 {
 
 @media (max-width: 768px) {
   .lp-inner { padding-left: 22px; padding-right: 22px; }
-  .scenes-inner { padding-top: 72px; padding-bottom: 76px; }
-  .scenes-heading { margin-bottom: 28px; }
+  .hero-grid { padding-top: 58px; padding-bottom: 72px; }
+  .hero-copy h1 { max-width: 11em; font-size: clamp(34px, 10.2vw, 42px); }
+  .hero-description { font-size: 16px; }
+  .section-heading { margin-bottom: 28px; }
+  .reason-row { gap: 16px; padding: 24px 0; }
+  .reason-copy p { font-size: 15px; }
   .scene-tabs { display: flex; width: 100%; }
   .scene-tabs button { flex: 1; min-width: 0; padding: 0 8px; font-size: 12px; }
   .scene-experience-card { grid-template-columns: 1fr; min-height: 0; border-radius: 22px; }
   .scene-experience-photo { min-height: 0; aspect-ratio: 4 / 3; }
   .scene-experience-copy { padding: 30px 26px 32px; }
   .scene-experience-copy h3 { font-size: 26px; }
-  .scene-description { font-size: 14px; }
+  .scene-description { font-size: 15px; }
   .scene-transcript { margin-top: 22px; padding: 17px; }
-  .pricing-inner { padding-top: 66px; padding-bottom: 68px; }
-  .pricing-heading { margin-bottom: 26px; }
   .pricing-compare { border-radius: 22px; }
   .plan-head-row,
   .comparison-row {
@@ -480,6 +658,7 @@ h1, h2, h3 {
   .comparison-row > .paid-value { padding-right: 0; }
   .comparison-value strong { font-size: 14px; }
   .pricing-footnote { padding: 16px 18px 18px; }
+  .download-grid { grid-template-columns: 1fr; }
 }
 
 /* hero-gridだけ閾値を広く取る。769〜1024px幅は2カラムのままだと右側の
@@ -493,13 +672,4 @@ h1, h2, h3 {
    ロゴとダウンロードボタンだけを残す（本文はスクロールすれば辿り着ける） */
 @media (max-width: 420px) {
   .nav-secondary-link { display: none; }
-}
-
-/* 見出しは通常2行の手動改行だけで組んでいるが、400px以下の狭い画面では
-   その1行がさらにブラウザの自動折り返しで中途半端な位置（「〜づかれ／ず、」等）
-   に割れて不格好になる。あらかじめ意味の切れ目に予備の改行を仕込んでおき、
-   狭い画面でだけ有効化することで、どの幅でも不自然な改行が起きないようにする */
-.br-narrow { display: none; }
-@media (max-width: 400px) {
-  .br-narrow { display: inline; }
 }

@@ -166,80 +166,53 @@ function SceneExperience(): ReactElement {
   );
 }
 
-const btnDark = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "14px 30px",
-  background: "var(--text-1)",
-  color: "#fff",
-  fontSize: 14,
-  fontWeight: 600,
-  borderRadius: 999,
-  whiteSpace: "nowrap" as const,
-  transition: "opacity 0.15s, transform 0.15s",
-};
-
 export default function Home() {
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="site-shell">
       {/* Nav */}
       <header className="nav-sticky">
-        <div className="lp-inner" style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <div className="lp-inner nav-inner">
+          <span className="nav-brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/app-icon.png" alt="" width={26} height={26} style={{ display: "block" }} />
-            <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-1)" }}>Giroku</span>
+            <img src="/app-icon.png" alt="" width={26} height={26} />
+            <span>Giroku</span>
           </span>
-          <div style={{ display: "flex", gap: 26, alignItems: "center" }}>
-            <a href="#scenes" className="nav-secondary-link" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500, whiteSpace: "nowrap" }}>使い方</a>
-            <a href="#pricing" className="nav-secondary-link" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500, whiteSpace: "nowrap" }}>料金</a>
-            <a
-              href="#download"
-              style={{ fontSize: 13, color: "#fff", background: "var(--red)", padding: "8px 18px", borderRadius: 999, fontWeight: 700, whiteSpace: "nowrap" }}
-            >
-              ダウンロード
-            </a>
+          <div className="nav-actions">
+            <a href="#scenes" className="nav-secondary-link">使い方</a>
+            <a href="#pricing" className="nav-secondary-link">料金</a>
+            <a href="#download" className="nav-download">ダウンロード</a>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section>
-        <div
-          className="lp-inner hero-grid"
-          style={{ paddingTop: 76, paddingBottom: 90, display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: 48, alignItems: "center" }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+      <section className="hero-section">
+        <div className="lp-inner hero-grid">
+          <div className="hero-copy">
+            <div className="hero-kicker">
               <span className="hero-spirit">
                 <LogoMark size={34} />
               </span>
-              <p style={{ display: "inline-flex", fontSize: 12, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, background: "rgba(232,25,44,0.08)", padding: "5px 12px", borderRadius: 999 }}>
+              <p>
                 録音 · 文字起こし · AI議事録
               </p>
             </div>
-            <h1 style={{ fontSize: "clamp(32px, 3.6vw, 44px)", fontWeight: 800, lineHeight: 1.28, letterSpacing: "-0.03em", marginBottom: 22, color: "var(--text-1)" }}>
-              相手に<br className="br-narrow" />気づかれず、<br />会話をまるごと<br className="br-narrow" />記録。
+            <h1>
+              相手に気づかれず、会話をまるごと記録。
             </h1>
-            <p style={{ fontSize: 17, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 440, marginBottom: 34 }}>
+            <p className="hero-description">
               マイクも、スマホ・パソコンの音も。ネットがなくても、あなたの端末だけで議事録に。
             </p>
-            <div style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
-              <a
-                href="#download"
-                style={btnDark}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-              >
+            <div className="hero-actions">
+              <a href="#download" className="button button-dark">
                 無料でダウンロード
               </a>
-              <a href="#scenes" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>使い方を見る →</a>
+              <a href="#scenes" className="text-link">使い方を見る →</a>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · macOS版を公開中</p>
+            <p className="hero-note">1か月120分まで無料 · 登録不要 · macOS版を公開中</p>
           </div>
           <Reveal delay={120}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div className="hero-product">
               <AppMock />
             </div>
           </Reveal>
@@ -247,28 +220,24 @@ export default function Home() {
       </section>
 
       {/* Girokuだけの3つ */}
-      <section style={{ background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
+      <section className="section section-muted">
+        <div className="lp-inner section-inner">
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)" }}>
-              他にはない、3つの理由。
-            </h2>
+            <div className="section-heading">
+              <p className="section-eyebrow">Girokuだけの3つ</p>
+              <h2 className="section-title">他にはない、3つの理由。</h2>
+            </div>
           </Reveal>
-          <div>
+          <div className="reasons-list">
             {reasons.map((r, i) => (
               <Reveal key={r.title} delay={i * 80}>
-                <div style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div className="reason-row">
+                  <div className="reason-icon">
                     <r.Icon />
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 8, lineHeight: 1.3 }}>
-                      {r.title}
-                    </h3>
-                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 600 }}>
-                      {r.desc}
-                    </p>
+                  <div className="reason-copy">
+                    <h3>{r.title}</h3>
+                    <p>{r.desc}</p>
                   </div>
                 </div>
               </Reveal>
@@ -278,12 +247,12 @@ export default function Home() {
       </section>
 
       {/* Scenes */}
-      <section id="scenes" className="scenes-section">
-        <div className="lp-inner scenes-inner">
+      <section id="scenes" className="section scenes-section">
+        <div className="lp-inner section-inner">
           <Reveal>
-            <div className="scenes-heading">
-              <p>使える場面</p>
-              <h2>会議も、講義も。<br />いつものまま記録。</h2>
+            <div className="section-heading">
+              <p className="section-eyebrow">使える場面</p>
+              <h2 className="section-title">会議も、講義も。いつものまま記録。</h2>
             </div>
           </Reveal>
           <Reveal>
@@ -293,12 +262,12 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="pricing-section">
-        <div className="lp-inner pricing-inner">
+      <section id="pricing" className="section pricing-section">
+        <div className="lp-inner section-inner">
           <Reveal>
-            <div className="pricing-heading">
-              <p>料金</p>
-              <h2>シンプルな2プラン。</h2>
+            <div className="section-heading">
+              <p className="section-eyebrow">料金</p>
+              <h2 className="section-title">シンプルな2プラン。</h2>
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -353,45 +322,41 @@ export default function Home() {
       </section>
 
       {/* Download */}
-      <section id="download" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 92, paddingBottom: 92, textAlign: "center" }}>
+      <section id="download" className="section download-section">
+        <div className="lp-inner section-inner download-inner">
           <Reveal>
-            <span className="hero-spirit" style={{ display: "inline-flex", marginBottom: 18 }}>
+            <span className="hero-spirit download-spirit">
               <LogoMark size={40} />
             </span>
-            <h2 style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
-              今すぐ始める
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 12, width: "min(100%, 620px)", margin: "0 auto 18px" }}>
-              <a
-                href="/download/mac"
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--red)", color: "white", fontSize: 14, fontWeight: 700, borderRadius: 999, whiteSpace: "nowrap" }}
-              >
+            <h2 className="section-title">今すぐ始める。</h2>
+            <p className="download-description">登録せずに、すぐ使えます。</p>
+            <div className="download-grid">
+              <a href="/download/mac" className="download-option download-option-primary">
                 macOS版をダウンロード
               </a>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+              <span className="download-option">
                 Windows版 — 準備中
               </span>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+              <span className="download-option">
                 iPhone版 — 準備中
               </span>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
+              <span className="download-option">
                 Android版 — 準備中
               </span>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · Apple Silicon（M1以降）対応</p>
+            <p className="download-note">1か月120分まで無料 · Apple Silicon（M1以降）対応</p>
           </Reveal>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border)", marginTop: "auto", background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 22, paddingBottom: 22, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <span style={{ fontSize: 12.5, color: "var(--text-3)" }}>© {new Date().getFullYear()} Naoya Tsuji</span>
-          <div style={{ display: "flex", gap: 22 }}>
-            <Link href="/privacy" style={{ fontSize: 12.5, color: "var(--text-3)" }}>プライバシー</Link>
-            <Link href="/terms" style={{ fontSize: 12.5, color: "var(--text-3)" }}>利用規約</Link>
-            <a href="mailto:naoyatttsuji@gmail.com" style={{ fontSize: 12.5, color: "var(--text-3)" }}>サポート</a>
+      <footer className="footer">
+        <div className="lp-inner footer-inner">
+          <span>© {new Date().getFullYear()} Naoya Tsuji</span>
+          <div className="footer-links">
+            <Link href="/privacy">プライバシー</Link>
+            <Link href="/terms">利用規約</Link>
+            <a href="mailto:naoyatttsuji@gmail.com">サポート</a>
           </div>
         </div>
       </footer>
