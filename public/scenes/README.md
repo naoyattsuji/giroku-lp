@@ -1,10 +1,10 @@
-# 利用シーン写真の出典
+# 利用シーン写真について
 
-LPの利用シーンには、AI生成ではないUnsplashの実写写真を使用しています。
-各写真は[Unsplash License](https://unsplash.com/license)に基づいて利用します。
+LPの利用シーンに合わせて制作した、Giroku専用の生成画像です。
+登場人物は実在せず、特定の個人や企業を表すものではありません。
 
-- `online-meeting.jpg`: [Chris Montgomery / Unsplash](https://unsplash.com/photos/smgTvepind4)
-- `in-person.jpg`: [Dylan Gillis / Unsplash](https://unsplash.com/photos/KdeqA3aTnBY)
-- `lecture.jpg`: [Unsplash](https://unsplash.com/photos/a-group-of-people-in-a-room-with-a-projector-screen-1-aA2Fadydc)
+- `online-meeting.jpg`: 日本の住居でオンライン会議に参加する様子
+- `in-person.jpg`: 少人数で対面の打ち合わせを行う様子
+- `lecture.jpg`: 日本の大学で講義を受ける様子
 
-画像はLP表示向けに横幅1600pxへ最適化しています。
+いずれも日本の利用者が自分の使用場面を想像しやすいよう、自然光、日常的な服装、実在感のある室内を基準に制作し、LP表示向けにJPEGへ最適化しています。
