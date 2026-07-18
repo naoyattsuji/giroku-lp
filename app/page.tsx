@@ -339,7 +339,7 @@ export default function Home() {
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 12, width: "min(100%, 620px)", margin: "0 auto 18px" }}>
               <a
-                href="https://github.com/naoyattsuji/giroku-releases/releases/latest/download/giroku-0.1.0.dmg"
+                href="/download/mac"
                 style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--red)", color: "white", fontSize: 14, fontWeight: 700, borderRadius: 999, whiteSpace: "nowrap" }}
               >
                 macOS版をダウンロード
