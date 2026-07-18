@@ -58,46 +58,163 @@ h1, h2, h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.12);
 }
 
-/* 利用シーンの横スクロール・カルーセル。写真の下に見出しを白文字で
-   重ねるカード3枚を並べる。lp-innerの内側に収め、ページ他部分より
-   横幅が広くなって不自然に見えることを防ぐ。カード幅は固定気味にし、
-   PCでも3枚目が少し見切れることでスクロールできると伝わるようにする */
-.scene-carousel {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+.scenes-section {
+  background: #f5f5f7;
 }
-.scene-carousel::-webkit-scrollbar {
-  display: none;
+.scenes-inner {
+  padding-top: 92px;
+  padding-bottom: 96px;
 }
-/* 元写真が横長(4:3)で人物が画面端まで広がっているため、縦長にトリミング
-   すると人物が見切れる。元の比率のまま使い、クロップを発生させない */
-.scene-card {
-  position: relative;
-  flex: 0 0 min(360px, 82%);
-  aspect-ratio: 4 / 3;
-  border-radius: 24px;
+.scenes-heading {
+  margin-bottom: 38px;
+}
+.scenes-heading > p {
+  margin-bottom: 12px;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.scenes-heading h2 {
+  max-width: 680px;
+  color: var(--text-1);
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.scene-tabs {
+  display: inline-flex;
+  gap: 3px;
+  margin-bottom: 18px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #e8e8ec;
+}
+.scene-tabs button {
+  min-width: 116px;
+  min-height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.scene-tabs button:hover {
+  color: var(--text-1);
+}
+.scene-tabs button:focus-visible {
+  outline: 3px solid rgba(232, 25, 44, 0.24);
+  outline-offset: 2px;
+}
+.scene-tabs button.is-active {
+  background: #fff;
+  color: var(--text-1);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+.scene-experience-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  min-height: 455px;
   overflow: hidden;
-  scroll-snap-align: start;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 22px 58px -38px rgba(0, 0, 0, 0.28);
+  animation: scene-enter 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scene-experience-photo {
+  position: relative;
+  min-height: 455px;
+  overflow: hidden;
   background: var(--surface-2);
 }
-.scene-card-scrim {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 55%;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.62) 100%);
-  pointer-events: none;
+.scene-experience-photo img {
+  object-position: center;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
-.scene-card-text {
+.scene-experience-card:hover .scene-experience-photo img {
+  transform: scale(1.018);
+}
+.scene-recording {
   position: absolute;
+  top: 20px;
   left: 20px;
-  right: 20px;
-  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-1);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+}
+.scene-recording i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: mock-pulse 2.4s ease-in-out infinite;
+}
+.scene-experience-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 48px 44px;
+}
+.scene-tag {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.scene-experience-copy h3 {
+  margin-top: 12px;
+  color: var(--text-1);
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.scene-description {
+  margin-top: 16px;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.75;
+}
+.scene-transcript {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: 17px;
+  background: #f5f5f7;
+}
+.scene-transcript span {
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 700;
+}
+.scene-transcript p {
+  margin-top: 3px;
+  color: var(--text-1);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+@keyframes scene-enter {
+  from { opacity: 0.45; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pillar-col {
@@ -328,6 +445,16 @@ h1, h2, h3 {
 
 @media (max-width: 768px) {
   .lp-inner { padding-left: 22px; padding-right: 22px; }
+  .scenes-inner { padding-top: 72px; padding-bottom: 76px; }
+  .scenes-heading { margin-bottom: 28px; }
+  .scene-tabs { display: flex; width: 100%; }
+  .scene-tabs button { flex: 1; min-width: 0; padding: 0 8px; font-size: 12px; }
+  .scene-experience-card { grid-template-columns: 1fr; min-height: 0; border-radius: 22px; }
+  .scene-experience-photo { min-height: 0; aspect-ratio: 4 / 3; }
+  .scene-experience-copy { padding: 30px 26px 32px; }
+  .scene-experience-copy h3 { font-size: 26px; }
+  .scene-description { font-size: 14px; }
+  .scene-transcript { margin-top: 22px; padding: 17px; }
   .pricing-inner { padding-top: 66px; padding-bottom: 68px; }
   .pricing-heading { margin-bottom: 26px; }
   .pricing-compare { border-radius: 22px; }

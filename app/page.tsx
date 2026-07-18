@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { ReactElement } from "react";
 import Link from "next/link";
 import {
@@ -18,22 +18,34 @@ const scenes = [
     Illust: SceneOnline,
     photo: "/scenes/online-meeting.jpg",
     tag: "オンライン会議",
-    benefit: "そのまま記録。",
-    desc: "Zoom・Meet・Teams、画面はそのまま。気づかれないから、録音を断られる心配もありません。",
+    title: "会議画面は、そのまま。",
+    desc: "通話にボットを追加せず、マイクとパソコンの音を分けてリアルタイムで記録します。",
+    lines: [
+      { speaker: "マイク", text: "次回は水曜日の10時でどうでしょう。" },
+      { speaker: "パソコンの音", text: "了解です。予定を入れておきます。" },
+    ],
   },
   {
     Illust: SceneMeeting,
     photo: "/scenes/in-person.jpg",
-    tag: "対面・1対1",
-    benefit: "置くだけで記録。",
-    desc: "机の上にパソコンを置いておくだけ。自分の声も、向かいの相手の声も両方拾います。",
+    tag: "対面",
+    title: "パソコンを置くだけ。",
+    desc: "自分と相手の声をその場で文字に。会話を止めず、メモを取る手間を減らせます。",
+    lines: [
+      { speaker: "マイク", text: "まずは画面案から確認しましょう。" },
+      { speaker: "マイク", text: "金曜日までに共有をお願いします。" },
+    ],
   },
   {
     Illust: SceneLecture,
     photo: "/scenes/lecture.jpg",
-    tag: "講義・授業",
-    benefit: "録って、見返す。",
-    desc: "聞き逃したところも、あとから文字で確認。板書を写す手も止めずに済みます。",
+    tag: "講義",
+    title: "聞くことに集中。",
+    desc: "聞き逃した箇所を、あとから文字と音声で確認。大切な説明を探し直せます。",
+    lines: [
+      { speaker: "マイク", text: "ここが今日の重要なポイントです。" },
+      { speaker: "マイク", text: "次回までに資料を読んでおいてください。" },
+    ],
   },
 ];
 
@@ -92,41 +104,63 @@ const reasons = [
   { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
 ];
 
-// 「こんな場面で」の横スクロール・カルーセル。写真の下部に見出しを白文字で
-// 重ね、スクロール位置に応じてドットが追従する。3枚とも収まる画面幅では
-// スクロールせずそのまま並んで見える（自然にグリッドとしても機能する）。
-function SceneCarousel(): ReactElement {
-  const trackRef = useRef<HTMLDivElement>(null);
+// 利用場面を1つずつ大きく見せる切り替え式パネル。写真だけに説明を任せず、
+// その場でGirokuが表示する文字起こしまで並べて、使い方を具体的に伝える。
+function SceneExperience(): ReactElement {
   const [active, setActive] = useState(0);
+  const scene = scenes[active];
+  const ActiveIllustration = scene.Illust;
 
-  const handleScroll = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cardWidth = track.scrollWidth / scenes.length;
-    setActive(Math.round(track.scrollLeft / cardWidth));
+  const moveTab = (index: number) => {
+    const next = (index + scenes.length) % scenes.length;
+    setActive(next);
+    document.getElementById(`scene-tab-${next}`)?.focus();
   };
 
   return (
-    <div>
-      <div ref={trackRef} className="scene-carousel" onScroll={handleScroll}>
-        {scenes.map(({ Illust, photo, tag, benefit, desc }) => (
-          <div key={tag} className="scene-card">
-            <SceneImage src={photo} alt={tag} fallback={<Illust />} />
-            <div className="scene-card-scrim" />
-            <div className="scene-card-text">
-              <span style={{ fontSize: 12, letterSpacing: "0.03em", color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{tag}</span>
-              <h3 style={{ fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, margin: "6px 0 8px", color: "#fff" }}>
-                {benefit}
-              </h3>
-              <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>{desc}</p>
-            </div>
-          </div>
+    <div className="scene-experience">
+      <div className="scene-tabs" role="tablist" aria-label="利用場面を選ぶ">
+        {scenes.map(({ tag }, index) => (
+          <button
+            id={`scene-tab-${index}`}
+            key={tag}
+            type="button"
+            role="tab"
+            aria-selected={active === index}
+            aria-controls="scene-panel"
+            tabIndex={active === index ? 0 : -1}
+            className={active === index ? "is-active" : ""}
+            onClick={() => setActive(index)}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") { event.preventDefault(); moveTab(index + 1); }
+              if (event.key === "ArrowLeft") { event.preventDefault(); moveTab(index - 1); }
+              if (event.key === "Home") { event.preventDefault(); moveTab(0); }
+              if (event.key === "End") { event.preventDefault(); moveTab(scenes.length - 1); }
+            }}
+          >
+            {tag}
+          </button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20 }}>
-        {scenes.map((s, i) => (
-          <div key={s.tag} style={{ width: 6, height: 6, borderRadius: "50%", background: i === active ? "var(--text-1)" : "var(--border)", transition: "background 0.2s" }} />
-        ))}
+
+      <div id="scene-panel" role="tabpanel" aria-labelledby={`scene-tab-${active}`} className="scene-experience-card" key={scene.tag}>
+        <div className="scene-experience-photo">
+          <SceneImage src={scene.photo} alt={`${scene.tag}でGirokuを使う様子`} fallback={<ActiveIllustration />} />
+          <span className="scene-recording"><i /> 録音中</span>
+        </div>
+        <div className="scene-experience-copy">
+          <p className="scene-tag">{scene.tag}</p>
+          <h3>{scene.title}</h3>
+          <p className="scene-description">{scene.desc}</p>
+          <div className="scene-transcript" aria-label={`${scene.tag}の文字起こし例`}>
+            {scene.lines.map((line, index) => (
+              <div key={`${line.speaker}-${index}`}>
+                <span>{line.speaker}</span>
+                <p>{line.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -244,18 +278,16 @@ export default function Home() {
       </section>
 
       {/* Scenes */}
-      <section id="scenes" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 40 }}>
+      <section id="scenes" className="scenes-section">
+        <div className="lp-inner scenes-inner">
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
-              話すだけで、<br />そのまま議事録になる。
-            </h2>
+            <div className="scenes-heading">
+              <p>使える場面</p>
+              <h2>会議も、講義も。<br />いつものまま記録。</h2>
+            </div>
           </Reveal>
-        </div>
-        <div className="lp-inner" style={{ paddingBottom: 96 }}>
           <Reveal>
-            <SceneCarousel />
+            <SceneExperience />
           </Reveal>
         </div>
       </section>
