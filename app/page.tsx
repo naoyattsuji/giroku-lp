@@ -1,375 +1,288 @@
 "use client";
 
-import { useRef, useState } from "react";
-import type { ReactElement } from "react";
 import Link from "next/link";
-import {
-  SceneOnline,
-  SceneMeeting,
-  SceneLecture,
-  SceneImage,
-  LogoMark,
-} from "./components/Illustrations";
+import type { ReactElement } from "react";
 import { AppMock } from "./components/AppMock";
+import { LogoMark } from "./components/Illustrations";
 import { Reveal } from "./components/Reveal";
 
-const scenes = [
-  {
-    Illust: SceneOnline,
-    photo: "/scenes/online-meeting.jpg",
-    tag: "オンライン会議",
-    benefit: "そのまま記録。",
-    desc: "Zoom・Meet・Teams、画面はそのまま。気づかれないから、録音を断られる心配もありません。",
-  },
-  {
-    Illust: SceneMeeting,
-    photo: "/scenes/in-person.jpg",
-    tag: "対面・1対1",
-    benefit: "置くだけで記録。",
-    desc: "机の上にパソコンを置いておくだけ。自分の声も、向かいの相手の声も両方拾います。",
-  },
-  {
-    Illust: SceneLecture,
-    photo: "/scenes/lecture.jpg",
-    tag: "講義・授業",
-    benefit: "録って、見返す。",
-    desc: "聞き逃したところも、あとから文字で確認。板書を写す手も止めずに済みます。",
-  },
-];
-
-// マスコット「ひそか」の胴体（LogoMarkと同じパス）。3つの理由アイコンでは
-// 目・小道具だけを変え、体形は常に同じにして「ひそか」だと一目でわかるようにする。
 const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z";
 
-function SpiritStealthIcon(): ReactElement {
+function ReasonIcon({ kind }: { kind: "quiet" | "audio" | "offline" }): ReactElement {
   return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-stealth">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      {/* サングラス＝気づかれずこっそり見ている */}
-      <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <rect x="13" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <path d="M11 11.4h2" stroke="#1c1c1e" strokeWidth="1" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function SpiritMicIcon(): ReactElement {
-  return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-mic">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* 小さなマイク（丸頭+スタンド）を持っている＝音を両方拾う。定番の
-          マイクのシルエットの方が小さいサイズでも一目でわかるため採用 */}
-      <g transform="translate(15,12.4)">
-        <circle cx="1.8" cy="1.8" r="2.9" fill="#1c1c1e" />
-        <path d="M1.8 4.8v3.2" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-        <path d="M-0.4 8h4.4" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-      </g>
-    </svg>
-  );
-}
-
-function SpiritOfflineIcon(): ReactElement {
-  return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-offline">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* wifi-offバッジ＝ネットなしでも平気（ひそかは止まらず浮遊し続ける） */}
-      <g transform="translate(14.6,13.6)">
-        <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
-        <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
-        <path d="M-0.6 0.4l7.6 5.8" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" />
-      </g>
+    <svg className={`reason-icon reason-icon-${kind}`} width="72" height="72" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={SPIRIT_BODY} fill="#f01932" />
+      {kind === "quiet" ? (
+        <>
+          <rect x="7.4" y="10.4" width="3.6" height="2.4" rx="1.2" fill="#1d1d1f" />
+          <rect x="13" y="10.4" width="3.6" height="2.4" rx="1.2" fill="#1d1d1f" />
+          <path d="M11 11.4h2" stroke="#1d1d1f" strokeWidth="1" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+          <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+        </>
+      )}
+      {kind === "audio" && (
+        <g transform="translate(14.8 12.4)" fill="#1d1d1f">
+          <circle cx="1.9" cy="1.8" r="2.8" />
+          <rect x="1.25" y="4" width="1.3" height="4.3" rx=".65" />
+          <rect x="-.25" y="7.5" width="4.3" height="1.2" rx=".6" />
+        </g>
+      )}
+      {kind === "offline" && (
+        <g transform="translate(14.2 13.5)" fill="none" stroke="#1d1d1f" strokeLinecap="round">
+          <path d="M.5 3.1a5 5 0 0 1 5.8 0" strokeWidth="1.15" opacity=".55" />
+          <circle cx="3.4" cy="5.4" r=".65" fill="#1d1d1f" stroke="none" />
+          <path d="M-.2.2l7.3 6" strokeWidth="1.25" />
+        </g>
+      )}
     </svg>
   );
 }
 
 const reasons = [
-  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: SpiritStealthIcon },
-  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: SpiritMicIcon },
-  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
+  {
+    kind: "quiet" as const,
+    title: "会議画面は、いつものまま。",
+    text: "通話にボットを追加しません。相手側の画面や会議の進め方を変えずに使えます。",
+  },
+  {
+    kind: "audio" as const,
+    title: "マイクも、パソコンの音も。",
+    text: "オンライン会議も、対面も、講義も。2つの音を分けて、きちんと記録します。",
+  },
+  {
+    kind: "offline" as const,
+    title: "ネットが、なくても。",
+    text: "録音と文字起こしは端末の中で動作。電波が不安定な場所でも止まりません。",
+  },
 ];
 
-function CheckIcon(): ReactElement {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M3.5 9.5l3.5 3.5 7.5-8" stroke="#1a9d4b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+const plans = [
+  {
+    name: "無料",
+    price: "¥0",
+    note: "登録不要",
+    features: ["文字起こし 月120分", "AI議事録 月2件", "AIへの質問・修正", "保存・編集・コピー"],
+    cta: "無料で始める",
+    href: "#download",
+  },
+  {
+    name: "有料",
+    price: "¥980",
+    suffix: "/ 年",
+    note: "買い切り感覚の年額・2台まで",
+    features: ["録音・文字起こし", "AI議事録・質問・修正", "利用量を気にせず使える", "2台まで利用可能"],
+    cta: "デスクトップ版を購入",
+    href: "https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747",
+    featured: true,
+  },
+];
+
+function Check(): ReactElement {
+  return <span className="check" aria-hidden="true">✓</span>;
 }
 
-// 「こんな場面で」の横スクロール・カルーセル。写真の下部に見出しを白文字で
-// 重ね、スクロール位置に応じてドットが追従する。3枚とも収まる画面幅では
-// スクロールせずそのまま並んで見える（自然にグリッドとしても機能する）。
-function SceneCarousel(): ReactElement {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-
-  const handleScroll = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cardWidth = track.scrollWidth / scenes.length;
-    setActive(Math.round(track.scrollLeft / cardWidth));
-  };
-
+function MinutesMock(): ReactElement {
   return (
-    <div>
-      <div ref={trackRef} className="scene-carousel" onScroll={handleScroll}>
-        {scenes.map(({ Illust, photo, tag, benefit, desc }) => (
-          <div key={tag} className="scene-card">
-            <SceneImage src={photo} alt={tag} fallback={<Illust />} />
-            <div className="scene-card-scrim" />
-            <div className="scene-card-text">
-              <span style={{ fontSize: 12, letterSpacing: "0.03em", color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{tag}</span>
-              <h3 style={{ fontSize: "clamp(20px, 2.2vw, 24px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, margin: "6px 0 8px", color: "#fff" }}>
-                {benefit}
-              </h3>
-              <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>{desc}</p>
-            </div>
+    <div className="minutes-window" aria-label="GirokuのAI議事録画面イメージ">
+      <div className="window-bar"><i /><i /><i /></div>
+      <div className="minutes-body">
+        <div className="minutes-topline">
+          <div>
+            <span className="eyebrow">AI議事録</span>
+            <h3>プロジェクト定例</h3>
           </div>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20 }}>
-        {scenes.map((s, i) => (
-          <div key={s.tag} style={{ width: 6, height: 6, borderRadius: "50%", background: i === active ? "var(--text-1)" : "var(--border)", transition: "background 0.2s" }} />
-        ))}
+          <span className="copy-pill">まとめてコピー</span>
+        </div>
+        <div className="minutes-grid">
+          <div className="minutes-main">
+            <section>
+              <span>決まったこと</span>
+              <p>新しい画面案は金曜日までに共有し、次回の会議で最終確認する。</p>
+            </section>
+            <section>
+              <span>次にやること</span>
+              <div className="task-row"><b>✓</b><p>田中さん：画面案を作成</p><time>金曜</time></div>
+              <div className="task-row"><b>✓</b><p>佐藤さん：利用者テストを準備</p><time>来週</time></div>
+            </section>
+          </div>
+          <div className="chat-preview">
+            <div className="chat-heading"><LogoMark size={18} /><span>議事録について聞く</span></div>
+            <p className="user-message">今日決まったことは？</p>
+            <p className="bot-message">画面案を金曜までに共有し、次回会議で最終確認します。</p>
+            <div className="chat-input">もう少し詳しく<span>↑</span></div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-const btnDark = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  padding: "14px 30px",
-  background: "var(--text-1)",
-  color: "#fff",
-  fontSize: 14,
-  fontWeight: 600,
-  borderRadius: 999,
-  whiteSpace: "nowrap" as const,
-  transition: "opacity 0.15s, transform 0.15s",
-};
-
-export default function Home() {
+export default function Home(): ReactElement {
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* Nav */}
-      <header className="nav-sticky">
-        <div className="lp-inner" style={{ height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+    <main>
+      <header className="site-nav">
+        <div className="shell nav-inner">
+          <a className="brand" href="#top" aria-label="Giroku トップへ">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/app-icon.png" alt="" width={26} height={26} style={{ display: "block" }} />
-            <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-1)" }}>Giroku</span>
-          </span>
-          <div style={{ display: "flex", gap: 26, alignItems: "center" }}>
-            <a href="#scenes" className="nav-secondary-link" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500, whiteSpace: "nowrap" }}>使い方</a>
-            <a href="#pricing" className="nav-secondary-link" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500, whiteSpace: "nowrap" }}>料金</a>
-            <a
-              href="#download"
-              style={{ fontSize: 13, color: "#fff", background: "var(--red)", padding: "8px 18px", borderRadius: 999, fontWeight: 700, whiteSpace: "nowrap" }}
-            >
-              ダウンロード
-            </a>
-          </div>
+            <img src="/app-icon.png" alt="" width="30" height="30" />
+            <span>Giroku</span>
+          </a>
+          <nav aria-label="メインナビゲーション">
+            <a href="#features">機能</a>
+            <a href="#pricing">料金</a>
+            <a className="nav-download" href="/download/mac">無料で始める</a>
+          </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section>
-        <div
-          className="lp-inner hero-grid"
-          style={{ paddingTop: 76, paddingBottom: 90, display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: 48, alignItems: "center" }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
-              <span className="hero-spirit">
-                <LogoMark size={34} />
-              </span>
-              <p style={{ display: "inline-flex", fontSize: 12, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, background: "rgba(232,25,44,0.08)", padding: "5px 12px", borderRadius: 999 }}>
-                録音 · 文字起こし · AI議事録
-              </p>
+      <section className="hero" id="top">
+        <div className="shell hero-copy">
+          <Reveal>
+            <p className="hero-kicker">録音・文字起こし・AI議事録を、ひとつに。</p>
+            <h1>会議は、そのまま。<br />記録だけ、残る。</h1>
+            <p className="hero-lead">通話にボットを追加せず、マイクとパソコンの音を<br className="desktop-break" />リアルタイムで文字起こしします。</p>
+            <div className="hero-actions">
+              <a className="primary-button" href="/download/mac">macOS版を無料でダウンロード</a>
+              <a className="text-link" href="#experience">使い方を見る <span>↓</span></a>
             </div>
-            <h1 style={{ fontSize: "clamp(32px, 3.6vw, 44px)", fontWeight: 800, lineHeight: 1.28, letterSpacing: "-0.03em", marginBottom: 22, color: "var(--text-1)" }}>
-              相手に<br className="br-narrow" />気づかれず、<br />会話をまるごと<br className="br-narrow" />記録。
-            </h1>
-            <p style={{ fontSize: 17, color: "var(--text-2)", lineHeight: 1.75, maxWidth: 440, marginBottom: 34 }}>
-              マイクも、スマホ・パソコンの音も。ネットがなくても、あなたの端末だけで議事録に。
-            </p>
-            <div style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
-              <a
-                href="#download"
-                style={btnDark}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-              >
-                無料でダウンロード
-              </a>
-              <a href="#scenes" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>使い方を見る →</a>
-            </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · macOS版を公開中</p>
+            <p className="hero-note">登録不要 · 月120分まで無料 · Apple Silicon対応</p>
+          </Reveal>
+        </div>
+        <div className="hero-product shell-wide">
+          <Reveal delay={100}><AppMock /></Reveal>
+        </div>
+      </section>
+
+      <section className="reasons-section" id="features">
+        <div className="shell content-narrow">
+          <Reveal>
+            <p className="section-label">Girokuだけの3つ</p>
+            <h2>他にはない、3つの理由。</h2>
+          </Reveal>
+          <div className="reasons-list">
+            {reasons.map((reason, index) => (
+              <Reveal key={reason.title} delay={index * 70}>
+                <article className="reason-row">
+                  <div className="reason-visual"><ReasonIcon kind={reason.kind} /></div>
+                  <div>
+                    <h3>{reason.title}</h3>
+                    <p>{reason.text}</p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
           </div>
-          <Reveal delay={120}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <AppMock />
+          <p className="consent-note">録音するときは、相手の同意や所属組織のルールを確認してご利用ください。</p>
+        </div>
+      </section>
+
+      <section className="experience-section" id="experience">
+        <div className="shell feature-block">
+          <Reveal>
+            <div className="feature-copy">
+              <p className="section-label">リアルタイム文字起こし</p>
+              <h2>話したそばから、<br />読める。</h2>
+              <p>マイクとパソコンの音を分けて表示。誰の音か迷わず、会議をしながら内容を追えます。</p>
+              <ul className="simple-list">
+                <li><Check />会議中もリアルタイムで表示</li>
+                <li><Check />軽快・高精度の2モード</li>
+                <li><Check />録音停止後に自動で仕上げ</li>
+              </ul>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="product-stage compact-stage"><AppMock /></div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="minutes-section">
+        <div className="shell minutes-heading">
+          <Reveal>
+            <p className="section-label">AI議事録</p>
+            <h2>終わった会議を、<br />もう一度聞かなくていい。</h2>
+            <p>決まったこと、次にやること、大切な発言を自動で整理。質問や書き直しも、その場でできます。</p>
+          </Reveal>
+        </div>
+        <div className="shell-wide minutes-stage"><Reveal delay={100}><MinutesMock /></Reveal></div>
+      </section>
+
+      <section className="privacy-section">
+        <div className="shell privacy-grid">
+          <Reveal>
+            <div>
+              <p className="section-label">プライバシー</p>
+              <h2>音声は、あなたのMacから出さない。</h2>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="privacy-details">
+              <article><span>01</span><div><h3>端末の中で文字起こし</h3><p>録音音声は外部の文字起こしサービスへ送信しません。</p></div></article>
+              <article><span>02</span><div><h3>ネットなしでも録音</h3><p>接続が不安定でも、録音と文字起こしを続けられます。</p></div></article>
+              <article><span>03</span><div><h3>AI仕上げは文章だけ</h3><p>有効にした場合も、AIへ送るのは文字起こし結果だけです。</p></div></article>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Girokuだけの3つ */}
-      <section style={{ background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 80, paddingBottom: 80 }}>
+      <section className="pricing-section" id="pricing">
+        <div className="shell content-narrow">
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", fontWeight: 700, marginBottom: 12 }}>Girokuだけの3つ</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)" }}>
-              他にはない、3つの理由。
-            </h2>
+            <div className="pricing-heading">
+              <p className="section-label">料金</p>
+              <h2>まずは無料で。<br />必要になったら、そのまま広げる。</h2>
+            </div>
           </Reveal>
-          <div>
-            {reasons.map((r, i) => (
-              <Reveal key={r.title} delay={i * 80}>
-                <div style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "28px 0", borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
-                  <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <r.Icon />
+          <div className="pricing-cards">
+            {plans.map((plan, index) => (
+              <Reveal key={plan.name} delay={index * 80}>
+                <article className={`price-card${plan.featured ? " featured" : ""}`}>
+                  <div className="price-top">
+                    <p>{plan.name}</p>
+                    {plan.featured && <span>おすすめ</span>}
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: "clamp(20px, 2.2vw, 26px)", fontWeight: 800, letterSpacing: "-0.02em", color: "var(--text-1)", marginBottom: 8, lineHeight: 1.3 }}>
-                      {r.title}
-                    </h3>
-                    <p style={{ fontSize: 16, color: "var(--text-2)", lineHeight: 1.7, maxWidth: 600 }}>
-                      {r.desc}
-                    </p>
-                  </div>
-                </div>
+                  <div className="price"><strong>{plan.price}</strong>{plan.suffix && <small>{plan.suffix}</small>}</div>
+                  <p className="price-note">{plan.note}</p>
+                  <ul>{plan.features.map((feature) => <li key={feature}><Check />{feature}</li>)}</ul>
+                  <a className={plan.featured ? "primary-button" : "secondary-button"} href={plan.href}>{plan.cta}</a>
+                </article>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Scenes */}
-      <section id="scenes" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 40 }}>
+      <section className="download-section" id="download">
+        <div className="shell content-narrow">
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", marginBottom: 14, fontWeight: 700 }}>こんな場面で</p>
-            <h2 style={{ fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
-              話すだけで、<br />そのまま議事録になる。
-            </h2>
-          </Reveal>
-        </div>
-        <div className="lp-inner" style={{ paddingBottom: 96 }}>
-          <Reveal>
-            <SceneCarousel />
+            <LogoMark size={48} />
+            <h2>次の会議から、<br />残してみる。</h2>
+            <p>登録せずに、すぐ使えます。</p>
+            <a className="primary-button large-button" href="/download/mac">macOS版を無料でダウンロード</a>
+            <div className="platform-status" aria-label="対応予定プラットフォーム">
+              <span>Windows <small>準備中</small></span>
+              <span>iPhone <small>準備中</small></span>
+              <span>Android <small>準備中</small></span>
+            </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" style={{ background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 88, paddingBottom: 92 }}>
-          <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>料金</p>
-            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 44, color: "var(--text-1)" }}>
-              シンプルな2プラン。
-            </h2>
-          </Reveal>
-          <Reveal delay={80}>
-          <div className="pricing-grid">
-            <div className="lp-card" style={{ padding: "34px 32px" }}>
-              <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 18, fontWeight: 700 }}>無料プラン</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
-                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥0</p>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>登録不要 · 文字起こし月120分まで</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音", "文字起こし（月120分）", "AI議事録（月2件）", "AIへの質問・修正（各10回）", "記録の保存・編集・コピー"].map((item) => (
-                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.5 }}>
-                    <CheckIcon />{item}
-                  </p>
-                ))}
-              </div>
-              <a href="#download" style={{ display: "block", padding: "13px 0", background: "var(--surface-2)", color: "var(--text-1)", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center" }}>
-                無料で始める
-              </a>
-            </div>
-            <div className="lp-card" style={{ padding: "34px 32px", border: "2px solid var(--red)" }}>
-              <p style={{ fontSize: 13, color: "var(--red)", marginBottom: 18, fontWeight: 700 }}>有料プラン</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
-                <p style={{ fontSize: 48, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--text-1)" }}>¥980</p>
-                <p style={{ fontSize: 15, color: "var(--text-3)", fontWeight: 700 }}>/ 年</p>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--text-3)", marginBottom: 30 }}>1年分を一括購入（自動更新なし）· 2台まで使える</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-                {["録音・文字起こし", "AI議事録・質問・修正", "利用量を気にせず使える", "2台まで利用可能"].map((item) => (
-                  <p key={item} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, color: "var(--text-1)", lineHeight: 1.5 }}>
-                    <CheckIcon />{item}
-                  </p>
-                ))}
-              </div>
-              <a
-                href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
-                style={{ display: "block", padding: "13px 0", background: "var(--red)", color: "#fff", fontSize: 14, fontWeight: 700, borderRadius: 999, textAlign: "center", transition: "opacity 0.15s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.85")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
-              >
-                デスクトップ版を ¥980 で購入
-              </a>
-              <p style={{ fontSize: 11.5, color: "var(--text-3)", lineHeight: 1.55, marginTop: 12, textAlign: "center" }}>
-                iPhone・Android版は公開後、アプリ内から購入できます
-              </p>
-            </div>
+      <footer>
+        <div className="shell footer-inner">
+          <div className="footer-brand"><LogoMark size={22} /><span>Giroku</span></div>
+          <div className="footer-links">
+            <Link href="/privacy">プライバシー</Link>
+            <Link href="/terms">利用規約</Link>
+            <a href="mailto:naoyatttsuji@gmail.com">サポート</a>
           </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Download */}
-      <section id="download" style={{ background: "var(--bg)" }}>
-        <div className="lp-inner" style={{ paddingTop: 92, paddingBottom: 92, textAlign: "center" }}>
-          <Reveal>
-            <span className="hero-spirit" style={{ display: "inline-flex", marginBottom: 18 }}>
-              <LogoMark size={40} />
-            </span>
-            <h2 style={{ fontSize: "clamp(30px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 28, color: "var(--text-1)" }}>
-              今すぐ始める
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 12, width: "min(100%, 620px)", margin: "0 auto 18px" }}>
-              <a
-                href="/download/mac"
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--red)", color: "white", fontSize: 14, fontWeight: 700, borderRadius: 999, whiteSpace: "nowrap" }}
-              >
-                macOS版をダウンロード
-              </a>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
-                Windows版 — 準備中
-              </span>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
-                iPhone版 — 準備中
-              </span>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
-                Android版 — 準備中
-              </span>
-            </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · Apple Silicon（M1以降）対応</p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border)", marginTop: "auto", background: "var(--surface-2)" }}>
-        <div className="lp-inner" style={{ paddingTop: 22, paddingBottom: 22, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <span style={{ fontSize: 12.5, color: "var(--text-3)" }}>© {new Date().getFullYear()} Naoya Tsuji</span>
-          <div style={{ display: "flex", gap: 22 }}>
-            <Link href="/privacy" style={{ fontSize: 12.5, color: "var(--text-3)" }}>プライバシー</Link>
-            <Link href="/terms" style={{ fontSize: 12.5, color: "var(--text-3)" }}>利用規約</Link>
-            <a href="mailto:naoyatttsuji@gmail.com" style={{ fontSize: 12.5, color: "var(--text-3)" }}>サポート</a>
-          </div>
+          <p>© {new Date().getFullYear()} Naoya Tsuji</p>
         </div>
       </footer>
-    </div>
+    </main>
   );
 }
