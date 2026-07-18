@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import Link from "next/link";
 import {
@@ -12,6 +12,7 @@ import {
 } from "./components/Illustrations";
 import { AppMock } from "./components/AppMock";
 import { Reveal } from "./components/Reveal";
+import { usePrefersReducedMotion } from "./components/usePrefersReducedMotion";
 
 const scenes = [
   {
@@ -104,6 +105,64 @@ const reasons = [
   { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
 ];
 
+// 選択中の利用場面を、ヒーローのアプリモックと同じリズムで再生する。
+// 1人目を入力→短く間を置く→2人目を入力→会話全体を見せてから繰り返す。
+// 動きを減らすOS設定では、最初から全文を表示する。
+function LiveSceneTranscript({
+  lines,
+}: {
+  lines: { speaker: string; text: string }[];
+}): ReactElement {
+  const reducedMotion = usePrefersReducedMotion();
+  const [lineIndex, setLineIndex] = useState(0);
+  const [typed, setTyped] = useState(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const current = lines[lineIndex];
+    const timer =
+      typed < current.text.length
+        ? window.setTimeout(() => setTyped((value) => value + 1), 48)
+        : lineIndex < lines.length - 1
+          ? window.setTimeout(() => {
+              setLineIndex((value) => value + 1);
+              setTyped(0);
+            }, 760)
+          : window.setTimeout(() => {
+              setLineIndex(0);
+              setTyped(0);
+            }, 2400);
+
+    return () => window.clearTimeout(timer);
+  }, [lineIndex, lines, reducedMotion, typed]);
+
+  const fullTranscript = lines.map((line) => `${line.speaker}：${line.text}`).join(" ");
+
+  return (
+    <div className="scene-transcript" aria-label={fullTranscript}>
+      {lines.map((line, index) => {
+        const visible = reducedMotion || index <= lineIndex;
+        const complete = reducedMotion || index < lineIndex || typed >= line.text.length;
+        const text = complete ? line.text : index === lineIndex ? line.text.slice(0, typed) : "";
+
+        return (
+          <div
+            key={`${line.speaker}-${index}`}
+            className={`scene-transcript-line${visible ? " is-visible" : ""}`}
+            aria-hidden="true"
+          >
+            <span>{line.speaker}</span>
+            <p>
+              {text}
+              {visible && !complete && <i className="scene-cursor" />}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // 利用場面を1つずつ大きく見せる切り替え式パネル。写真だけに説明を任せず、
 // その場でGirokuが表示する文字起こしまで並べて、使い方を具体的に伝える。
 function SceneExperience(): ReactElement {
@@ -152,14 +211,7 @@ function SceneExperience(): ReactElement {
           <p className="scene-tag">{scene.tag}</p>
           <h3>{scene.title}</h3>
           <p className="scene-description">{scene.desc}</p>
-          <div className="scene-transcript" aria-label={`${scene.tag}の文字起こし例`}>
-            {scene.lines.map((line, index) => (
-              <div key={`${line.speaker}-${index}`}>
-                <span>{line.speaker}</span>
-                <p>{line.text}</p>
-              </div>
-            ))}
-          </div>
+          <LiveSceneTranscript key={scene.tag} lines={scene.lines} />
         </div>
       </div>
     </div>
