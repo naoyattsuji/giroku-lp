@@ -19,4 +19,4 @@ npm run build
 
 ## 公開
 
-GitHubの`main`へpush後、Vercelへ本番デプロイします。署名・公証済みのアプリリリースが存在するまでは、LPのダウンロード導線を「公開準備中」にします。
+GitHubの`main`へpush後、Vercelへ本番デプロイします。macOS版は署名・Apple公証済みのDMGを`naoyattsuji/giroku-releases`から配布します。未公開のOSはダウンロード導線を「準備中」にします。

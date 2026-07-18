@@ -210,7 +210,7 @@ export default function Home() {
               </a>
               <a href="#scenes" style={{ fontSize: 14, color: "var(--text-2)", fontWeight: 500 }}>使い方を見る →</a>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · Mac / Windows / iPhone / Androidに対応予定</p>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · macOS版を公開中</p>
           </div>
           <Reveal delay={120}>
             <div style={{ display: "flex", justifyContent: "center" }}>
@@ -338,9 +338,12 @@ export default function Home() {
               今すぐ始める
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 12, width: "min(100%, 620px)", margin: "0 auto 18px" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }} aria-disabled="true">
-                macOS版 — 公開準備中
-              </span>
+              <a
+                href="https://github.com/naoyattsuji/giroku-releases/releases/latest/download/giroku-0.1.0.dmg"
+                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--red)", color: "white", fontSize: 14, fontWeight: 700, borderRadius: 999, whiteSpace: "nowrap" }}
+              >
+                macOS版をダウンロード
+              </a>
               <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "14px 24px", background: "var(--surface-2)", color: "var(--text-3)", fontSize: 14, borderRadius: 999, whiteSpace: "nowrap" }}>
                 Windows版 — 準備中
               </span>
@@ -351,7 +354,7 @@ export default function Home() {
                 Android版 — 準備中
               </span>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要</p>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>1か月120分まで無料 · 登録不要 · Apple Silicon（M1以降）対応</p>
           </Reveal>
         </div>
       </section>
