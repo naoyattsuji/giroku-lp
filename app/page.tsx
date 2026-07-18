@@ -266,7 +266,7 @@ export default function Home() {
           <Reveal>
             <div className="pricing-heading">
               <p>料金</p>
-              <h2>違いは、これだけ。</h2>
+              <h2>シンプルな2プラン。</h2>
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -303,7 +303,7 @@ export default function Home() {
                 </div>
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">AIへの質問・修正</div>
-                  <div className="comparison-value" role="cell"><strong>各10回</strong></div>
+                  <div className="comparison-value" role="cell"><strong>1件につき10回</strong></div>
                   <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
