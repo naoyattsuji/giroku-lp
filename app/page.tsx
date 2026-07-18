@@ -247,8 +247,8 @@ export default function Home() {
       <section id="scenes" style={{ background: "var(--bg)" }}>
         <div className="lp-inner" style={{ paddingTop: 96, paddingBottom: 40 }}>
           <Reveal>
-            <p style={{ fontSize: 13, letterSpacing: "0.04em", color: "var(--red)", marginBottom: 14, fontWeight: 700 }}>こんな場面で</p>
-            <h2 style={{ fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
+            <p style={{ fontSize: 13, letterSpacing: "0.02em", color: "var(--red)", marginBottom: 12, fontWeight: 700 }}>こんな場面で</p>
+            <h2 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, maxWidth: 620, color: "var(--text-1)" }}>
               話すだけで、<br />そのまま議事録になる。
             </h2>
           </Reveal>
