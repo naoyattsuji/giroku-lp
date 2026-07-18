@@ -92,14 +92,6 @@ const reasons = [
   { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
 ];
 
-function CheckIcon(): ReactElement {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M3.5 9.5l3.5 3.5 7.5-8" stroke="#1a9d4b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 // 「こんな場面で」の横スクロール・カルーセル。写真の下部に見出しを白文字で
 // 重ね、スクロール位置に応じてドットが追従する。3枚とも収まる画面幅では
 // スクロールせずそのまま並んで見える（自然にグリッドとしても機能する）。
@@ -275,26 +267,20 @@ export default function Home() {
             <div className="pricing-heading">
               <p>料金</p>
               <h2>違いは、これだけ。</h2>
-              <span>無料でも基本機能は同じ。有料なら、利用上限を気にせず2台まで使えます。</span>
             </div>
           </Reveal>
           <Reveal delay={80}>
             <div className="pricing-compare">
               <div className="plan-head-row">
-                <div className="comparison-corner">プラン</div>
+                <div className="comparison-corner" aria-hidden="true" />
                 <article className="plan-head">
                   <p className="plan-name">無料</p>
                   <div className="plan-price"><strong>¥0</strong></div>
-                  <p className="plan-for">まず試したい人に</p>
                   <a href="#download" className="plan-button plan-button-free">無料で始める</a>
                 </article>
                 <article className="plan-head plan-head-paid">
-                  <div className="plan-name-line">
-                    <p className="plan-name">有料</p>
-                    <span>おすすめ</span>
-                  </div>
+                  <p className="plan-name">有料</p>
                   <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
-                  <p className="plan-for">日常的に使う人に</p>
                   <a
                     href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
                     className="plan-button plan-button-paid"
@@ -307,33 +293,27 @@ export default function Home() {
               <div className="comparison-body" role="table" aria-label="無料プランと有料プランの比較">
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">文字起こし</div>
-                  <div className="comparison-value" role="cell"><strong>月120分</strong><span>毎月リセット</span></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>時間を気にせず使える</span></div>
+                  <div className="comparison-value" role="cell"><strong>月120分</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">AI議事録</div>
-                  <div className="comparison-value" role="cell"><strong>月2件</strong><span>毎月リセット</span></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>何件でも作成</span></div>
+                  <div className="comparison-value" role="cell"><strong>月2件</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">AIへの質問・修正</div>
-                  <div className="comparison-value" role="cell"><strong>各10回</strong><span>議事録ごと</span></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong><span>何度でも質問</span></div>
+                  <div className="comparison-value" role="cell"><strong>各10回</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">端末での利用</div>
-                  <div className="comparison-value" role="cell"><strong>この端末で</strong><span>登録不要</span></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>2台まで</strong><span>Mac・Windows対応予定</span></div>
-                </div>
-                <div className="comparison-row comparison-row-common" role="row">
-                  <div className="comparison-label" role="rowheader">録音・保存・編集・コピー</div>
-                  <div className="comparison-value" role="cell"><span className="included-mark"><CheckIcon />すべて利用可能</span></div>
-                  <div className="comparison-value paid-value" role="cell"><span className="included-mark"><CheckIcon />すべて利用可能</span></div>
+                  <div className="comparison-value" role="cell"><strong>登録不要</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>2台まで</strong></div>
                 </div>
               </div>
               <div className="pricing-footnote">
                 <p>有料プランは1年分を一括購入。自動更新はありません。</p>
-                <span>iPhone・Android版は公開後、アプリ内から購入できます。</span>
               </div>
             </div>
           </Reveal>
