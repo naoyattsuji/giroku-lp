@@ -158,8 +158,8 @@ export default function PrivacyPage() {
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>お問い合わせ</h2>
             <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
               プライバシーに関するお問い合わせは{" "}
-              <a href="mailto:naoyatttsuji@gmail.com" style={{ color: "var(--text-1)", textDecoration: "underline" }}>
-                naoyatttsuji@gmail.com
+              <a href="mailto:naoyattsuji@gmail.com" style={{ color: "var(--text-1)", textDecoration: "underline" }}>
+                naoyattsuji@gmail.com
               </a>{" "}
               までご連絡ください。
             </p>

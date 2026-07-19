@@ -425,7 +425,7 @@ export default function Home() {
           <div className="footer-links">
             <Link href="/privacy">プライバシー</Link>
             <Link href="/terms">利用規約</Link>
-            <a href="mailto:naoyatttsuji@gmail.com">サポート</a>
+            <a href="mailto:naoyattsuji@gmail.com">サポート</a>
           </div>
         </div>
       </footer>
