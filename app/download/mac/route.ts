@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const MAC_DOWNLOAD_URL =
-  "https://github.com/naoyattsuji/giroku-releases/releases/latest/download/giroku-0.1.4.dmg";
+  "https://github.com/naoyattsuji/giroku-releases/releases/latest/download/giroku-0.1.5.dmg";
 
 export function GET() {
   return NextResponse.redirect(MAC_DOWNLOAD_URL, 307);
