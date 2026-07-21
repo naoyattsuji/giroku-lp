@@ -7,6 +7,7 @@ import {
   isValidAnonymousDeviceId,
   fetchWithRetry,
   isPaidLicense,
+  isPaidPortableInstance,
   isPaidMobileAccount,
   isPaidMobileDevice,
   requestBodyIsTooLarge,
@@ -254,6 +255,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   let body: {
     licenseKey?: string
+    licenseInstanceId?: string
     deviceId?: string
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
@@ -278,6 +280,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       !['auto', 'meeting', 'lecture', 'oneOnOne', 'interview'].includes(body.template)) ||
     (body.instruction !== undefined && typeof body.instruction !== 'string') ||
     (body.previousSummary !== undefined && typeof body.previousSummary !== 'string')
+    || (body.licenseInstanceId !== undefined && (typeof body.licenseInstanceId !== 'string' || body.licenseInstanceId.length > 100))
   ) {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
@@ -293,7 +296,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   ) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
-  const paid = (body.licenseKey ? await isPaidLicense(body.licenseKey) : false) || mobilePaid
+  const paid = (body.licenseKey
+    ? body.licenseInstanceId
+      ? await isPaidPortableInstance(body.licenseKey, body.licenseInstanceId)
+      : await isPaidLicense(body.licenseKey)
+    : false) || mobilePaid
 
   if (!paid && !anonymous) {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })

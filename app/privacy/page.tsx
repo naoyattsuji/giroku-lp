@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>外部に送信される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-              {["デスクトップ版のライセンス認証時：ライセンスキーおよび端末名（LemonSqueezy）", "モバイル有料版の購入・復元時：ストア購入情報、購入権利、匿名の購入者ID（Apple、Google、RevenueCat）", "有料アカウント利用時：メールアドレス、ユーザーID、利用端末ID・OS・最終利用日時（Supabase）。無料版では登録を求めません", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）"].map((item) => (
+              {["購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windows・iPhone・Androidを合わせた最大2台の管理に使用します", "モバイル有料版のストア購入・復元時：ストア購入情報、購入権利、匿名の購入者ID（Apple、Google、RevenueCat）", "有料アカウント利用時：メールアドレス、ユーザーID、利用端末ID・OS・最終利用日時（Supabase）。無料版および購入キー利用では登録を求めません", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>LemonSqueezy</strong>：ライセンス購入・認証時（決済情報・デバイスID）</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>LemonSqueezy</strong>：購入キーの購入・認証・Mac／Windows／iPhone／Androidを合わせた最大2台の管理</span>
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>

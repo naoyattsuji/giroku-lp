@@ -5,8 +5,11 @@ import { createHash } from 'node:crypto'
 
 const GIROKU_STORE_ID = 410452
 const GIROKU_PRODUCT_ID = 1153138
+const MAX_ACTIVATIONS = 2
+const LS_BASE = 'https://api.lemonsqueezy.com/v1/licenses'
 const LICENSE_CACHE_MS = 5 * 60 * 1000
 const licenseCache = new Map<string, { paid: boolean; expires: number }>()
+const portableInstanceCache = new Map<string, { paid: boolean; expires: number }>()
 const rateBuckets = new Map<string, { count: number; resetAt: number }>()
 const licenseMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
 const licenseHourBuckets = new Map<string, { count: number; resetAt: number }>()
@@ -15,6 +18,162 @@ const anonymousHourBuckets = new Map<string, { count: number; resetAt: number }>
 const mobilePaidMinuteBuckets = new Map<string, { count: number; resetAt: number }>()
 const mobilePaidHourBuckets = new Map<string, { count: number; resetAt: number }>()
 const revenueCatCache = new Map<string, { paid: boolean; expires: number }>()
+
+export interface PortableLicenseState {
+  paid: boolean
+  expiresAt: string | null
+  instanceId: string | null
+  instanceName: string | null
+}
+
+interface LemonSqueezyLicenseResponse {
+  activated?: boolean
+  deactivated?: boolean
+  valid?: boolean
+  error?: string | null
+  license_key?: {
+    status?: string
+    expires_at?: string | null
+    activation_usage?: number
+  }
+  instance?: { id?: string; name?: string }
+  meta?: { store_id?: number; product_id?: number }
+}
+
+export class PortableLicenseError extends Error {
+  readonly upstream: boolean
+
+  constructor(message: string, upstream = false) {
+    super(message)
+    this.name = 'PortableLicenseError'
+    this.upstream = upstream
+  }
+}
+
+function portableLicenseResponseError(status: number, message?: string | null): PortableLicenseError {
+  if (/activation limit/i.test(message ?? '')) {
+    return new PortableLicenseError(`このライセンスは既に最大${MAX_ACTIVATIONS}台で使用されています。`)
+  }
+  if (status === 404 || /not found|invalid/i.test(message ?? '')) {
+    return new PortableLicenseError('ライセンスキーが見つかりません。入力内容をご確認ください。')
+  }
+  if (status >= 500) return new PortableLicenseError('ライセンスサーバーへ接続できませんでした。', true)
+  return new PortableLicenseError(message || 'ライセンスを認証できませんでした。')
+}
+
+function assertPortableLicenseInput(licenseKey: string, instanceName?: string, instanceId?: string): void {
+  if (!licenseKey.trim() || licenseKey.length > 256) throw new Error('ライセンスキーを確認してください。')
+  if (instanceName !== undefined && (!instanceName.trim() || instanceName.length > 100)) {
+    throw new Error('端末情報を確認してください。')
+  }
+  if (instanceId !== undefined && (!instanceId.trim() || instanceId.length > 100)) {
+    throw new Error('端末情報を確認してください。')
+  }
+}
+
+async function postLemonSqueezyLicense(
+  action: 'activate' | 'validate' | 'deactivate',
+  values: Record<string, string>,
+): Promise<LemonSqueezyLicenseResponse> {
+  try {
+    const response = await fetch(`${LS_BASE}/${action}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(values).toString(),
+      signal: AbortSignal.timeout(15_000),
+    })
+    const data = await response.json().catch(() => ({})) as LemonSqueezyLicenseResponse
+    if (!response.ok) throw portableLicenseResponseError(response.status, data.error)
+    return data
+  } catch (error) {
+    if (error instanceof PortableLicenseError) throw error
+    throw new PortableLicenseError('ライセンスサーバーへ接続できませんでした。', true)
+  }
+}
+
+function assertGirokuLicense(data: LemonSqueezyLicenseResponse): void {
+  if (data.meta?.store_id !== GIROKU_STORE_ID || data.meta?.product_id !== GIROKU_PRODUCT_ID) {
+    throw new Error('このライセンスキーはGiroku用ではありません。')
+  }
+}
+
+function expiresInPast(expiresAt: string | null | undefined): boolean {
+  return Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now())
+}
+
+/** Mac・Windowsと同じLemonSqueezyの2台枠へ、スマートフォンを登録する。 */
+export async function activatePortableLicense(licenseKey: string, instanceName: string): Promise<PortableLicenseState> {
+  const key = licenseKey.trim()
+  const name = instanceName.trim()
+  assertPortableLicenseInput(key, name)
+  const data = await postLemonSqueezyLicense('activate', { license_key: key, instance_name: name })
+  assertGirokuLicense(data)
+  if (!data.activated || !data.license_key || !data.instance?.id) {
+    throw new Error(data.error || 'ライセンスの認証に失敗しました。キーをご確認ください。')
+  }
+  if ((data.license_key.activation_usage ?? 0) > MAX_ACTIVATIONS) {
+    await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
+    throw new Error(`このライセンスは既に最大${MAX_ACTIVATIONS}台で使用されています。`)
+  }
+  if (data.license_key.status !== 'active' || expiresInPast(data.license_key.expires_at)) {
+    await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
+    throw new Error('このライセンスキーの有効期限が切れています。')
+  }
+  licenseCache.delete(createHash('sha256').update(key).digest('hex'))
+  portableInstanceCache.clear()
+  return {
+    paid: true,
+    expiresAt: data.license_key.expires_at ?? null,
+    instanceId: data.instance.id,
+    instanceName: data.instance.name ?? name,
+  }
+}
+
+export async function validatePortableLicense(licenseKey: string, instanceId: string): Promise<PortableLicenseState> {
+  const key = licenseKey.trim()
+  const id = instanceId.trim()
+  assertPortableLicenseInput(key, undefined, id)
+  const data = await postLemonSqueezyLicense('validate', { license_key: key, instance_id: id })
+  assertGirokuLicense(data)
+  const paid = Boolean(data.valid) && data.license_key?.status === 'active' && !expiresInPast(data.license_key?.expires_at)
+  return {
+    paid,
+    expiresAt: data.license_key?.expires_at ?? null,
+    instanceId: paid ? id : null,
+    instanceName: data.instance?.name ?? null,
+  }
+}
+
+/** モバイルのAI利用時に、キーだけでなく登録済み端末IDも検証して2台制限の迂回を防ぐ。 */
+export async function isPaidPortableInstance(licenseKey: string, instanceId: string): Promise<boolean> {
+  const key = licenseKey.trim()
+  const id = instanceId.trim()
+  try {
+    assertPortableLicenseInput(key, undefined, id)
+  } catch {
+    return false
+  }
+  const cacheKey = createHash('sha256').update(`${key}:${id}`).digest('hex')
+  const cached = portableInstanceCache.get(cacheKey)
+  if (cached && cached.expires > Date.now()) return cached.paid
+  try {
+    const state = await validatePortableLicense(key, id)
+    portableInstanceCache.set(cacheKey, { paid: state.paid, expires: Date.now() + (state.paid ? LICENSE_CACHE_MS : 60_000) })
+    return state.paid
+  } catch {
+    return false
+  }
+}
+
+export async function deactivatePortableLicense(licenseKey: string, instanceId: string): Promise<void> {
+  const key = licenseKey.trim()
+  const id = instanceId.trim()
+  assertPortableLicenseInput(key, undefined, id)
+  const data = await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: id })
+  if (!data.deactivated) throw new Error(data.error || 'この端末の利用を解除できませんでした。')
+  licenseCache.delete(createHash('sha256').update(key).digest('hex'))
+  portableInstanceCache.clear()
+}
 
 /**
  * Geminiが一時的に混雑(429/503)を返すことがあるため、短い間隔で自動リトライする。

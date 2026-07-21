@@ -7,6 +7,8 @@ Girokuの公開サイトと、有料AI機能を提供するNext.js Route Handler
 - `/download/mac`: GitHub画面を挟まず、最新の公証済みmacOS版DMGを直接ダウンロード
 - LemonSqueezyでGiroku商品・アクティベーション済みキーを検証
 - IPおよびライセンス単位の回数制限、入力長制限、外部通信タイムアウトを適用
+- `/api/license` でデスクトップ購入キーをiPhone・Androidへ登録・確認・解除し、Mac・Windowsと同じ最大2台のLemonSqueezy端末枠を共有
+- モバイルからの有料AI利用は購入キーだけでなく登録済み端末IDも検証し、端末数制限の迂回を防止
 
 ## 開発
 
