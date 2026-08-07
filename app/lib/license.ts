@@ -211,7 +211,8 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: new URLSearchParams({ license_key: licenseKey }).toString()
+      body: new URLSearchParams({ license_key: licenseKey }).toString(),
+      signal: AbortSignal.timeout(15_000)
     })
     if (!res.ok) return false
     const data = (await res.json()) as {

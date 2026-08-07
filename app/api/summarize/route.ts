@@ -285,6 +285,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
 
+  const segments = body.segments
+  if (!validTranscriptSegments(segments)) {
+    return NextResponse.json({ error: '文字起こしの形式または長さが不正です' }, { status: 400 })
+  }
+  if ((body.instruction?.length ?? 0) > 2000 || (body.previousSummary?.length ?? 0) > 100_000) {
+    return NextResponse.json({ error: '編集依頼または議事録が長すぎます' }, { status: 400 })
+  }
+  if (segments.length === 0) {
+    return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
+  }
+
   const anonymous = !body.licenseKey && isValidAnonymousDeviceId(body.deviceId)
   const mobilePaid = anonymous
     ? (await isPaidMobileAccount(req, body.deviceId!)) || (await isPaidMobileDevice(body.deviceId!))
@@ -304,17 +315,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   if (!paid && !anonymous) {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })
-  }
-
-  const segments = body.segments
-  if (!validTranscriptSegments(segments)) {
-    return NextResponse.json({ error: '文字起こしの形式または長さが不正です' }, { status: 400 })
-  }
-  if ((body.instruction?.length ?? 0) > 2000 || (body.previousSummary?.length ?? 0) > 100_000) {
-    return NextResponse.json({ error: '編集依頼または議事録が長すぎます' }, { status: 400 })
-  }
-  if (segments.length === 0) {
-    return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
   }
 
   const langLabel =
