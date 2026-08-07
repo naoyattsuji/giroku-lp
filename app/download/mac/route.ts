@@ -13,6 +13,7 @@ export async function GET() {
   try {
     const res = await fetch(RELEASES_API_URL, {
       headers: { Accept: "application/vnd.github+json" },
+      signal: AbortSignal.timeout(5_000),
       next: { revalidate: 300 },
     });
     if (res.ok) {
