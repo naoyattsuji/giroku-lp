@@ -22,14 +22,19 @@
   --small-size: 12.5px;
 }
 
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--bg);
   color: var(--text-1);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Hiragino Sans', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-html { scroll-behavior: smooth; }
 a { text-decoration: none; color: inherit; }
 
 /* 見出しは幅に応じて自動折り返しされるが、素の折り返しだと「る。」のような
@@ -71,12 +76,15 @@ h1, h2, h3 {
   display: flex;
   height: 64px;
   align-items: center;
+  gap: 16px;
   justify-content: space-between;
+  min-width: 0;
 }
 .nav-brand,
 .nav-actions {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
 }
 .nav-brand { gap: 8px; }
 .nav-brand img { display: block; }
@@ -86,7 +94,10 @@ h1, h2, h3 {
   font-weight: 800;
   letter-spacing: -0.01em;
 }
-.nav-actions { gap: 26px; }
+.nav-actions {
+  gap: 26px;
+  justify-content: flex-end;
+}
 .nav-secondary-link {
   color: var(--text-2);
   font-size: 14px;
@@ -149,6 +160,7 @@ h1, h2, h3 {
   gap: 18px;
   align-items: center;
   margin-bottom: 16px;
+  max-width: 100%;
 }
 .button {
   display: inline-flex;
@@ -168,7 +180,11 @@ h1, h2, h3 {
 .hero-note,
 .download-note,
 .footer { color: var(--text-3); font-size: var(--small-size); }
-.hero-product { display: flex; justify-content: center; }
+.hero-product {
+  display: flex;
+  min-width: 0;
+  justify-content: center;
+}
 
 .section-muted,
 .pricing-section { background: var(--surface-2); }
@@ -211,7 +227,10 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
 }
-.reason-copy { padding-top: 1px; }
+.reason-copy {
+  min-width: 0;
+  padding-top: 1px;
+}
 .reason-copy h3 {
   margin-bottom: 8px;
   color: var(--text-1);
@@ -225,6 +244,7 @@ h1, h2, h3 {
   color: var(--text-2);
   font-size: var(--body-size);
   line-height: var(--body-leading);
+  overflow-wrap: anywhere;
 }
 
 .lp-card {
@@ -667,8 +687,23 @@ h1, h2, h3 {
 @media (max-width: 768px) {
   .lp-inner { padding-left: 22px; padding-right: 22px; }
   .hero-grid { padding-top: 58px; padding-bottom: 72px; }
-  .hero-copy h1 { max-width: 11em; font-size: clamp(34px, 10.2vw, 42px); }
-  .hero-description { font-size: 16px; }
+  .hero-copy { min-width: 0; }
+  .hero-copy h1 {
+    max-width: 100%;
+    font-size: 34px;
+    letter-spacing: 0;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .hero-description {
+    max-width: 100%;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+  .hero-product {
+    justify-content: flex-start;
+    overflow: hidden;
+  }
   .section-heading { margin-bottom: 28px; }
   .reason-row { gap: 16px; padding: 24px 0; }
   .reason-copy p { font-size: 15px; }
@@ -711,8 +746,47 @@ h1, h2, h3 {
   .hero-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
 }
 
-/* 幅の狭いスマートフォンではナビの「使い方」「料金」が折り返るため、
-   ロゴとダウンロードボタンだけを残す（本文はスクロールすれば辿り着ける） */
-@media (max-width: 420px) {
+/* スマートフォンではヘッダーの横幅を最優先で守る。本文の導線は下に続くため、
+   ナビはブランドとダウンロードだけに絞る。 */
+@media (max-width: 600px) {
+  .lp-inner { padding-left: 20px; padding-right: 20px; }
+  .nav-inner { height: 60px; }
+  .nav-actions { gap: 0; }
   .nav-secondary-link { display: none; }
+  .nav-download {
+    max-width: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    overflow: hidden;
+    color: transparent;
+    font-size: 12px;
+    text-overflow: ellipsis;
+  }
+  .nav-download::before {
+    content: "";
+    width: 13px;
+    height: 13px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) translate(-1px, -2px);
+  }
+  .hero-copy h1 { font-size: 32px; }
+  .hero-kicker p {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .hero-note,
+  .download-note {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .button {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 18px;
+  }
+  .hero-actions .text-link {
+    width: 100%;
+  }
 }
