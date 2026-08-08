@@ -58,6 +58,9 @@ Bの場合:
 書き方のルール:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
 - 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
+- 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
+- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん　研究構想を深める（8/15まで）」）
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
 - メールやチャットにそのまま貼れる、記号の少ないテキストにすること
 
@@ -101,6 +104,9 @@ If B:
 Formatting rules:
 - Do not use Markdown. Never use "#", "##", "**", "*", or "-"
 - Wrap headings in square brackets. Start every list line with "・"
+- Never nest lists. Use a single level of "・" and never indent a line
+- To group items, put a short label line with no "・", then the "・" lines under it
+- To split by owner, keep it on one line instead of nesting (e.g. "・Ishiwata　Deepen the research plan (by Aug 15)")
 - Do not add symbols for emphasis. Put what matters first and state it plainly
 - The result must paste cleanly into email and chat as plain text
 
@@ -118,6 +124,9 @@ type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
 const PLAIN_STYLE_RULES_JA = `書き方のルール:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
 - 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
+- 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
+- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん　研究構想を深める（8/15まで）」）
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
 - メールやチャットにそのまま貼れる、記号の少ないテキストにすること`
 
@@ -248,6 +257,8 @@ e.g. "The transcript doesn't show that.")
 Formatting rules (apply to both REVISE and ANSWER):
 - Do not use Markdown. Never use "#", "##", "**", "*", or "-"
 - Wrap headings in square brackets only when a heading is needed. Start every list line with "・"
+- Never nest lists. Use a single level of "・" and never indent a line
+- To group items, put a short label line with no "・", then the "・" lines under it
 - For a short question, answer in plain sentences with no headings or lists at all
 - Do not add symbols for emphasis. Put what matters first and state it plainly
 - The result must paste cleanly into email and chat as plain text`
@@ -295,7 +306,8 @@ function toPlainJapaneseNotes(input: string): string {
       return body ? `【${body}】` : ''
     }
 
-    // 箇条書き: 行頭の «-» «*» «+» を「・」へ。インデントは維持する
+    // 箇条書き: 行頭の «-» «*» «+» «・» を「・」へ揃える。インデントは
+    // いったん字下げ量として保持し、後段で平らにする。
     s = s.replace(/^(\s*)[-*+]\s+/, '$1・')
 
     // 強調記号を除去（**太字** / __太字__ / *斜体*）
@@ -305,7 +317,50 @@ function toPlainJapaneseNotes(input: string): string {
 
     return s
   })
-  return out.join('\n').trim()
+  return flattenNestedBullets(out).join('\n').trim()
+}
+
+/**
+ * 入れ子の箇条書きを1階層へ均す。長い日本語の行は入れ子にすると折り返しが
+ * 崩れて非常に読みにくくなるため、字下げは全て取り除く。ただし単純に
+ * 平らにすると親（「・石渡さん」など）が子と同列になり分類が消えるので、
+ * 子を持つ親は「・」を外して「まとめ名だけの行」に変える。
+ */
+function flattenNestedBullets(lines: string[]): string[] {
+  const indentOf = (l: string): number => (l.match(/^[\s　]*/)?.[0].length ?? 0)
+  const isBullet = (l: string): boolean => /^[\s　]*・/.test(l)
+
+  const out: string[] = []
+  lines.forEach((line, i) => {
+    if (!isBullet(line)) {
+      out.push(line)
+      return
+    }
+    const myIndent = indentOf(line)
+
+    // 直後に続く、より深い字下げの箇条書き＝この行は子を持つ親
+    let hasDeeperChild = false
+    for (let j = i + 1; j < lines.length; j++) {
+      const next = lines[j]
+      if (next.trim() === '') continue
+      if (!isBullet(next)) break
+      if (indentOf(next) > myIndent) hasDeeperChild = true
+      break
+    }
+
+    const body = line.replace(/^[\s　]*・[\s　]*/, '')
+    if (hasDeeperChild) {
+      // まとめ名の行。直前が箇条書きだと詰まって見えるので1行空ける。
+      // ただし【見出し】の直後は空けない（見出しとまとめ名が離れて見える）
+      const prev = out[out.length - 1]
+      const prevIsHeading = prev !== undefined && /^【.*】$/.test(prev.trim())
+      if (prev !== undefined && prev.trim() !== '' && !prevIsHeading) out.push('')
+      out.push(body)
+    } else {
+      out.push(`・${body}`)
+    }
+  })
+  return out
 }
 
 function validGeneratedTitle(title: string): boolean {
