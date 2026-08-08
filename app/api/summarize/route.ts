@@ -29,35 +29,42 @@ const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタ�
 - A: 講義・説明会型（先生・講師・説明者が一方的に話す。質疑応答も含む）
 - B: 議論・会議型（複数人が対話し、決定事項やタスクが生まれる）
 
-判定した種類に応じて、次のどちらかのフォーマット（Markdown）で出力してください。
+判定した種類に応じて、次のどちらかの形式で出力してください。
 
-【Aの場合】
-## 概要
+Aの場合:
+【概要】
 （1〜2文でこの回の要点）
 
-## 重要ポイント
-- （内容の要点を箇条書き）
+【重要ポイント】
+・（内容の要点をひとつずつ）
 
-## 復習・確認しておくこと
-- （聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+【復習・確認しておくこと】
+（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 
-【Bの場合】
-## 概要
+Bの場合:
+【概要】
 （1〜2文で会議全体の要点）
 
-## 決定事項
-- （箇条書き。なければ「特になし」）
+【決定事項】
+・（決まったことをひとつずつ。なければ「特になし」）
 
-## ToDo / ネクストアクション
-- （担当が分かれば「担当: 」を付記。なければ「特になし」）
+【やること】
+・担当者名　やること（期限）
+（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
 
-## 議論の要点
-- （重要な論点を箇条書き）
+【話し合いの要点】
+・（重要な論点をひとつずつ）
+
+書き方のルール:
+- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
+- 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
+- メールやチャットにそのまま貼れる、記号の少ないテキストにすること
 
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
-- A/Bの判定結果や説明は出力せず、選んだフォーマットの本文だけを出力すること
+- A/Bの判定結果や説明は出力せず、選んだ形式の本文だけを出力すること
 - 出力言語: {LANG}`
 
 const SUMMARY_PROMPT_EN = `You are a meeting/lecture notes assistant.
@@ -65,30 +72,37 @@ Read the transcript below and first decide which it is closer to:
 - A: Lecture/briefing (one person mainly speaks; may include Q&A)
 - B: Discussion/meeting (multiple people converse; decisions/tasks emerge)
 
-Then output using the matching format (Markdown) only:
+Then output using the matching format only:
 
-[If A]
-## Summary
+If A:
+[Summary]
 (1-2 sentences of the gist)
 
-## Key points
-- (bullets of the important content)
+[Key points]
+・(one important point per line)
 
-## Things to review/follow up
-- (what the listener should review or confirm; "None" if none)
+[Things to review/follow up]
+(what the listener should review or confirm; "None" if none)
 
-[If B]
-## Summary
+If B:
+[Summary]
 (1-2 sentences of the overall gist)
 
-## Decisions
-- (bullets; "None" if there are none)
+[Decisions]
+・(one decision per line; "None" if there are none)
 
-## Action items / Next steps
-- (add "Owner: " if known; "None" if there are none)
+[Action items]
+・Owner name　what to do (due date)
+(omit owner or due date if unknown; "None" if there are none)
 
-## Key discussion points
-- (bullet the important points)
+[Key discussion points]
+・(one point per line)
+
+Formatting rules:
+- Do not use Markdown. Never use "#", "##", "**", "*", or "-"
+- Wrap headings in square brackets. Start every list line with "・"
+- Do not add symbols for emphasis. Put what matters first and state it plainly
+- The result must paste cleanly into email and chat as plain text
 
 Notes:
 - Do not invent information not in the transcript
@@ -98,59 +112,74 @@ Notes:
 
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
 
-const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
-## 概要
+// 各テンプレート共通の書き方ルール。Markdown記法はアプリ側で描画しておらず
+// 記号がそのまま画面に出てしまうため、日本語の議事録として自然な
+// 【見出し】＋「・」の形に統一する。コピーしてメール等へ貼る用途にも合う。
+const PLAIN_STYLE_RULES_JA = `書き方のルール:
+- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
+- 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
+- メールやチャットにそのまま貼れる、記号の少ないテキストにすること`
+
+const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次の形式で出力してください。
+【概要】
 （1〜2文で会議全体の要点）
-## 決定事項
-- （箇条書き。なければ「特になし」）
-## ToDo / ネクストアクション
-- （担当が分かれば「担当: 」を付記。なければ「特になし」）
-## 議論の要点
-- （重要な論点を箇条書き）
+【決定事項】
+・（決まったことをひとつずつ。なければ「特になし」）
+【やること】
+・担当者名　やること（期限）
+（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
+【話し合いの要点】
+・（重要な論点をひとつずつ）
+${PLAIN_STYLE_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
-const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
-## 概要
+const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次の形式で出力してください。
+【概要】
 （1〜2文でこの回の要点）
-## 重要ポイント
-- （内容の要点を箇条書き）
-## 復習・確認しておくこと
-- （聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+【重要ポイント】
+・（内容の要点をひとつずつ）
+【復習・確認しておくこと】
+・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+${PLAIN_STYLE_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
-const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
-## 概要
+const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次の形式で出力してください。
+【概要】
 （1〜2文で今回の1on1の要点）
-## 現状・共有された内容
-- （近況や進捗など共有された内容の箇条書き）
-## 課題・気になっていること
-- （本人が挙げた悩みや課題。なければ「特になし」）
-## 次のアクション
-- （担当（本人/上長など）が分かれば付記。なければ「特になし」）
-## フィードバック・気づき
-- （伝えられたフィードバックや気づき。なければ「特になし」）
+【共有されたこと】
+・（近況や進捗など共有された内容をひとつずつ）
+【課題・気になっていること】
+・（本人が挙げた悩みや課題。なければ「特になし」）
+【次のアクション】
+・担当者名　やること（期限）
+（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
+【フィードバック・気づき】
+・（伝えられたフィードバックや気づき。なければ「特になし」）
+${PLAIN_STYLE_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
-const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次のフォーマット（Markdown）で出力してください。
-## 概要
+const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次の形式で出力してください。
+【概要】
 （対象者・ポジションなど分かる範囲で1〜2文）
-## 経歴・スキルの要点
-- （語られた経歴・経験・スキルの箇条書き）
-## 質疑応答のポイント
-- （やり取りの中で重要だった質問と回答）
-## 懸念点・確認したいこと
-- （気になった点や追加で確認すべきこと。なければ「特になし」）
-## 総合所感
+【経歴・スキルの要点】
+・（語られた経歴・経験・スキルをひとつずつ）
+【質疑応答のポイント】
+・（やり取りの中で重要だった質問と回答）
+【懸念点・確認したいこと】
+・（気になった点や追加で確認すべきこと。なければ「特になし」）
+【総合所感】
 （面接官の視点でのメモ。決めつけず事実ベースで簡潔に）
+${PLAIN_STYLE_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと。評価や合否の断定はしないこと
 - 話者は [マイク] / [パソコンの音] で示されています
@@ -177,16 +206,21 @@ const CHAT_PROMPT_JA = `あなたは議事録編集・質問応答アシスタ�
 REVISEの場合:
 REVISE
 ---
-（書き直した議事録の本文全体。見出し構成（## 項目）はできるだけ維持し、
+（書き直した議事録の本文全体。見出し構成（【項目】）はできるだけ維持し、
 ユーザーの依頼に沿って内容を調整する。文字起こしに無い情報は創作しない）
 
 ANSWERの場合:
 ANSWER
 ---
 （ユーザーへの回答。文字起こし・議事録に基づいて答え、分からない場合は
-「文字起こしからは分かりません」のように正直に答える。他のアプリに
-そのまま貼り付けても読みやすいよう、Markdown記法（箇条書き・太字など）
-を必要に応じて使って整形する）
+「文字起こしからは分かりません」のように正直に答える）
+
+書き方のルール（REVISE・ANSWERの両方に適用）:
+- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
+- 見出しが必要なときだけ【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 短い質問には、見出しも箇条書きも付けずに普通の文章で答えること
+- 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
+- メールやチャットにそのまま貼れる、記号の少ないテキストにすること
 
 出力言語: {LANG}`
 
@@ -202,22 +236,28 @@ Output in this exact format (line 1 is REVISE or ANSWER, line 2 is just ---):
 If REVISE:
 REVISE
 ---
-(the full rewritten notes body. Keep the same heading structure (## sections) as much as
+(the full rewritten notes body. Keep the same heading structure ([sections]) as much as
 possible, adjusting the content per the user's request. Do not invent information not in the transcript)
 
 If ANSWER:
 ANSWER
 ---
 (an answer to the user, grounded in the transcript/notes. If you don't know, say so honestly,
-e.g. "The transcript doesn't show that." Use Markdown formatting (bullets, bold, etc.) where
-it helps readability, so the answer pastes cleanly into other apps.)`
+e.g. "The transcript doesn't show that.")
+
+Formatting rules (apply to both REVISE and ANSWER):
+- Do not use Markdown. Never use "#", "##", "**", "*", or "-"
+- Wrap headings in square brackets only when a heading is needed. Start every list line with "・"
+- For a short question, answer in plain sentences with no headings or lists at all
+- Do not add symbols for emphasis. Put what matters first and state it plainly
+- The result must paste cleanly into email and chat as plain text`
 
 const TITLE_OUTPUT_JA = `
 
 出力の先頭に、会話全体を表すタイトルを次の形式で必ず付けてください。
 TITLE: （15〜25文字程度の具体的なタイトル）
 ---
-（この下に指定されたMarkdown本文）
+（この下に指定された形式の本文）
 
 タイトルは冒頭の最初の話題だけで決めず、会話の後半まで見て、最終的に決まったこと・最も長く議論した中心テーマを優先してください。「〜の」「〜について」など助詞で終わる未完成な表現は禁止です。`
 
@@ -226,9 +266,47 @@ const TITLE_OUTPUT_EN = `
 Start the output with a concise, specific title for the entire conversation in this exact format:
 TITLE: (a 5-10 word title)
 ---
-(the requested Markdown body below)
+(the requested body below, in the specified format)
 
 Do not choose a title from only the opening topic. Prefer the final decision or the central topic discussed across the conversation.`
+
+/**
+ * プロンプトで禁止していてもモデルがMarkdown記法を出すことがあるため、
+ * 返す直前に保険として素のテキストへ均す。アプリ側はMarkdownを描画して
+ * おらず記号がそのまま画面に出てしまうため、ここで確実に落とす。
+ * コードブロック内は変換対象にしない（本文にコードが含まれる場合を壊さない）。
+ */
+function toPlainJapaneseNotes(input: string): string {
+  const lines = input.split('\n')
+  let inFence = false
+  const out = lines.map((line) => {
+    if (/^\s*```/.test(line)) {
+      inFence = !inFence
+      return line
+    }
+    if (inFence) return line
+
+    let s = line
+
+    // 見出し: 「## 決定事項」→「【決定事項】」（既に【】ならそのまま）
+    const heading = s.match(/^\s*#{1,6}\s+(.*?)\s*$/)
+    if (heading) {
+      const body = heading[1].replace(/\*\*/g, '').replace(/^【|】$/g, '').trim()
+      return body ? `【${body}】` : ''
+    }
+
+    // 箇条書き: 行頭の «-» «*» «+» を「・」へ。インデントは維持する
+    s = s.replace(/^(\s*)[-*+]\s+/, '$1・')
+
+    // 強調記号を除去（**太字** / __太字__ / *斜体*）
+    s = s.replace(/\*\*(.+?)\*\*/g, '$1')
+    s = s.replace(/__(.+?)__/g, '$1')
+    s = s.replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, '$1$2')
+
+    return s
+  })
+  return out.join('\n').trim()
+}
 
 function validGeneratedTitle(title: string): boolean {
   if (title.length < 4 || title.length > 40) return false
@@ -369,12 +447,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (isChat) {
       const match = text.match(/^(REVISE|ANSWER)\s*\n-{2,}\s*\n([\s\S]*)$/)
       const type = match?.[1] === 'REVISE' ? 'revise' : 'answer'
-      const content = (match?.[2] ?? text).trim()
+      const content = toPlainJapaneseNotes((match?.[2] ?? text).trim())
       return NextResponse.json({ type, content })
     }
     const match = text.match(/^TITLE[:：]\s*(.+?)\s*\n-{3,}\s*\n([\s\S]+)$/i)
     const generatedTitle = match?.[1]?.trim() ?? ''
-    const summary = (match?.[2] ?? text).trim()
+    const summary = toPlainJapaneseNotes((match?.[2] ?? text).trim())
     return NextResponse.json({
       summary,
       title: validGeneratedTitle(generatedTitle) ? generatedTitle : null
