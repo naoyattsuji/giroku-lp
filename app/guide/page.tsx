@@ -1,46 +1,305 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { LogoMark } from "../components/Illustrations";
+import type { ReactElement } from "react";
 
 export const metadata: Metadata = {
   title: "使い方ガイド — Giroku",
-  description: "Giroku（議録）の使い方をスクリーンショット付きで紹介。録音の始め方から、AI議事録、履歴の探し方、設定まで。",
+  description: "Giroku（議録）の全機能を画面ごとに詳しく説明するマニュアル。録音・履歴・AI議事録・チャット・設定まで、ボタン1つずつの動きを解説します。",
   alternates: { canonical: "/guide" },
 };
 
-const steps = [
+type FeatureItem = { term: string; desc: string };
+type FeatureGroup = { title: string; image?: { src: string; alt: string }; items: FeatureItem[] };
+type Screen = {
+  id: string;
+  navLabel: string;
+  title: string;
+  lead: string;
+  image?: { src: string; alt: string };
+  groups: FeatureGroup[];
+};
+
+const screens: Screen[] = [
   {
-    num: "01",
-    image: "/guide/01-record.png",
-    title: "押すだけで、録音がはじまる",
-    desc: "サイドバーの「録音」から赤いボタンを押すだけ。マイクの声も、パソコンから流れる相手の声も、同時に録れます。会議に何も追加しないので、相手の画面には何も表示されません。",
+    id: "recording",
+    navLabel: "録音画面",
+    title: "録音画面",
+    lead: "アプリを開いて最初に表示される画面。録音の開始から、保存・文字起こしが終わるまでをここで行います。",
+    image: { src: "/guide/01-record.png", alt: "録音画面（待機中）" },
+    groups: [
+      {
+        title: "録音を始める前",
+        items: [
+          { term: "録音ボタン（赤い丸）", desc: "押すと録音が始まります。初めて押したときだけ、「録音するとき、必要に応じて相手の同意を得る責任が自分にあることを理解しました」というチェックボックス付きの確認画面が挟まります。チェックして「同意して録音を開始」を押すと以降は毎回表示されません。" },
+          { term: "利用状況の表示", desc: "無料プランのときは録音ボタンの下に「文字起こし　あと○分」「AI議事録　あと○件」と今月の残り枠が表示されます。有料プランのときは「有料プラン・使い放題」と表示されます。無料枠を使い切ると録音ボタンが押せなくなり、代わりに「有料プランにして使い放題にする」ボタンが表示されます（押すと設定画面のプラン欄に移動します）。" },
+          { term: "「パソコンの音を確認できませんでした」の案内", desc: "パソコンの音（システム音声）が正常に取得できない環境のときだけ表示されます。状況に応じて次のいずれかのボタンが出ます。" },
+          { term: "　└「設定を開く」", desc: "macOSの画面収録の許可設定を開きます。許可がオフになっている場合に表示されます。" },
+          { term: "　└「マイクのみ」", desc: "パソコンの音を諦めて、マイクだけで録音を始めます。" },
+          { term: "　└「パソコン音声を選ぶ」", desc: "パソコンの音の取得をもう一度試したうえで、通常どおりマイクと両方録音します。" },
+        ],
+      },
+      {
+        title: "録音の準備中",
+        items: [
+          { term: "進捗表示", desc: "初回起動などで文字起こしモデルのダウンロードが必要な場合は「初回の文字起こしモデルを保存しています…」と実際の進捗（％・受信容量）が表示されます。不要な場合は「録音の準備をしています…」とだけ表示されます。" },
+          { term: "「キャンセル」ボタン", desc: "準備を中止して、最初の待機画面に戻ります。" },
+        ],
+      },
+      {
+        title: "録音中にできること",
+        items: [
+          { term: "経過時間", desc: "画面上部に録音してからの時間が表示され続けます。" },
+          { term: "マイクのオン/オフ", desc: "「マイク（周りの声）」の音源ボタンを押すたびに、その場でオン/オフを切り替えられます。オフにしている間は赤いミュートアイコンになり、音は入っていても録音されません。マイク自体が取得できていない場合はボタンを押せません。" },
+          { term: "パソコンの音のオン/オフ", desc: "「パソコンの音（通話・動画）」も同様に、その場でオン/オフを切り替えられます。会議の音だけ、あるいは自分の声だけを録りたいときに使います。" },
+          { term: "音量メーター", desc: "マイク・パソコンの音、それぞれの音量がリアルタイムのバーで表示されます。ミュート中でも「音自体は入っている」ことが分かるよう、薄い表示のまま動き続けます。" },
+          { term: "マイクを選ぶ（下向き矢印）", desc: "マイクの音源ボタン横のメニューから、「自動（OSの既定マイク）」または特定のマイク機器を選べます。ここで選んだ内容は次回の録音から反映されます（録音中は変わりません）。" },
+          { term: "「ミニ表示」ボタン", desc: "画面を小さなフローティングバーに切り替えます。他の作業をしながら録音状況だけ確認したいときに使います（詳しくは下記「ミニ表示」）。" },
+          { term: "一時停止 / 再開", desc: "「Ⅱ 一時停止」を押すと録音を止められます（ファイルは録音済みの分だけ確定しません、録音自体は続いています）。もう一度押すと「▶ 再開」に変わり、そのまま続きから録音できます。" },
+          { term: "「■ 停止」ボタン", desc: "録音を完全に終了し、保存・文字起こしの処理に進みます。" },
+          { term: "音が切れたときの警告", desc: "録音中にパソコンの音やマイクが取得できなくなると、画面上部に警告バナーが出ます。自動で一時停止した場合はその旨と「再開すると、以降はマイクの音だけを録音します」といった案内が表示され、「設定を開く」ボタンで権限設定を確認できます。" },
+          { term: "ライブ文字起こし", desc: "話した内容が、ひと区切りごとにその場で画面に表示されていきます。一度表示された文字は消えません。認識中の間は「認識中…」の表示が出ます（画質・環境により、保存後の高精度な文字起こしとは細部が異なる場合があります）。" },
+        ],
+      },
+      {
+        title: "停止したあと（自動で進みます）",
+        items: [
+          { term: "保存しています…", desc: "録音した音声をパソコン内に保存します。" },
+          { term: "録音全体を通して高精度に文字起こししています…", desc: "停止後、選んでいる精度（軽快 / 高精度）で音声全体をあらためて文字起こしします。録音中に表示されていたライブ文字起こしより精度が高くなります。" },
+          { term: "AIで文章を整えています…", desc: "有料プラン・高精度モード・「文章を自動で整える」設定がオンのときだけ行われます。文字起こしの読みやすさをAIが整えます。" },
+        ],
+      },
+      {
+        title: "ミニ表示",
+        items: [
+          { term: "ミニ表示の中身", desc: "録音中に「ミニ表示」を押すと、経過時間・一時停止/認識中の状態・マイクとパソコンの音のオン/オフとメーター・一時停止/再開・停止ボタンだけを残した省スペース表示に切り替わります。" },
+          { term: "「拡大」ボタン", desc: "ミニ表示から通常の録音画面に戻ります。" },
+        ],
+      },
+    ],
   },
   {
-    num: "02",
-    image: "/guide/02-minutes.png",
-    title: "話した内容が、そのまま議事録に",
-    desc: "録音を止めると、文字起こしとAI議事録が自動で作られます。決まったこと・やること・担当・期限まで、貼ってすぐ使える形にまとまります。マイク／パソコンの音は別々に表示できます。",
+    id: "history",
+    navLabel: "履歴画面",
+    title: "履歴画面",
+    lead: "これまでに録音したものが一覧で並ぶ画面。検索・フォルダ分け・並び替え・複数選択での一括操作ができます。",
+    image: { src: "/guide/04-history.png", alt: "履歴画面" },
+    groups: [
+      {
+        title: "探す",
+        items: [
+          { term: "検索欄（「タイトルや文字起こしの内容で検索」）", desc: "タイトルだけでなく、文字起こし本文やAI議事録の中身も含めて検索します。入力すると少し待ってから自動的に検索が実行されます。×ボタンで検索をやめて通常の一覧に戻ります。" },
+          { term: "並び替え", desc: "「新しい順」「古い順」「長さ順」「フォルダ順」から選べます。どの順番を選んでいても、お気に入りに登録した録音は常に一覧の先頭に固定表示されます。" },
+        ],
+      },
+      {
+        title: "フォルダで整理する",
+        items: [
+          { term: "フォルダタブ", desc: "画面上部のタブで「すべて」「フォルダなし」「（各フォルダ名）」を切り替えて、表示する録音を絞り込めます。" },
+          { term: "「新規フォルダ」ボタン", desc: "名前を入力してEnterまたは「作成」を押すと新しいフォルダができ、そのフォルダの表示に自動で切り替わります。" },
+          { term: "「「（フォルダ名）」を削除」ボタン", desc: "特定のフォルダを表示しているときだけ表示されます。フォルダそのものを削除しますが、中に入っていた録音は消えず「フォルダなし」に戻ります。" },
+        ],
+      },
+      {
+        title: "一覧の見方",
+        items: [
+          { term: "星マーク（お気に入り）", desc: "クリックするとお気に入りへの登録・解除を切り替えられます。" },
+          { term: "録音カードの情報", desc: "タイトル・日付・長さ・発話数・ファイルサイズ・（あれば）フォルダ名が1行にまとまって表示されます。カードをクリックすると詳細画面が開きます。" },
+          { term: "「議事録あり」バッジ", desc: "すでにAI議事録を作成済みの録音にだけ表示されます。" },
+        ],
+      },
+      {
+        title: "複数の録音をまとめて操作する",
+        items: [
+          { term: "「選択」ボタン", desc: "押すと選択モードに入り、録音カードをタップ（またはなぞる）ことで複数選択できるようになります。" },
+          { term: "「全選択」「全選択解除」", desc: "現在表示されている（絞り込み・検索後の）録音すべてを、まとめて選択・解除します。" },
+          { term: "「フォルダに移動」ボタン", desc: "選択した録音をまとめて別のフォルダへ移動します。ボタンを押すと開くメニューから既存フォルダを選ぶか、その場で新しいフォルダ名を入力して作成・移動できます。" },
+          { term: "「ゴミ箱に入れる」ボタン", desc: "選択した録音をまとめてゴミ箱へ移動します（7日後に自動で完全に削除される、通常のゴミ箱と同じ扱いです）。確認画面が出てから実行されます。" },
+          { term: "「キャンセル」ボタン", desc: "選択モードを終了し、通常の一覧表示に戻ります。" },
+        ],
+      },
+    ],
   },
   {
-    num: "03",
-    image: "/guide/03-chat.png",
-    title: "「もっと短く」も「あれ何だっけ」も、聞くだけ",
-    desc: "議事録の下のチャットに話しかけると、AIがその場で書き直したり、内容について答えてくれます。話した内容を覚えたまま会話できるので、聞き直す手間がありません。",
+    id: "detail",
+    navLabel: "録音詳細画面",
+    title: "録音詳細画面",
+    lead: "履歴の録音カードをクリックすると開く画面。ここで音声の再生、タイトルやフォルダの編集、AI議事録の作成・チャットでの書き直し、文字起こしの確認・修正ができます。",
+    image: { src: "/guide/02-minutes.png", alt: "録音詳細画面（AI議事録・文字起こし）" },
+    groups: [
+      {
+        title: "画面上部",
+        items: [
+          { term: "「← 戻る」ボタン", desc: "履歴の一覧画面に戻ります。" },
+          { term: "タイトル", desc: "クリックするとその場で編集できる入力欄に変わります。フォーカスを外すかEnterキーで保存、Escapeキーで編集を取り消せます。" },
+          { term: "フォルダ欄", desc: "同じくクリックしてその場で編集でき、フォーカスを外すと保存されます。入力時は既存フォルダ名の候補が出ます。" },
+          { term: "「ゴミ箱に入れる」ボタン", desc: "確認画面のあと、この録音をゴミ箱へ移動します。" },
+          { term: "処理中の表示", desc: "保存・文字起こし・文章整形のいずれかが進行中の間、画面上部に状況が表示され続けます。完了すると自動的に画面の内容が更新されます。" },
+          { term: "「再生成」ボタン", desc: "一部の処理がうまく仕上げられなかった場合にエラー表示とあわせて出ます。押すと保存済みの音声から文字起こしをやり直します。" },
+        ],
+      },
+      {
+        title: "録音カード（再生）",
+        items: [
+          { term: "再生 / 一時停止ボタン", desc: "保存された音声を再生・一時停止します。" },
+          { term: "15秒戻る / 15秒進む", desc: "現在の再生位置から15秒単位で前後に移動します。" },
+          { term: "シークバー", desc: "ドラッグまたはクリックした位置に再生位置を移動できます。" },
+          { term: "再生速度ボタン", desc: "押すたびに「1x → 1.25x → 1.5x → 2x → 1x…」と順番に切り替わります。ボタンの表示自体が現在の再生速度です。" },
+          { term: "「音声を保存」ボタン", desc: "保存ダイアログが開き、この録音の音声ファイルをパソコンの任意の場所に書き出せます。" },
+        ],
+      },
+      {
+        title: "AI議事録カード",
+        items: [
+          { term: "テンプレート選択", desc: "議事録がまだ無いときだけ表示されます。「自動判定」「会議」「講義・説明会」「1on1」「面接」から、内容に合った形式を選べます。作り直したくなった場合はテンプレートを選び直すのではなく、下記のAIチャットで依頼します。" },
+          { term: "「議事録を作成」ボタン", desc: "文字起こしをもとに、決まったこと・やること・要点などを整理した議事録を生成します。無料プランは月2件まで（使い切ると「今月は2件利用済み」と表示され、代わりに「有料プランを見る」ボタンが出ます）。" },
+          { term: "生成中の表示", desc: "作成中は「会話全体を読んでいます」→「要点を整理しています」→「読みやすく仕上げています」と、進み具合に応じてメッセージが変わります。" },
+          { term: "議事録本文", desc: "生成後は直接クリックしてその場で書き換えられます。フォーカスを外すと自動保存されます。" },
+          { term: "「元に戻す」ボタン", desc: "直前の編集（本文の書き換えやAIによる書き直し）を1回分だけ取り消せます。" },
+          { term: "「まとめてコピー」ボタン", desc: "タイトル・日時・議事録本文をまとめてクリップボードにコピーします。チャットツールやメールにそのまま貼り付けられる形式です。" },
+        ],
+      },
+      {
+        title: "AIチャット（議事録カードの中）",
+        image: { src: "/guide/03-chat.png", alt: "AIチャットでの質問・書き直し" },
+        items: [
+          { term: "チャット欄", desc: "議事録について自由に話しかけられます。内容は「質問」か「書き直し依頼」かをAIが自動で判断します。書き直しと判断されると、上の議事録本文がその場で更新され、チャットには「議事録を書き直しました」とだけ表示されます。質問と判断されると、その場でAIの回答が表示されます。" },
+          { term: "「もう少し詳しく」ボタン", desc: "「もっと詳しく書いて」という依頼をワンタップで送信します。" },
+          { term: "「短くまとめる」ボタン", desc: "「もっと簡潔に書いて」という依頼をワンタップで送信します。" },
+          { term: "入力欄", desc: "Enterキーで送信、Shift＋Enterで改行します。日本語入力の変換確定時に誤って送信されないよう調整されています。" },
+          { term: "送信 / 停止ボタン", desc: "送信中は同じ場所のボタンが「停止」に変わり、押すとAIの応答を途中でキャンセルできます。キャンセルすると、送った文章は入力欄に戻り、書き直して送り直せます。" },
+          { term: "AIへの依頼回数", desc: "無料プランのみ、この録音1件につきAIへの依頼（質問・書き直し・クイックボタンすべて含む）があと何回できるかが表示されます（上限10回）。有料プランは無制限です。" },
+          { term: "チャットの履歴", desc: "録音データと一緒に端末内に保存されるため、画面を閉じてもう一度開いたときも続きから会話できます。" },
+        ],
+      },
+      {
+        title: "文字起こしカード",
+        items: [
+          { term: "マイク / PC別に表示", desc: "発話ごとに「マイク」（自分側）と「PC」（パソコンの音・相手側）のタグが付いて表示されます。" },
+          { term: "発話ごとのその場編集", desc: "各発話のテキストをクリックすると修正できます。フォーカスを外す、またはEnterキー（Shiftなし）で保存されます。" },
+          { term: "「文字起こしを再生成」ボタン", desc: "保存済みの音声から、現在の精度設定であらためて文字起こしをやり直します。" },
+          { term: "「まとめてコピー」ボタン", desc: "話者タグ付きの全文をまとめてコピーします。" },
+        ],
+      },
+    ],
   },
   {
-    num: "04",
-    image: "/guide/04-history.png",
-    title: "先週の「あの話」に、すぐ戻れる",
-    desc: "「履歴」には、これまでの記録が一覧で並びます。タイトルだけでなく文字起こしの中身も検索でき、フォルダで整理することもできます。",
+    id: "trash",
+    navLabel: "ゴミ箱",
+    title: "ゴミ箱",
+    lead: "削除した録音が一時的に入る場所です。7日間はここに残り、期限が来ると自動的に完全に削除されます。",
+    groups: [
+      {
+        title: "できること",
+        items: [
+          { term: "「元に戻す」ボタン", desc: "選んだ録音を履歴の一覧に戻します。何度でもやり直せます。" },
+          { term: "「完全に削除」ボタン", desc: "確認画面のあと、選んだ録音を7日を待たずにその場で完全に削除します。録音・文字起こし・AI議事録すべてが消え、元に戻せません。" },
+          { term: "「ゴミ箱を空にする」ボタン", desc: "ゴミ箱に入っている録音をまとめて、その場で完全に削除します。こちらも元に戻せません。" },
+          { term: "残り日数の表示", desc: "各録音に「あと○日で完全削除」と表示され、削除までの残り時間が分かります。" },
+        ],
+      },
+    ],
   },
   {
-    num: "05",
-    image: "/guide/05-settings.png",
-    title: "録音した音声は、パソコンの外に出ない",
-    desc: "「設定」では、文字起こしの精度やマイクの選択、購入キー・招待コードの登録ができます。文字起こしは端末内で処理し、AIを使うときだけ文字だけを送ります。",
+    id: "settings",
+    navLabel: "設定画面",
+    title: "設定画面",
+    lead: "文字起こしの精度やマイクの選択、有料プランの登録、ヘルプへのリンクなど、アプリ全体の設定をまとめた画面です。よく使う項目から順に並んでいます。",
+    image: { src: "/guide/05-settings.png", alt: "設定画面" },
+    groups: [
+      {
+        title: "録音と文字起こし",
+        items: [
+          { term: "精度（軽快 / 高精度）", desc: "文字起こしの速さと正確さのバランスを選びます。「？」ボタンで詳しい比較を確認できます。迷ったら「高精度」がおすすめです。" },
+          { term: "言語", desc: "「日本語」「English」「自動検出」から選べます。" },
+          { term: "マイク", desc: "使用するマイクを「自動（OSの既定マイク）」または特定のデバイスに固定できます。" },
+          { term: "文章を自動で整える", desc: "有料プランかつ高精度モードの録音後だけ使えるトグルです。オンにすると文字起こしの文章をAIが読みやすく整えます（このときだけ文章がAIへ送信されます）。" },
+        ],
+      },
+      {
+        title: "パソコンの音（システム音声）— macOSのみ",
+        items: [
+          { term: "現在の状態", desc: "パソコンの音（通話や動画の音）が正常に取得できる状態かどうかを、緑（正常）・赤（設定が必要）のドット付きで表示します。" },
+          { term: "「設定を開く」ボタン", desc: "macOSの画面収録・システムオーディオ録音の許可設定を開きます。" },
+        ],
+      },
+      {
+        title: "保存と管理",
+        items: [
+          { term: "録音の容量表示と「最適化」ボタン", desc: "これまでの録音データが使っている容量を確認し、「最適化」で不要な部分を圧縮して空き容量を増やせます。" },
+          { term: "「モデルを管理」", desc: "開くと、これまでにダウンロードした文字起こしモデルの一覧と、それぞれの「削除」ボタンが表示されます。使わないモデルを消して容量を空けられます。" },
+        ],
+      },
+      {
+        title: "プラン",
+        items: [
+          { term: "キー入力欄と「登録」ボタン", desc: "購入した有料プランのキー、またはもらった招待コードを入力して「登録」を押すと、その端末で有料プランが有効になります。" },
+          { term: "「有料プランを見る →」リンク", desc: "有料プランの購入ページを開きます。" },
+          { term: "登録中のキー（有料プラン時）", desc: "「表示」で伏せ字になっているキーを一時的に表示、「コピー」でクリップボードにコピーできます。" },
+          { term: "「この端末で解除」ボタン", desc: "この端末での有料プランの利用登録を解除します。" },
+        ],
+      },
+      {
+        title: "アプリ情報",
+        items: [
+          { term: "バージョン表示と更新ボタン", desc: "現在のバージョンを確認できます。新しい版がある場合はボタンを押すとダウンロード・インストールが進みます（状況に応じてボタンの表示が「確認中…」「更新を確認」「○%」「再起動して更新」などに変わります）。" },
+        ],
+      },
+      {
+        title: "ヘルプ",
+        items: [
+          { term: "「使い方を見る」", desc: "このページ（使い方ガイド）をブラウザで開きます。" },
+          { term: "「お問い合わせ」", desc: "不具合報告やご要望を送れるフォームをブラウザで開きます。" },
+        ],
+      },
+      {
+        title: "データと録音について",
+        items: [
+          { term: "折りたたみの説明文", desc: "録音音声はパソコン内だけに保存されること、AI機能を使うときだけ文字がAIへ送られることが書かれています。録音時は必要に応じて相手の同意を得てください、という案内も併記されています。" },
+        ],
+      },
+    ],
   },
 ];
+
+function ScreenSection({ screen }: { screen: Screen }): ReactElement {
+  return (
+    <section id={screen.id} className="guide-screen">
+      <div className="guide-screen-intro">
+        {screen.image && (
+          <div className="guide-screen-shot">
+            <Image src={screen.image.src} alt={screen.image.alt} width={2880} height={1800} sizes="(max-width: 768px) 100vw, 360px" />
+          </div>
+        )}
+        <div className="guide-screen-lead">
+          <h2>{screen.title}</h2>
+          <p>{screen.lead}</p>
+        </div>
+      </div>
+
+      {screen.groups.map((group) => (
+        <div className="guide-feature-group" key={group.title}>
+          <h3>{group.title}</h3>
+          {group.image && (
+            <div className="guide-inline-shot">
+              <Image src={group.image.src} alt={group.image.alt} width={2880} height={1800} sizes="(max-width: 768px) 100vw, 480px" />
+            </div>
+          )}
+          <dl className="guide-feature-list">
+            {group.items.map((item) => (
+              <div className="guide-feature-item" key={item.term}>
+                <dt>{item.term}</dt>
+                <dd>{item.desc}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))}
+
+      <a href="#toc" className="guide-back-to-toc">▲ 目次に戻る</a>
+    </section>
+  );
+}
 
 export default function GuidePage() {
   return (
@@ -53,69 +312,55 @@ export default function GuidePage() {
             <span>Giroku</span>
           </Link>
           <div className="nav-actions">
-            <Link href="/#scenes" className="nav-secondary-link">使い方</Link>
+            <Link href="/#scenes" className="nav-secondary-link">トップ</Link>
             <Link href="/#pricing" className="nav-secondary-link">料金</Link>
             <Link href="/#download" className="nav-download">ダウンロード</Link>
           </div>
         </div>
       </header>
 
-      <section className="section guide-hero">
-        <div className="lp-inner section-inner guide-hero-inner">
-          <span className="hero-spirit guide-hero-spirit">
-            <LogoMark size={40} />
-          </span>
-          <p className="section-eyebrow">使い方ガイド</p>
-          <h1 className="section-title guide-hero-title">
-            Girokuの使い方を、画面で見る。
-          </h1>
-          <p className="guide-hero-description">
-            録音から議事録、履歴、設定まで。実際の画面と一緒に紹介します。
-          </p>
-        </div>
-      </section>
+      <div className="lp-inner guide-doc-header">
+        <p className="guide-doc-eyebrow">使い方ガイド</p>
+        <h1>Girokuの使い方マニュアル</h1>
+        <p className="guide-doc-description">
+          画面ごとに、ボタン1つずつが何をするかをまとめました。目次から気になる画面を選んでください。
+        </p>
+      </div>
 
-      <section className="section section-muted guide-steps-section">
-        <div className="lp-inner section-inner">
-          <div className="guide-steps">
-            {steps.map((step) => (
-              <article className="guide-step" key={step.num}>
-                <div className="guide-step-media">
-                  <Image
-                    src={step.image}
-                    alt={step.title}
-                    width={2880}
-                    height={1800}
-                    sizes="(max-width: 768px) 100vw, 900px"
-                  />
-                </div>
-                <div className="guide-step-copy">
-                  <p className="guide-step-num">{step.num}</p>
-                  <h2>{step.title}</h2>
-                  <p>{step.desc}</p>
-                </div>
-              </article>
+      <div className="lp-inner guide-doc-layout">
+        <nav id="toc" className="guide-toc" aria-label="目次">
+          <p className="guide-toc-title">目次</p>
+          <ul>
+            {screens.map((screen) => (
+              <li key={screen.id}>
+                <a href={`#${screen.id}`}>{screen.navLabel}</a>
+              </li>
             ))}
-          </div>
+          </ul>
+        </nav>
+
+        <div className="guide-doc-content">
+          {screens.map((screen) => (
+            <ScreenSection screen={screen} key={screen.id} />
+          ))}
         </div>
-      </section>
+      </div>
 
       <section className="section guide-cta-section">
-        <div className="lp-inner section-inner guide-cta-inner">
-          <h2 className="section-title">今すぐ、試してみる。</h2>
-          <p className="guide-cta-description">登録せずに、すぐ使えます。</p>
+        <div className="lp-inner guide-cta-inner">
+          <p className="guide-cta-lead">読んでも分からないことがあれば、いつでもお問い合わせください。</p>
           <div className="guide-cta-actions">
-            <Link href="/#download" className="button button-dark">
-              無料でダウンロード
-            </Link>
             <a
               href="https://naoya-tsuji.com/?topic=giroku#contact"
-              className="text-link"
+              className="button button-dark"
               target="_blank"
               rel="noreferrer"
             >
-              使い方についてお問い合わせ →
+              お問い合わせ
             </a>
+            <Link href="/#download" className="text-link">
+              まだの方はダウンロード →
+            </Link>
           </div>
         </div>
       </section>
@@ -124,6 +369,7 @@ export default function GuidePage() {
         <div className="lp-inner footer-inner">
           <span>© {new Date().getFullYear()} Naoya Tsuji</span>
           <div className="footer-links">
+            <Link href="/guide">使い方ガイド</Link>
             <Link href="/privacy">プライバシー</Link>
             <Link href="/terms">利用規約</Link>
             <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">
