@@ -593,6 +593,84 @@ h1, h2, h3 {
   color: #fff;
   font-weight: 700;
 }
+
+.scenes-guide-link { margin-top: 24px; text-align: center; }
+
+/* 使い方ガイド（/guide） */
+.guide-hero-inner { text-align: center; }
+.guide-hero-spirit {
+  display: inline-flex;
+  margin-bottom: 18px;
+}
+.guide-hero-title { max-width: 14em; margin: 0 auto 14px; }
+.guide-hero-description {
+  max-width: 480px;
+  margin: 0 auto;
+  color: var(--text-2);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+}
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 7vw, 88px);
+}
+.guide-step {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 44px;
+  align-items: center;
+}
+.guide-step:nth-child(even) { direction: rtl; }
+.guide-step:nth-child(even) > * { direction: ltr; }
+.guide-step-media {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+.guide-step-media img { display: block; width: 100%; height: auto; }
+.guide-step-num {
+  margin-bottom: 10px;
+  color: var(--red);
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.guide-step-copy h2 {
+  margin-bottom: 12px;
+  color: var(--text-1);
+  font-size: var(--card-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+.guide-step-copy p:not(.guide-step-num) {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: var(--body-leading);
+}
+.guide-cta-inner { text-align: center; }
+.guide-cta-description {
+  margin-top: 12px;
+  color: var(--text-2);
+  font-size: var(--body-size);
+}
+.guide-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 28px;
+}
+@media (max-width: 768px) {
+  .guide-step { grid-template-columns: 1fr; gap: 20px; }
+  .guide-step:nth-child(even) { direction: ltr; }
+  .guide-step-copy h2 { font-size: 21px; }
+}
+
 .footer {
   margin-top: auto;
   border-top: 1px solid var(--border);

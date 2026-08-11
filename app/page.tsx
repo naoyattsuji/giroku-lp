@@ -328,6 +328,11 @@ export default function Home() {
           <Reveal>
             <SceneExperience />
           </Reveal>
+          <Reveal delay={80}>
+            <p className="scenes-guide-link">
+              <Link href="/guide" className="text-link">画面つきの使い方ガイドを見る →</Link>
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -423,9 +428,12 @@ export default function Home() {
         <div className="lp-inner footer-inner">
           <span>© {new Date().getFullYear()} Naoya Tsuji</span>
           <div className="footer-links">
+            <Link href="/guide">使い方ガイド</Link>
             <Link href="/privacy">プライバシー</Link>
             <Link href="/terms">利用規約</Link>
-            <a href="mailto:naoyattsuji@gmail.com">サポート</a>
+            <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">
+              お問い合わせ
+            </a>
           </div>
         </div>
       </footer>
