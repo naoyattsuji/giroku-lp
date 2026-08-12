@@ -104,14 +104,16 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 .nav-guide-button {
-  padding: 8px 16px;
-  border: 1px solid var(--border);
+  padding: 8px 18px;
   border-radius: 999px;
+  background: var(--surface-2);
   color: var(--text-1);
   font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
+  transition: background 0.15s ease;
 }
+.nav-guide-button:hover { background: var(--border); }
 .nav-download {
   padding: 8px 18px;
   border-radius: 999px;
@@ -727,6 +729,12 @@ h1, h2, h3 {
   padding-bottom: 22px;
 }
 .footer-links { display: flex; gap: 22px; }
+.footer-links a {
+  color: var(--text-2);
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+.footer-links a:hover { color: var(--text-1); }
 
 /* ヒーローに添えるひそか。ふわっと浮かぶ */
 .hero-spirit {
