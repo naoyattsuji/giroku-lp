@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
+import { LogoMark } from "../components/Illustrations";
 
 export const metadata: Metadata = {
   title: "使い方ガイド — Giroku",
@@ -127,11 +128,13 @@ export default function GuidePage() {
       </header>
 
       <div className="lp-inner guide-flow-header">
-        <p className="guide-doc-eyebrow">使い方ガイド</p>
+        <div className="hero-kicker guide-flow-kicker">
+          <span className="hero-spirit">
+            <LogoMark size={34} />
+          </span>
+          <p>使い方ガイド</p>
+        </div>
         <h1>録音を始めてから、終わるまで。</h1>
-        <p className="guide-doc-description">
-          実際の画面を、操作する順番のまま並べました。上から読むだけで一通り分かります。
-        </p>
       </div>
 
       <div className="lp-inner guide-flow-wrap">
