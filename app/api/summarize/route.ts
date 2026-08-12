@@ -22,6 +22,24 @@ interface TranscriptSegment {
   text: string
 }
 
+// 詳しさ・正確さのための追加ルール。全テンプレート・チャット（REVISE）に共通で
+// 適用する。「重要そうな2〜3点だけ拾って終わり」「数字を言い換えて微妙にずれる」
+// 「[パソコンの音]の発言者を勝手に一人に断定する」の3つが実際の精度不満の
+// 主因になりやすいため、ここで明示的に禁止する。
+const ACCURACY_RULES_JA = `詳しさ・正確さのルール:
+- 決定事項・やること・数字（日付/金額/数量）・固有名詞は、重要度が低そうに見えても漏らさずすべて拾うこと。要点を絞りすぎないこと
+- 日付・金額・数量・固有名詞は文字起こしの表記のまま正確に書き写すこと（言い換えたり丸めたりしない）
+- 話し合いの要点は、話題名だけでなく「何が問題になり、どう結論に至ったか」が分かるように書くこと
+- [パソコンの音]は複数人の発言を含むことがある。発言者を一人に特定できない場合は誰かに断定せず、「相手」など曖昧さを保ったまま書くこと
+- 各項目を書く前に、文字起こしの中に根拠となる発言が実際にあるか確認すること。推測や一般論で埋めないこと`
+
+const ACCURACY_RULES_EN = `Detail and accuracy rules:
+- Capture every decision, action item, number (date/amount/quantity), and proper noun, even if it seems minor. Do not over-condense
+- Copy dates, amounts, quantities, and proper nouns exactly as stated in the transcript. Do not paraphrase or round them
+- For key discussion points, explain what was at issue and how it was resolved, not just a topic label
+- [computer audio] may contain multiple speakers. If you cannot identify who specifically said something, do not attribute it to one person by guessing — keep it appropriately vague
+- Before writing each item, confirm there is an actual statement in the transcript backing it. Do not fill gaps with guesses or generic assumptions`
+
 // 内容を「講義・説明会型（一方向の情報伝達）」か「議論・会議型（決定事項がある対話）」に
 // まず自分で判定させ、適したフォーマットで出力させる（1回のAPI呼び出し内で完結・追加コストなし）。
 const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタントです。
@@ -63,6 +81,8 @@ Bの場合:
 - 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん　研究構想を深める（8/15まで）」）
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
 - メールやチャットにそのまま貼れる、記号の少ないテキストにすること
+
+${ACCURACY_RULES_JA}
 
 注意:
 - 文字起こしに無い情報を創作しないこと
@@ -110,6 +130,8 @@ Formatting rules:
 - Do not add symbols for emphasis. Put what matters first and state it plainly
 - The result must paste cleanly into email and chat as plain text
 
+${ACCURACY_RULES_EN}
+
 Notes:
 - Do not invent information not in the transcript
 - Speakers are marked [mic] / [computer audio]
@@ -141,6 +163,7 @@ const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです�
 【話し合いの要点】
 ・（重要な論点をひとつずつ）
 ${PLAIN_STYLE_RULES_JA}
+${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
@@ -154,6 +177,7 @@ const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです�
 【復習・確認しておくこと】
 ・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 ${PLAIN_STYLE_RULES_JA}
+${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
@@ -172,6 +196,7 @@ const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成�
 【フィードバック・気づき】
 ・（伝えられたフィードバックや気づき。なければ「特になし」）
 ${PLAIN_STYLE_RULES_JA}
+${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 話者は [マイク] / [パソコンの音] で示されています
@@ -189,6 +214,7 @@ const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントで
 【総合所感】
 （面接官の視点でのメモ。決めつけず事実ベースで簡潔に）
 ${PLAIN_STYLE_RULES_JA}
+${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと。評価や合否の断定はしないこと
 - 話者は [マイク] / [パソコンの音] で示されています
@@ -231,6 +257,9 @@ ANSWER
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
 - メールやチャットにそのまま貼れる、記号の少ないテキストにすること
 
+REVISEで書き直すときは、次のルールも適用する:
+${ACCURACY_RULES_JA}
+
 出力言語: {LANG}`
 
 const CHAT_PROMPT_EN = `You are a meeting notes editing and Q&A assistant.
@@ -261,7 +290,10 @@ Formatting rules (apply to both REVISE and ANSWER):
 - To group items, put a short label line with no "・", then the "・" lines under it
 - For a short question, answer in plain sentences with no headings or lists at all
 - Do not add symbols for emphasis. Put what matters first and state it plainly
-- The result must paste cleanly into email and chat as plain text`
+- The result must paste cleanly into email and chat as plain text
+
+When rewriting for REVISE, also apply these rules:
+${ACCURACY_RULES_EN}`
 
 const TITLE_OUTPUT_JA = `
 
@@ -454,11 +486,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     body.lang === 'en' ? 'English' : body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語'
   const isChat = Boolean(body.instruction && body.previousSummary)
 
+  // 指示文（書式・正確さのルール）はsystemInstructionへ切り出し、userのcontentsには
+  // データ（文字起こし・現在の議事録・ユーザーの依頼）だけを渡す。長いuser発話の中に
+  // 指示を埋め込むより、モデルが指示に従いやすくなる。
+  let systemInstructionText: string
   let userContent: string
   if (isChat) {
-    const prompt =
+    systemInstructionText =
       body.lang === 'en' ? CHAT_PROMPT_EN : CHAT_PROMPT_JA.replace('{LANG}', langLabel)
-    userContent = `${prompt}\n\n---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}\n\n---ユーザーのメッセージ---\n${body.instruction}`
+    userContent = `---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}\n\n---ユーザーのメッセージ---\n${body.instruction}`
   } else {
     const template = body.template ?? 'auto'
     const prompt =
@@ -468,7 +504,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           : SUMMARY_PROMPT_JA.replace('{LANG}', langLabel)
         : TEMPLATE_PROMPTS_JA[template].replace('{LANG}', langLabel)
     const titleInstruction = body.lang === 'en' ? TITLE_OUTPUT_EN : TITLE_OUTPUT_JA
-    userContent = `${prompt}${titleInstruction}\n\n---文字起こし---\n${formatTranscript(segments)}`
+    systemInstructionText = `${prompt}${titleInstruction}`
+    userContent = `---文字起こし---\n${formatTranscript(segments)}`
   }
 
   try {
@@ -478,12 +515,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstructionText }] },
           contents: [{ role: 'user', parts: [{ text: userContent }] }],
           generationConfig: {
+            // 議事録は創作ではなく抽出タスクのため、温度を低く固定してハルシネーション
+            // （文字起こしに無い内容を書いてしまうこと）を抑える。0にはせず少しだけ
+            // 余地を残し、不自然に硬い言い回しの繰り返しを避ける。
+            temperature: 0.2,
             // 2.5 Flashの動的thinkingは長い会話で待ち時間が大きく振れるため上限を固定する。
             // 要約・質問に必要な推論余地は残しつつ、数万thinking tokenへ膨らむのを防ぐ。
             thinkingConfig: { thinkingBudget: 1024 },
-            maxOutputTokens: isChat ? 8192 : 4096
+            // 以前は初回生成だけ4096で、長い会議だと本文が途中で切れるリスクがあった。
+            // チャット（書き直し）と同じ余裕を持たせて揃える。
+            maxOutputTokens: 16384
           }
         })
       }
