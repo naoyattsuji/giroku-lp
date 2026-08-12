@@ -103,6 +103,15 @@ h1, h2, h3 {
   font-weight: 500;
   white-space: nowrap;
 }
+.nav-guide-button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-1);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 .nav-download {
   padding: 8px 18px;
   border-radius: 999px;
@@ -862,7 +871,8 @@ h1, h2, h3 {
   .lp-inner { padding-left: 20px; padding-right: 20px; }
   .nav-inner { height: 60px; }
   .nav-actions { gap: 0; }
-  .nav-secondary-link { display: none; }
+  .nav-secondary-link,
+  .nav-guide-button { display: none; }
   .nav-download {
     max-width: none;
     width: 36px;
