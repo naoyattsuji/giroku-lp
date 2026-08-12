@@ -691,7 +691,6 @@ h1, h2, h3 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 14px 30px rgba(0, 0, 0, 0.08);
 }
 .flow-step-shot img { display: block; width: 100%; height: auto; }
-.flow-step-shot-narrow { max-width: 360px; }
 .guide-cta-section { background: var(--surface-2); }
 .guide-cta-inner { padding-top: var(--section-space); padding-bottom: var(--section-space); text-align: center; }
 .guide-cta-lead {

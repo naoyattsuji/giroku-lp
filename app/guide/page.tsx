@@ -13,8 +13,7 @@ type Step = {
   num: string;
   title: string;
   desc: string;
-  image: { src: string; alt: string; w: number; h: number };
-  narrow?: boolean;
+  image: { src: string; alt: string };
 };
 
 const steps: Step[] = [
@@ -22,68 +21,67 @@ const steps: Step[] = [
     num: "1",
     title: "赤いボタンを押す",
     desc: "サイドバーの「録音」で、赤いボタンを押すだけで始まります。",
-    image: { src: "/guide/step-01-start.png", alt: "録音ボタンを押す", w: 1943, h: 570 },
+    image: { src: "/guide/step-01-start.png", alt: "録音ボタンを押す" },
   },
   {
     num: "2",
     title: "はじめての時だけ、ひとこと確認",
     desc: "相手の同意についての確認です。チェックして進めば、次回からは出ません。",
-    image: { src: "/guide/step-02-consent.png", alt: "同意の確認ダイアログ", w: 900, h: 755 },
-    narrow: true,
+    image: { src: "/guide/step-02-consent.png", alt: "同意の確認ダイアログ" },
   },
   {
     num: "3",
     title: "話した内容が、その場で文字になる",
     desc: "マイクの声も、パソコンの音（通話・動画）も、区別しながらリアルタイムで表示されます。",
-    image: { src: "/guide/step-03-live.png", alt: "録音中のライブ文字起こし", w: 1930, h: 680 },
+    image: { src: "/guide/step-03-live.png", alt: "録音中のライブ文字起こし" },
   },
   {
     num: "4",
     title: "音源はその場でオン/オフできる",
     desc: "マイクだけ、パソコンの音だけ、を録りたいときはワンクリックでミュートできます。",
-    image: { src: "/guide/step-04-mute.png", alt: "マイクをミュートする", w: 1050, h: 200 },
+    image: { src: "/guide/step-04-mute.png", alt: "マイクをミュートする" },
   },
   {
     num: "5",
     title: "終わったら、停止するだけ",
     desc: "「停止」を押すと、あとは自動で保存・文字起こしまで進みます。",
-    image: { src: "/guide/step-05-stop.png", alt: "録音を停止する", w: 600, h: 200 },
+    image: { src: "/guide/step-05-stop.png", alt: "録音を停止する" },
   },
   {
     num: "6",
     title: "「議事録を作成」で、AIがまとめる",
     desc: "決まったこと・やることを、AIが自動で整理します（無料でも毎月2件まで作成可）。",
-    image: { src: "/guide/step-06-create.png", alt: "議事録を作成ボタン", w: 700, h: 140 },
+    image: { src: "/guide/step-06-create.png", alt: "議事録を作成ボタン" },
   },
   {
     num: "7",
     title: "気になることは、そのまま聞ける",
     desc: "「誰が担当？」「いつまで？」と話しかけると、AIがその場で答えたり、議事録を書き直したりします。",
-    image: { src: "/guide/step-07-result.png", alt: "完成した議事録とAIチャットでの質問", w: 2080, h: 1150 },
+    image: { src: "/guide/step-07-result.png", alt: "完成した議事録とAIチャットでの質問" },
   },
   {
     num: "8",
     title: "履歴から、いつでも探せる",
     desc: "検索・お気に入り・フォルダ分けで、あとから見返しやすくなっています。",
-    image: { src: "/guide/step-08-history.png", alt: "履歴画面での検索とお気に入り", w: 1930, h: 850 },
+    image: { src: "/guide/step-08-history.png", alt: "履歴画面での検索とお気に入り" },
   },
   {
     num: "9",
     title: "複数まとめて、フォルダ移動や削除も",
     desc: "「選択」でチェックを付けると、まとめてフォルダに移動したりゴミ箱に入れたりできます。",
-    image: { src: "/guide/step-09-select.png", alt: "複数選択して一括操作", w: 1930, h: 850 },
+    image: { src: "/guide/step-09-select.png", alt: "複数選択して一括操作" },
   },
   {
     num: "10",
     title: "消しても、7日間はゴミ箱に残る",
     desc: "うっかり消しても大丈夫。7日以内なら「元に戻す」でいつでも復元できます。",
-    image: { src: "/guide/step-10-trash.png", alt: "ゴミ箱画面", w: 2080, h: 500 },
+    image: { src: "/guide/step-10-trash.png", alt: "ゴミ箱画面" },
   },
   {
     num: "11",
     title: "困ったときは、設定の「ヘルプ」から",
     desc: "このガイドにも、お問い合わせにも、設定画面からすぐに戻ってこられます。",
-    image: { src: "/guide/step-11-help.png", alt: "設定画面のヘルプセクション", w: 2080, h: 295 },
+    image: { src: "/guide/step-11-help.png", alt: "設定画面のヘルプセクション" },
   },
 ];
 
@@ -96,13 +94,13 @@ function StepRow({ step }: { step: Step }): ReactElement {
       <div className="flow-step-body">
         <h2>{step.title}</h2>
         <p>{step.desc}</p>
-        <div className={`flow-step-shot${step.narrow ? " flow-step-shot-narrow" : ""}`}>
+        <div className="flow-step-shot">
           <Image
             src={step.image.src}
             alt={step.image.alt}
-            width={step.image.w}
-            height={step.image.h}
-            sizes={step.narrow ? "(max-width: 768px) 100vw, 420px" : "(max-width: 768px) 100vw, 760px"}
+            width={2080}
+            height={1440}
+            sizes="(max-width: 768px) 100vw, 760px"
           />
         </div>
       </div>
