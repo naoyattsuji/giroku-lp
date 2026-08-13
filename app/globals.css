@@ -103,17 +103,6 @@ h1, h2, h3 {
   font-weight: 500;
   white-space: nowrap;
 }
-.nav-guide-button {
-  padding: 8px 18px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text-1);
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-  transition: background 0.15s ease;
-}
-.nav-guide-button:hover { background: var(--border); }
 .nav-download {
   padding: 8px 18px;
   border-radius: 999px;
@@ -879,8 +868,7 @@ h1, h2, h3 {
   .lp-inner { padding-left: 20px; padding-right: 20px; }
   .nav-inner { height: 60px; }
   .nav-actions { gap: 0; }
-  .nav-secondary-link,
-  .nav-guide-button { display: none; }
+  .nav-secondary-link { display: none; }
   .nav-download {
     max-width: none;
     width: 36px;

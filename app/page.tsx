@@ -249,7 +249,7 @@ export default function Home() {
           </span>
           <div className="nav-actions">
             <a href="#pricing" className="nav-secondary-link">料金</a>
-            <Link href="/guide" className="nav-guide-button">使い方ガイド</Link>
+            <Link href="/guide" className="nav-secondary-link">使い方ガイド</Link>
             <a href="#download" className="nav-download">ダウンロード</a>
           </div>
         </div>
