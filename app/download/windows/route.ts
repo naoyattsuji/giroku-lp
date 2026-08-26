@@ -18,7 +18,11 @@ export async function GET(request: Request) {
     return Response.redirect(new URL("/#download", request.url), 307);
   }
 
-  const response = Response.redirect(destination, 307);
-  response.headers.set("Cache-Control", "no-store");
-  return response;
+  return new Response(null, {
+    status: 307,
+    headers: {
+      Location: destination.toString(),
+      "Cache-Control": "no-store"
+    }
+  });
 }
