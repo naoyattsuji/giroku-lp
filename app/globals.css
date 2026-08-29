@@ -592,6 +592,12 @@ h1, h2, h3 {
   color: #fff;
   font-weight: 700;
 }
+.download-option-active {
+  background: var(--surface);
+  color: var(--text-1);
+  border: 1.5px solid var(--text-1);
+  font-weight: 600;
+}
 
 .scenes-guide-link { margin-top: 24px; text-align: center; }
 

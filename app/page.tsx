@@ -279,7 +279,7 @@ export default function Home() {
               </a>
               <a href="#scenes" className="text-link">使い方を見る →</a>
             </div>
-            <p className="hero-note">1か月120分まで無料 · 登録不要 · macOS版を公開中</p>
+            <p className="hero-note">1か月120分まで無料 · 登録不要 · macOS/Windows対応</p>
           </div>
           <Reveal delay={120}>
             <div className="hero-product">
@@ -408,7 +408,7 @@ export default function Home() {
               <a href="/download/mac" className="download-option download-option-primary">
                 macOS版をダウンロード
               </a>
-              <a href="/download/windows" className="download-option">
+              <a href="/download/windows" className="download-option download-option-active">
                 Windows版をダウンロード
               </a>
               <span className="download-option">
@@ -418,7 +418,7 @@ export default function Home() {
                 Android版 — 準備中
               </span>
             </div>
-            <p className="download-note">1か月120分まで無料 · Apple Silicon（M1以降）対応</p>
+            <p className="download-note">1か月120分まで無料 · macOS（Apple Silicon）・Windows対応</p>
           </Reveal>
         </div>
       </section>
