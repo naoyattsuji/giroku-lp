@@ -408,9 +408,9 @@ export default function Home() {
               <a href="/download/mac" className="download-option download-option-primary">
                 macOS版をダウンロード
               </a>
-              <span className="download-option">
-                Windows版 — 準備中
-              </span>
+              <a href="/download/windows" className="download-option">
+                Windows版をダウンロード
+              </a>
               <span className="download-option">
                 iPhone版 — 準備中
               </span>
