@@ -1,7 +1,36 @@
 // Giroku アプリからのAPIリクエストを、LemonSqueezyの有料ライセンスキーで検証する。
 // Geminiキーはこのサーバー側にのみ置き、アプリ本体には一切含めない構成にするための検証ヘルパー。
 
-import { createHash } from 'node:crypto'
+import { createHash, createHmac } from 'node:crypto'
+
+// デスクトップ版のGIROKU-PROMO-招待コード（app/src/shared/promoCode.tsと同じHMAC方式）。
+// アプリ側は"paid"扱いにするだけでLemonSqueezyへ一切問い合わせないため、このAPIも
+// 同じ判定を独立して行わないと、招待コードで有効化したユーザーは「有料」と表示されて
+// いるのにAI機能（要約・文章整形）だけが毎回「AI機能の認証に失敗しました」で弾かれ続ける
+// （実際にこの不整合で報告を受けて発覚）。GIROKU_PROMO_SECRETはデスクトップ版
+// （src/main/license.ts）と同じ値をVercelの環境変数に設定して共有する。
+const PROMO_PREFIX = 'GIROKU-PROMO-'
+
+function signPromoCode(payload: string, secret: string): string {
+  return createHmac('sha256', secret).update(payload).digest('hex').slice(0, 8).toUpperCase()
+}
+
+function isPromoCode(input: string): boolean {
+  return input.trim().toUpperCase().startsWith(PROMO_PREFIX)
+}
+
+function verifyPromoCode(input: string): boolean {
+  const secret = process.env.GIROKU_PROMO_SECRET?.trim()
+  if (!secret) return false
+  const code = input.trim().toUpperCase()
+  if (!code.startsWith(PROMO_PREFIX)) return false
+  const rest = code.slice(PROMO_PREFIX.length)
+  const parts = rest.split('-')
+  if (parts.length !== 2) return false
+  const [id, sig] = parts
+  if (!/^[A-Z0-9]{8}$/.test(id) || !/^[A-Z0-9]{8}$/.test(sig)) return false
+  return signPromoCode(`${PROMO_PREFIX}${id}`, secret) === sig
+}
 
 const GIROKU_STORE_ID = 410452
 const GIROKU_PRODUCT_ID = 1153138
@@ -201,6 +230,7 @@ export async function fetchWithRetry(
 
 export async function isPaidLicense(licenseKey: string | undefined | null): Promise<boolean> {
   if (!licenseKey) return false
+  if (isPromoCode(licenseKey)) return verifyPromoCode(licenseKey)
   const cacheKey = createHash('sha256').update(licenseKey).digest('hex')
   const cached = licenseCache.get(cacheKey)
   if (cached && cached.expires > Date.now()) return cached.paid
