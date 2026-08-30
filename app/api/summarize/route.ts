@@ -50,37 +50,38 @@ const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタ�
 判定した種類に応じて、次のどちらかの形式で出力してください。
 
 Aの場合:
-【概要】
+▶ 概要
 （1〜2文でこの回の要点）
 
-【重要ポイント】
+✅ 重要ポイント
 ・（内容の要点をひとつずつ）
 
-【復習・確認しておくこと】
+☐ 復習・確認しておくこと
 （聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 
 Bの場合:
-【概要】
+▶ 概要
 （1〜2文で会議全体の要点）
 
-【決定事項】
+✅ 決定事項
 ・（決まったことをひとつずつ。なければ「特になし」）
 
-【やること】
-・担当者名　やること（期限）
+☐ やること
+・担当者名｜やること（〆期限）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
 
-【話し合いの要点】
+💬 話し合いの要点
 ・（重要な論点をひとつずつ）
 
 書き方のルール:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 見出しは指定された記号（▶✅☐💬など）をそのまま行頭に使う。【】や#は使わない
+- 箇条書きの行頭は必ず「・」を使う
 - 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
 - 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
-- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん　研究構想を深める（8/15まで）」）
+- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん｜研究構想を深める（〆8/15）」）
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- メールやチャットにそのまま貼れる、記号の少ないテキストにすること
+- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること
 
 ${ACCURACY_RULES_JA}
 
@@ -98,37 +99,38 @@ Read the transcript below and first decide which it is closer to:
 Then output using the matching format only:
 
 If A:
-[Summary]
+▶ Summary
 (1-2 sentences of the gist)
 
-[Key points]
+✅ Key points
 ・(one important point per line)
 
-[Things to review/follow up]
+☐ Things to review/follow up
 (what the listener should review or confirm; "None" if none)
 
 If B:
-[Summary]
+▶ Summary
 (1-2 sentences of the overall gist)
 
-[Decisions]
+✅ Decisions
 ・(one decision per line; "None" if there are none)
 
-[Action items]
-・Owner name　what to do (due date)
+☐ Action items
+・Owner name｜what to do (due date)
 (omit owner or due date if unknown; "None" if there are none)
 
-[Key discussion points]
+💬 Key discussion points
 ・(one point per line)
 
 Formatting rules:
 - Do not use Markdown. Never use "#", "##", "**", "*", or "-"
-- Wrap headings in square brackets. Start every list line with "・"
+- Use the given symbol (▶✅☐💬 etc.) directly at the start of each heading line. Do not wrap headings in brackets or use "#"
+- Start every list line with "・"
 - Never nest lists. Use a single level of "・" and never indent a line
 - To group items, put a short label line with no "・", then the "・" lines under it
-- To split by owner, keep it on one line instead of nesting (e.g. "・Ishiwata　Deepen the research plan (by Aug 15)")
+- To split by owner, keep it on one line instead of nesting (e.g. "・Ishiwata｜Deepen the research plan (due 8/15)")
 - Do not add symbols for emphasis. Put what matters first and state it plainly
-- The result must paste cleanly into email and chat as plain text
+- The result must paste cleanly into LINE, email, and chat with headings visible at a glance
 
 ${ACCURACY_RULES_EN}
 
@@ -141,26 +143,28 @@ Notes:
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
 
 // 各テンプレート共通の書き方ルール。Markdown記法はアプリ側で描画しておらず
-// 記号がそのまま画面に出てしまうため、日本語の議事録として自然な
-// 【見出し】＋「・」の形に統一する。コピーしてメール等へ貼る用途にも合う。
+// 記号がそのまま画面に出てしまう上、議事録は最終的にLINEへコピペして
+// 共有されることが多いため、装飾CSSに頼らず生テキストのままでも見出しが
+// 一目で分かるよう、▶✅☐💬など意味の異なる記号を見出しの先頭に使う。
 const PLAIN_STYLE_RULES_JA = `書き方のルール:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しは必ず【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 見出しは指定された記号（▶✅☐💬⚠️💡📋など）をそのまま行頭に使う。【】や#は使わない
+- 箇条書きの行頭は必ず「・」を使う
 - 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
 - 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
-- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん　研究構想を深める（8/15まで）」）
+- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん｜研究構想を深める（〆8/15）」）
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- メールやチャットにそのまま貼れる、記号の少ないテキストにすること`
+- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること`
 
 const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次の形式で出力してください。
-【概要】
+▶ 概要
 （1〜2文で会議全体の要点）
-【決定事項】
+✅ 決定事項
 ・（決まったことをひとつずつ。なければ「特になし」）
-【やること】
-・担当者名　やること（期限）
+☐ やること
+・担当者名｜やること（〆期限）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
-【話し合いの要点】
+💬 話し合いの要点
 ・（重要な論点をひとつずつ）
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
@@ -170,11 +174,11 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次の形式で出力してください。
-【概要】
+▶ 概要
 （1〜2文でこの回の要点）
-【重要ポイント】
+✅ 重要ポイント
 ・（内容の要点をひとつずつ）
-【復習・確認しておくこと】
+☐ 復習・確認しておくこと
 ・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
@@ -184,16 +188,16 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次の形式で出力してください。
-【概要】
+▶ 概要
 （1〜2文で今回の1on1の要点）
-【共有されたこと】
+✅ 共有されたこと
 ・（近況や進捗など共有された内容をひとつずつ）
-【課題・気になっていること】
+⚠️ 課題・気になっていること
 ・（本人が挙げた悩みや課題。なければ「特になし」）
-【次のアクション】
-・担当者名　やること（期限）
+☐ 次のアクション
+・担当者名｜やること（〆期限）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
-【フィードバック・気づき】
+💡 フィードバック・気づき
 ・（伝えられたフィードバックや気づき。なければ「特になし」）
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
@@ -203,15 +207,15 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次の形式で出力してください。
-【概要】
+▶ 概要
 （対象者・ポジションなど分かる範囲で1〜2文）
-【経歴・スキルの要点】
+✅ 経歴・スキルの要点
 ・（語られた経歴・経験・スキルをひとつずつ）
-【質疑応答のポイント】
+💬 質疑応答のポイント
 ・（やり取りの中で重要だった質問と回答）
-【懸念点・確認したいこと】
+⚠️ 懸念点・確認したいこと
 ・（気になった点や追加で確認すべきこと。なければ「特になし」）
-【総合所感】
+📋 総合所感
 （面接官の視点でのメモ。決めつけず事実ベースで簡潔に）
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
@@ -241,7 +245,7 @@ const CHAT_PROMPT_JA = `あなたは議事録編集・質問応答アシスタ�
 REVISEの場合:
 REVISE
 ---
-（書き直した議事録の本文全体。見出し構成（【項目】）はできるだけ維持し、
+（書き直した議事録の本文全体。見出し構成（記号付きの見出し）はできるだけ維持し、
 ユーザーの依頼に沿って内容を調整する。文字起こしに無い情報は創作しない）
 
 ANSWERの場合:
@@ -252,10 +256,11 @@ ANSWER
 
 書き方のルール（REVISE・ANSWERの両方に適用）:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しが必要なときだけ【】で囲む。箇条書きの行頭は必ず「・」を使う
+- 見出しが必要なときは指定された記号（▶✅☐💬⚠️💡📋など）を行頭に使う。【】や#は使わない
+- 箇条書きの行頭は必ず「・」を使う
 - 短い質問には、見出しも箇条書きも付けずに普通の文章で答えること
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- メールやチャットにそのまま貼れる、記号の少ないテキストにすること
+- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること
 
 REVISEで書き直すときは、次のルールも適用する:
 ${ACCURACY_RULES_JA}
@@ -274,7 +279,7 @@ Output in this exact format (line 1 is REVISE or ANSWER, line 2 is just ---):
 If REVISE:
 REVISE
 ---
-(the full rewritten notes body. Keep the same heading structure ([sections]) as much as
+(the full rewritten notes body. Keep the same heading structure (symbol-prefixed headings) as much as
 possible, adjusting the content per the user's request. Do not invent information not in the transcript)
 
 If ANSWER:
@@ -285,12 +290,13 @@ e.g. "The transcript doesn't show that.")
 
 Formatting rules (apply to both REVISE and ANSWER):
 - Do not use Markdown. Never use "#", "##", "**", "*", or "-"
-- Wrap headings in square brackets only when a heading is needed. Start every list line with "・"
+- When a heading is needed, use the given symbol (▶✅☐💬⚠️💡📋 etc.) at the start of the line. Do not use [] or #
+- Start every list line with "・"
 - Never nest lists. Use a single level of "・" and never indent a line
 - To group items, put a short label line with no "・", then the "・" lines under it
 - For a short question, answer in plain sentences with no headings or lists at all
 - Do not add symbols for emphasis. Put what matters first and state it plainly
-- The result must paste cleanly into email and chat as plain text
+- The result must paste cleanly into LINE, email, and chat with headings visible at a glance
 
 When rewriting for REVISE, also apply these rules:
 ${ACCURACY_RULES_EN}`
