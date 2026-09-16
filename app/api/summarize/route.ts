@@ -40,6 +40,35 @@ const ACCURACY_RULES_EN = `Detail and accuracy rules:
 - [computer audio] may contain multiple speakers. If you cannot identify who specifically said something, do not attribute it to one person by guessing — keep it appropriately vague
 - Before writing each item, confirm there is an actual statement in the transcript backing it. Do not fill gaps with guesses or generic assumptions`
 
+// 全テンプレート共通の書き方ルール。議事録は最終的にLINEやメールへ
+// コピー＆ペーストして共有されるため、次の2点を最優先で守らせる。
+// (1) 貼り先の端末を問わず文字化けしないこと。絵文字と機種依存文字（丸数字・
+//     ローマ数字・㈱№℡など）はJIS第1・第2水準の外にあり、環境によって
+//     豆腐や別の文字に化けるため全面的に禁止し、見出しは「■ 」で統一する。
+// (2) 議事録として通用するフォーマルさを保ちつつ冗長にならないこと。常体に
+//     固定し、一文を短く、同じ内容を繰り返さないよう明示する。
+// アプリ側はMarkdownを描画しないため、記法はそのまま画面に出てしまう点も変わらない。
+const PLAIN_STYLE_RULES_JA = `書き方のルール:
+- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
+- 絵文字と機種依存文字を使わないこと（例: 絵文字全般、丸数字①②③、ローマ数字ⅠⅡⅢ、㈱№℡㎡）。貼り付け先の環境で文字化けする
+- 見出しは必ず「■ 」で始める行にする。【】や記号の飾りを付けない
+- 決定事項・対応事項は「1. 」「2. 」と番号を振る。それ以外の箇条書きは行頭に「・」を使う
+- 箇条書きを入れ子にしないこと。行頭に空白やインデントを入れない
+- 常体（である調・体言止め）で書くこと。ですます調は使わない
+- 一文を短くし、同じ内容を繰り返さないこと。「〜だと思われます」「〜という話がありました」のような冗長な言い回しは避ける
+- 簡潔にするために項目を省略しないこと。書式は短く、内容は網羅的にすること
+- LINE・メール・チャットへそのまま貼り付けられる書式にすること`
+
+const PLAIN_STYLE_RULES_EN = `Formatting rules:
+- Do not use Markdown. Never use "#", "##", "**", "*", or "-"
+- Do not use emoji or platform-dependent characters (circled numbers, Roman numerals, etc.). They break when pasted elsewhere
+- Start every heading line with "■ ". Do not wrap headings in brackets or add decorative symbols
+- Number decisions and action items as "1. ", "2. ". Start any other list line with "・"
+- Never nest lists. Never indent a line
+- Keep sentences short and do not repeat the same content. Avoid padding like "it seems that" or "there was a discussion about"
+- Being concise must not mean dropping items. Keep the formatting terse and the content complete
+- The result must paste cleanly into chat, email, and messaging apps`
+
 // 内容を「講義・説明会型（一方向の情報伝達）」か「議論・会議型（決定事項がある対話）」に
 // まず自分で判定させ、適したフォーマットで出力させる（1回のAPI呼び出し内で完結・追加コストなし）。
 const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタントです。
@@ -50,38 +79,30 @@ const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタ�
 判定した種類に応じて、次のどちらかの形式で出力してください。
 
 Aの場合:
-▶ 概要
+■ 概要
 （1〜2文でこの回の要点）
 
-✅ 重要ポイント
+■ 要点
 ・（内容の要点をひとつずつ）
 
-☐ 復習・確認しておくこと
-（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+■ 確認事項
+・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 
 Bの場合:
-▶ 概要
+■ 概要
 （1〜2文で会議全体の要点）
 
-✅ 決定事項
-・（決まったことをひとつずつ。なければ「特になし」）
+■ 決定事項
+1. （決まったことをひとつずつ。なければ「特になし」）
 
-☐ やること
-・担当者名｜やること（〆期限）
+■ 対応事項
+1. 担当者：対応内容（期限 ○月○日）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
 
-💬 話し合いの要点
+■ 討議内容
 ・（重要な論点をひとつずつ）
 
-書き方のルール:
-- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しは指定された記号（▶✅☐💬など）をそのまま行頭に使う。【】や#は使わない
-- 箇条書きの行頭は必ず「・」を使う
-- 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
-- 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
-- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん｜研究構想を深める（〆8/15）」）
-- 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること
+${PLAIN_STYLE_RULES_JA}
 
 ${ACCURACY_RULES_JA}
 
@@ -99,38 +120,30 @@ Read the transcript below and first decide which it is closer to:
 Then output using the matching format only:
 
 If A:
-▶ Summary
+■ Summary
 (1-2 sentences of the gist)
 
-✅ Key points
+■ Key points
 ・(one important point per line)
 
-☐ Things to review/follow up
-(what the listener should review or confirm; "None" if none)
+■ Follow-up
+・(what the listener should review or confirm; "None" if none)
 
 If B:
-▶ Summary
+■ Summary
 (1-2 sentences of the overall gist)
 
-✅ Decisions
-・(one decision per line; "None" if there are none)
+■ Decisions
+1. (one decision per line; "None" if there are none)
 
-☐ Action items
-・Owner name｜what to do (due date)
+■ Action items
+1. Owner: what to do (due Month Day)
 (omit owner or due date if unknown; "None" if there are none)
 
-💬 Key discussion points
+■ Discussion
 ・(one point per line)
 
-Formatting rules:
-- Do not use Markdown. Never use "#", "##", "**", "*", or "-"
-- Use the given symbol (▶✅☐💬 etc.) directly at the start of each heading line. Do not wrap headings in brackets or use "#"
-- Start every list line with "・"
-- Never nest lists. Use a single level of "・" and never indent a line
-- To group items, put a short label line with no "・", then the "・" lines under it
-- To split by owner, keep it on one line instead of nesting (e.g. "・Ishiwata｜Deepen the research plan (due 8/15)")
-- Do not add symbols for emphasis. Put what matters first and state it plainly
-- The result must paste cleanly into LINE, email, and chat with headings visible at a glance
+${PLAIN_STYLE_RULES_EN}
 
 ${ACCURACY_RULES_EN}
 
@@ -142,30 +155,21 @@ Notes:
 
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
 
-// 各テンプレート共通の書き方ルール。Markdown記法はアプリ側で描画しておらず
-// 記号がそのまま画面に出てしまう上、議事録は最終的にLINEへコピペして
-// 共有されることが多いため、装飾CSSに頼らず生テキストのままでも見出しが
-// 一目で分かるよう、▶✅☐💬など意味の異なる記号を見出しの先頭に使う。
-const PLAIN_STYLE_RULES_JA = `書き方のルール:
-- Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しは指定された記号（▶✅☐💬⚠️💡📋など）をそのまま行頭に使う。【】や#は使わない
-- 箇条書きの行頭は必ず「・」を使う
-- 箇条書きを入れ子にしないこと。「・」は1階層だけで、行頭に空白やインデントを入れない
-- 項目をまとめたいときは、まとめ名だけの行（「・」を付けない短い1行）を置き、その下に「・」の行を続ける
-- 担当者ごとに分けたいときは入れ子にせず、1行に収める（例:「・石渡さん｜研究構想を深める（〆8/15）」）
-- 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること`
-
 const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次の形式で出力してください。
-▶ 概要
+
+■ 概要
 （1〜2文で会議全体の要点）
-✅ 決定事項
-・（決まったことをひとつずつ。なければ「特になし」）
-☐ やること
-・担当者名｜やること（〆期限）
+
+■ 決定事項
+1. （決まったことをひとつずつ。なければ「特になし」）
+
+■ 対応事項
+1. 担当者：対応内容（期限 ○月○日）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
-💬 話し合いの要点
+
+■ 討議内容
 ・（重要な論点をひとつずつ）
+
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
@@ -174,12 +178,16 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次の形式で出力してください。
-▶ 概要
+
+■ 概要
 （1〜2文でこの回の要点）
-✅ 重要ポイント
+
+■ 要点
 ・（内容の要点をひとつずつ）
-☐ 復習・確認しておくこと
+
+■ 確認事項
 ・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
+
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
@@ -188,17 +196,23 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次の形式で出力してください。
-▶ 概要
+
+■ 概要
 （1〜2文で今回の1on1の要点）
-✅ 共有されたこと
+
+■ 共有事項
 ・（近況や進捗など共有された内容をひとつずつ）
-⚠️ 課題・気になっていること
+
+■ 課題
 ・（本人が挙げた悩みや課題。なければ「特になし」）
-☐ 次のアクション
-・担当者名｜やること（〆期限）
+
+■ 対応事項
+1. 担当者：対応内容（期限 ○月○日）
 （担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
-💡 フィードバック・気づき
+
+■ フィードバック
 ・（伝えられたフィードバックや気づき。なければ「特になし」）
+
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
@@ -207,16 +221,22 @@ ${ACCURACY_RULES_JA}
 - 出力言語: {LANG}`
 
 const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次の形式で出力してください。
-▶ 概要
+
+■ 概要
 （対象者・ポジションなど分かる範囲で1〜2文）
-✅ 経歴・スキルの要点
+
+■ 経歴・スキル
 ・（語られた経歴・経験・スキルをひとつずつ）
-💬 質疑応答のポイント
+
+■ 質疑応答
 ・（やり取りの中で重要だった質問と回答）
-⚠️ 懸念点・確認したいこと
+
+■ 確認事項
 ・（気になった点や追加で確認すべきこと。なければ「特になし」）
-📋 総合所感
+
+■ 所感
 （面接官の視点でのメモ。決めつけず事実ベースで簡潔に）
+
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
@@ -245,7 +265,7 @@ const CHAT_PROMPT_JA = `あなたは議事録編集・質問応答アシスタ�
 REVISEの場合:
 REVISE
 ---
-（書き直した議事録の本文全体。見出し構成（記号付きの見出し）はできるだけ維持し、
+（書き直した議事録の本文全体。「■ 」で始まる見出し構成はできるだけ維持し、
 ユーザーの依頼に沿って内容を調整する。文字起こしに無い情報は創作しない）
 
 ANSWERの場合:
@@ -254,15 +274,18 @@ ANSWER
 （ユーザーへの回答。文字起こし・議事録に基づいて答え、分からない場合は
 「文字起こしからは分かりません」のように正直に答える）
 
-書き方のルール（REVISE・ANSWERの両方に適用）:
+REVISE・ANSWERの両方に適用するルール:
 - Markdownは使わないこと。「#」「##」「**」「*」「-」は一切使わない
-- 見出しが必要なときは指定された記号（▶✅☐💬⚠️💡📋など）を行頭に使う。【】や#は使わない
-- 箇条書きの行頭は必ず「・」を使う
-- 短い質問には、見出しも箇条書きも付けずに普通の文章で答えること
+- 絵文字と機種依存文字を使わないこと（例: 絵文字全般、丸数字①②③、ローマ数字ⅠⅡⅢ、㈱№℡㎡）。貼り付け先の環境で文字化けする
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
-- LINEやチャットにそのまま貼れる、見出しがひと目で分かるテキストにすること
+
+ANSWERのときだけ適用するルール:
+- 短い質問には、見出しも箇条書きも付けずに普通の文章で答えること
+- 回答は議事録本文と違い、ですます調で構わない
 
 REVISEで書き直すときは、次のルールも適用する:
+${PLAIN_STYLE_RULES_JA}
+
 ${ACCURACY_RULES_JA}
 
 出力言語: {LANG}`
@@ -279,7 +302,7 @@ Output in this exact format (line 1 is REVISE or ANSWER, line 2 is just ---):
 If REVISE:
 REVISE
 ---
-(the full rewritten notes body. Keep the same heading structure (symbol-prefixed headings) as much as
+(the full rewritten notes body. Keep the same "■ " heading structure as much as
 possible, adjusting the content per the user's request. Do not invent information not in the transcript)
 
 If ANSWER:
@@ -288,17 +311,17 @@ ANSWER
 (an answer to the user, grounded in the transcript/notes. If you don't know, say so honestly,
 e.g. "The transcript doesn't show that.")
 
-Formatting rules (apply to both REVISE and ANSWER):
+Rules for both REVISE and ANSWER:
 - Do not use Markdown. Never use "#", "##", "**", "*", or "-"
-- When a heading is needed, use the given symbol (▶✅☐💬⚠️💡📋 etc.) at the start of the line. Do not use [] or #
-- Start every list line with "・"
-- Never nest lists. Use a single level of "・" and never indent a line
-- To group items, put a short label line with no "・", then the "・" lines under it
-- For a short question, answer in plain sentences with no headings or lists at all
+- Do not use emoji or platform-dependent characters. They break when pasted elsewhere
 - Do not add symbols for emphasis. Put what matters first and state it plainly
-- The result must paste cleanly into LINE, email, and chat with headings visible at a glance
+
+Rules for ANSWER only:
+- For a short question, answer in plain sentences with no headings or lists at all
 
 When rewriting for REVISE, also apply these rules:
+${PLAIN_STYLE_RULES_EN}
+
 ${ACCURACY_RULES_EN}`
 
 const TITLE_OUTPUT_JA = `
@@ -319,10 +342,21 @@ TITLE: (a 5-10 word title)
 
 Do not choose a title from only the opening topic. Prefer the final decision or the central topic discussed across the conversation.`
 
+/** 見出しとして扱ってよい文字数の上限。実際の見出しは「経歴・スキル」程度が最長。
+ *  これを超える行は、たとえ見出し記号で始まっていても本文とみなす（対応事項を
+ *  チェックボックス付きで書いた「☐ 〇〇を修正する」を見出しへ誤変換しない）。 */
+const MAX_HEADING_LENGTH = 24
+
+/** 見出しの飾りとしてモデルが使いがちな記号。多くは機種依存で貼り先が文字化けするため、
+ *  「■ 」か「・」へ均して必ず取り除く。⚠などは異体字セレクタを伴うことがある。 */
+const DECORATIVE_MARK = /^[\s　]*(?:[▶▷►◆◇●○□☐✅💬💡📋📌🔷]|[⚠❗❓]️?)[\s　]*(.+?)[\s　]*$/
+
 /**
- * プロンプトで禁止していてもモデルがMarkdown記法を出すことがあるため、
- * 返す直前に保険として素のテキストへ均す。アプリ側はMarkdownを描画して
- * おらず記号がそのまま画面に出てしまうため、ここで確実に落とす。
+ * プロンプトで禁止していてもモデルがMarkdown記法や絵文字の見出しを出すことが
+ * あるため、返す直前に保険として素のテキストへ均す。議事録はLINEやメールへ
+ * コピーして共有されるので、機種依存の絵文字が残ると貼り先で文字化けする。
+ * アプリ側もMarkdownを描画しておらず記号がそのまま画面に出るため、
+ * 見出しは「■ 」に統一し、Markdownの装飾記号は落とす。
  * コードブロック内は変換対象にしない（本文にコードが含まれる場合を壊さない）。
  */
 function toPlainJapaneseNotes(input: string): string {
@@ -337,11 +371,28 @@ function toPlainJapaneseNotes(input: string): string {
 
     let s = line
 
-    // 見出し: 「## 決定事項」→「【決定事項】」（既に【】ならそのまま）
+    // 見出し: 「## 決定事項」→「■ 決定事項」
     const heading = s.match(/^\s*#{1,6}\s+(.*?)\s*$/)
     if (heading) {
       const body = heading[1].replace(/\*\*/g, '').replace(/^【|】$/g, '').trim()
-      return body ? `【${body}】` : ''
+      return body ? `■ ${body}` : ''
+    }
+
+    // 見出し: 「【決定事項】」→「■ 決定事項」（旧フォーマットの名残）
+    const bracketed = s.match(/^[\s　]*【(.+?)】[\s　]*$/)
+    if (bracketed) return `■ ${bracketed[1].trim()}`
+
+    // 「■決定事項」→「■ 決定事項」。■は自前の見出し記号なので長さを問わず見出しのまま扱う
+    const ownHeading = s.match(/^[\s　]*■[\s　]*(.+?)[\s　]*$/)
+    if (ownHeading) return `■ ${ownHeading[1]}`
+
+    // 「✅ 決定事項」など飾り記号付きの行。見出しらしい短さなら見出しへ、
+    // 長ければ本文（チェックボックス付きの対応事項など）とみなし箇条書きへ均す。
+    // どちらに転んでも機種依存の記号は残さない
+    const decorated = s.match(DECORATIVE_MARK)
+    if (decorated) {
+      const text = decorated[1]
+      return text.length <= MAX_HEADING_LENGTH ? `■ ${text}` : `・${text}`
     }
 
     // 箇条書き: 行頭の «-» «*» «+» «・» を「・」へ揃える。インデントは
@@ -389,9 +440,9 @@ function flattenNestedBullets(lines: string[]): string[] {
     const body = line.replace(/^[\s　]*・[\s　]*/, '')
     if (hasDeeperChild) {
       // まとめ名の行。直前が箇条書きだと詰まって見えるので1行空ける。
-      // ただし【見出し】の直後は空けない（見出しとまとめ名が離れて見える）
+      // ただし見出しの直後は空けない（見出しとまとめ名が離れて見える）
       const prev = out[out.length - 1]
-      const prevIsHeading = prev !== undefined && /^【.*】$/.test(prev.trim())
+      const prevIsHeading = prev !== undefined && /^■\s/.test(prev.trim())
       if (prev !== undefined && prev.trim() !== '' && !prevIsHeading) out.push('')
       out.push(body)
     } else {
