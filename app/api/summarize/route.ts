@@ -24,20 +24,26 @@ interface TranscriptSegment {
 
 // 詳しさ・正確さのための追加ルール。全テンプレート・チャット（REVISE）に共通で
 // 適用する。「重要そうな2〜3点だけ拾って終わり」「数字を言い換えて微妙にずれる」
-// 「[パソコンの音]の発言者を勝手に一人に断定する」の3つが実際の精度不満の
-// 主因になりやすいため、ここで明示的に禁止する。
+// 「誰の発言かを推測で決めつける」の3つが実際の精度不満の主因になりやすいため、
+// ここで明示的に禁止する。
+//
+// 以前は文字起こしに [マイク] / [パソコンの音] の印を付けて話者を区別させていたが、
+// 対面の会議ではその場の全員の声が [マイク] になり、オンラインでも [パソコンの音] に
+// 複数人が混ざるため、印は発言者を表していなかった。名前が分からない担当者を
+// 「相手」「参加者」で埋めた議事録が実際に出ていた（担当者欄が全て「参加者」など）。
+// そのため印は渡さず、担当者は名前が発言された場合だけ書かせる。
 const ACCURACY_RULES_JA = `詳しさ・正確さのルール:
 - 決定事項・やること・数字（日付/金額/数量）・固有名詞は、重要度が低そうに見えても漏らさずすべて拾うこと。要点を絞りすぎないこと
 - 日付・金額・数量・固有名詞は文字起こしの表記のまま正確に書き写すこと（言い換えたり丸めたりしない）
 - 話し合いの要点は、話題名だけでなく「何が問題になり、どう結論に至ったか」が分かるように書くこと
-- [パソコンの音]は複数人の発言を含むことがある。発言者を一人に特定できない場合は誰かに断定せず、「相手」など曖昧さを保ったまま書くこと
+- 誰の発言かを推測しないこと。文字起こしの中で人の名前が明示されている場合だけ、その名前で書く。「自分」「相手」「参加者」「話者」などの言葉で発言者や担当者を置き換えない
 - 各項目を書く前に、文字起こしの中に根拠となる発言が実際にあるか確認すること。推測や一般論で埋めないこと`
 
 const ACCURACY_RULES_EN = `Detail and accuracy rules:
 - Capture every decision, action item, number (date/amount/quantity), and proper noun, even if it seems minor. Do not over-condense
 - Copy dates, amounts, quantities, and proper nouns exactly as stated in the transcript. Do not paraphrase or round them
 - For key discussion points, explain what was at issue and how it was resolved, not just a topic label
-- [computer audio] may contain multiple speakers. If you cannot identify who specifically said something, do not attribute it to one person by guessing — keep it appropriately vague
+- Do not guess who said something. Name a person only when their name is stated in the transcript. Never substitute words like "me", "the other party", "participant", or "speaker" for a speaker or an owner
 - Before writing each item, confirm there is an actual statement in the transcript backing it. Do not fill gaps with guesses or generic assumptions`
 
 // 全テンプレート共通の書き方ルール。議事録は最終的にLINEやメールへ
@@ -97,7 +103,7 @@ Bの場合:
 
 ■ 対応事項
 1. 担当者：対応内容（期限 ○月○日）
-（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
+（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
 
 ■ 討議内容
 ・（重要な論点をひとつずつ）
@@ -108,7 +114,6 @@ ${ACCURACY_RULES_JA}
 
 注意:
 - 文字起こしに無い情報を創作しないこと
-- 話者は [マイク] / [パソコンの音] で示されています
 - A/Bの判定結果や説明は出力せず、選んだ形式の本文だけを出力すること
 - 出力言語: {LANG}`
 
@@ -138,7 +143,7 @@ If B:
 
 ■ Action items
 1. Owner: what to do (due Month Day)
-(omit owner or due date if unknown; "None" if there are none)
+(write the owner only if their name is stated in the transcript; otherwise drop "Owner:" and start with the task. Never fill it with "the other party", "participant", "me", etc. Include the due date only if it was stated. "None" if there are none)
 
 ■ Discussion
 ・(one point per line)
@@ -149,7 +154,6 @@ ${ACCURACY_RULES_EN}
 
 Notes:
 - Do not invent information not in the transcript
-- Speakers are marked [mic] / [computer audio]
 - Do not output which format (A/B) you chose or any explanation — output only the chosen format's body
 - Write the output in English`
 
@@ -165,7 +169,7 @@ const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです�
 
 ■ 対応事項
 1. 担当者：対応内容（期限 ○月○日）
-（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
+（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
 
 ■ 討議内容
 ・（重要な論点をひとつずつ）
@@ -174,7 +178,6 @@ ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
-- 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
 const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです。以下の講義・説明会の文字起こしを読み、次の形式で出力してください。
@@ -192,7 +195,6 @@ ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
-- 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
 const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成アシスタントです。以下の会話の文字起こしを読み、次の形式で出力してください。
@@ -208,7 +210,7 @@ const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成�
 
 ■ 対応事項
 1. 担当者：対応内容（期限 ○月○日）
-（担当や期限が分からない場合はその部分を書かない。何も無ければ「特になし」）
+（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
 
 ■ フィードバック
 ・（伝えられたフィードバックや気づき。なければ「特になし」）
@@ -217,7 +219,6 @@ ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
-- 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
 const INTERVIEW_PROMPT_JA = `あなたは面接メモ作成アシスタントです。以下の面接の文字起こしを読み、次の形式で出力してください。
@@ -241,7 +242,6 @@ ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと。評価や合否の断定はしないこと
-- 話者は [マイク] / [パソコンの音] で示されています
 - 出力言語: {LANG}`
 
 const TEMPLATE_PROMPTS_JA: Record<Exclude<SummaryTemplate, 'auto'>, string> = {
@@ -457,10 +457,10 @@ function validGeneratedTitle(title: string): boolean {
   return !/(?:の|について|に関する|における|ための)$/.test(title)
 }
 
+// 話者の印（[マイク] / [パソコンの音]）は付けない。印が発言者を表しておらず、
+// AIが担当者を「相手」「参加者」で埋める原因になっていたため（冒頭のコメント参照）。
 function formatTranscript(segments: TranscriptSegment[]): string {
-  return segments
-    .map((s) => `[${s.speaker === 'self' ? 'マイク' : 'パソコンの音'}] ${s.text}`)
-    .join('\n')
+  return segments.map((s) => s.text).join('\n')
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
