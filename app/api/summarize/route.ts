@@ -13,6 +13,7 @@ import {
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
+import { splitChatReply, splitTitle } from '../../lib/summaryTitle'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -38,6 +39,21 @@ const ACCURACY_RULES_JA = `詳しさ・正確さのルール:
 - 話し合いの要点は、話題名だけでなく「何が問題になり、どう結論に至ったか」が分かるように書くこと
 - 誰の発言かを推測しないこと。文字起こしの中で人の名前が明示されている場合だけ、その名前で書く。「自分」「相手」「参加者」「話者」などの言葉で発言者や担当者を置き換えない
 - 各項目を書く前に、文字起こしの中に根拠となる発言が実際にあるか確認すること。推測や一般論で埋めないこと`
+
+// 対応事項（やること）の書き方。以前は見本を「担当者：対応内容（期限 ○月○日）」としていたため、
+// 名前が分からないと「相手」「参加者」で埋めたり、「担当者：」をそのまま写したりしていた（実測）。
+// 見本に置き換え用の言葉を置かず、名前が発言された場合だけ付けるよう具体例で示す。
+const ACTION_ITEM_RULES_JA = `対応事項の書き方:
+- 担当する人の名前が文字起こしの中で発言されている場合だけ、行頭に「名前：」を付ける（例: 「1. 佐藤：見積書を送る」）
+- 名前が分からない場合は何も付けず、やることから書く（例: 「2. 見積書を送る」）
+- 「担当者」「参加者」「相手」「自分」「話者」などの言葉を名前の代わりに使わない
+- 期限が発言されている場合だけ、行末に「（期限 10月3日）」のように付ける。発言が無ければ付けない`
+
+const ACTION_ITEM_RULES_EN = `How to write action items:
+- Prefix a line with "Name: " only when that person's name is stated in the transcript (e.g. "1. Sato: send the quote")
+- If no name is stated, write the task alone (e.g. "2. Send the quote")
+- Never use words like "owner", "participant", "the other party", "me", or "speaker" in place of a name
+- Add "(due Oct 3)" at the end only when a due date was stated`
 
 const ACCURACY_RULES_EN = `Detail and accuracy rules:
 - Capture every decision, action item, number (date/amount/quantity), and proper noun, even if it seems minor. Do not over-condense
@@ -102,8 +118,7 @@ Bの場合:
 1. （決まったことをひとつずつ。なければ「特になし」）
 
 ■ 対応事項
-1. 担当者：対応内容（期限 ○月○日）
-（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
+1. （やることをひとつずつ。書き方は下の「対応事項の書き方」に従う。何も無ければ「特になし」）
 
 ■ 討議内容
 ・（重要な論点をひとつずつ）
@@ -111,6 +126,8 @@ Bの場合:
 ${PLAIN_STYLE_RULES_JA}
 
 ${ACCURACY_RULES_JA}
+
+${ACTION_ITEM_RULES_JA}
 
 注意:
 - 文字起こしに無い情報を創作しないこと
@@ -142,8 +159,7 @@ If B:
 1. (one decision per line; "None" if there are none)
 
 ■ Action items
-1. Owner: what to do (due Month Day)
-(write the owner only if their name is stated in the transcript; otherwise drop "Owner:" and start with the task. Never fill it with "the other party", "participant", "me", etc. Include the due date only if it was stated. "None" if there are none)
+1. (one task per line, written as described in "How to write action items" below; "None" if there are none)
 
 ■ Discussion
 ・(one point per line)
@@ -151,6 +167,8 @@ If B:
 ${PLAIN_STYLE_RULES_EN}
 
 ${ACCURACY_RULES_EN}
+
+${ACTION_ITEM_RULES_EN}
 
 Notes:
 - Do not invent information not in the transcript
@@ -168,14 +186,14 @@ const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです�
 1. （決まったことをひとつずつ。なければ「特になし」）
 
 ■ 対応事項
-1. 担当者：対応内容（期限 ○月○日）
-（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
+1. （やることをひとつずつ。書き方は下の「対応事項の書き方」に従う。何も無ければ「特になし」）
 
 ■ 討議内容
 ・（重要な論点をひとつずつ）
 
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
+${ACTION_ITEM_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 出力言語: {LANG}`
@@ -209,14 +227,14 @@ const ONE_ON_ONE_PROMPT_JA = `あなたは1on1ミーティングのメモ作成�
 ・（本人が挙げた悩みや課題。なければ「特になし」）
 
 ■ 対応事項
-1. 担当者：対応内容（期限 ○月○日）
-（担当者は文字起こしで名前が明示されている場合だけ書き、分からなければ「担当者：」ごと省いて対応内容から書く。「相手」「参加者」「自分」などで埋めない。期限も発言があった場合だけ書く。何も無ければ「特になし」）
+1. （やることをひとつずつ。書き方は下の「対応事項の書き方」に従う。何も無ければ「特になし」）
 
 ■ フィードバック
 ・（伝えられたフィードバックや気づき。なければ「特になし」）
 
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
+${ACTION_ITEM_RULES_JA}
 注意:
 - 文字起こしに無い情報を創作しないこと
 - 出力言語: {LANG}`
@@ -288,6 +306,8 @@ ${PLAIN_STYLE_RULES_JA}
 
 ${ACCURACY_RULES_JA}
 
+${ACTION_ITEM_RULES_JA}
+
 出力言語: {LANG}`
 
 const CHAT_PROMPT_EN = `You are a meeting notes editing and Q&A assistant.
@@ -322,7 +342,9 @@ Rules for ANSWER only:
 When rewriting for REVISE, also apply these rules:
 ${PLAIN_STYLE_RULES_EN}
 
-${ACCURACY_RULES_EN}`
+${ACCURACY_RULES_EN}
+
+${ACTION_ITEM_RULES_EN}`
 
 const TITLE_OUTPUT_JA = `
 
@@ -601,14 +623,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (isChat) {
-      const match = text.match(/^(REVISE|ANSWER)\s*\n-{2,}\s*\n([\s\S]*)$/)
-      const type = match?.[1] === 'REVISE' ? 'revise' : 'answer'
-      const content = toPlainJapaneseNotes((match?.[2] ?? text).trim())
+      const { type, body } = splitChatReply(text)
+      const content = toPlainJapaneseNotes(body)
       return NextResponse.json({ type, content })
     }
-    const match = text.match(/^TITLE[:：]\s*(.+?)\s*\n-{3,}\s*\n([\s\S]+)$/i)
-    const generatedTitle = match?.[1]?.trim() ?? ''
-    const summary = toPlainJapaneseNotes((match?.[2] ?? text).trim())
+    const { title: generatedTitle, body } = splitTitle(text)
+    const summary = toPlainJapaneseNotes(body)
     return NextResponse.json({
       summary,
       title: validGeneratedTitle(generatedTitle) ? generatedTitle : null
