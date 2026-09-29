@@ -93,10 +93,14 @@ const PLAIN_STYLE_RULES_EN = `Formatting rules:
 
 // 内容を「講義・説明会型（一方向の情報伝達）」か「議論・会議型（決定事項がある対話）」に
 // まず自分で判定させ、適したフォーマットで出力させる（1回のAPI呼び出し内で完結・追加コストなし）。
+// 判定基準があいまいだと、報告にフィードバックをもらって次の作業が決まるような回で、作るたびに
+// 形式が入れ替わった（同じ録音で会議型と講義型が交互に出た。実測）。決定事項や作業が1つでも
+// あれば会議型とし、迷ったら会議型に倒す。
 const SUMMARY_PROMPT_JA = `あなたは議事録・ノート作成アシスタントです。
 以下の会話の文字起こしを読み、まず内容が次のどちらに近いか判定してください。
-- A: 講義・説明会型（先生・講師・説明者が一方的に話す。質疑応答も含む）
-- B: 議論・会議型（複数人が対話し、決定事項やタスクが生まれる）
+- A: 講義・説明会型（先生・講師・説明者が一方的に説明し続け、その場で決まったことも、誰かがやることになった作業も無い。質疑応答は含んでよい）
+- B: 議論・会議型（複数人が対話している。または、決まったことや誰かがやることになった作業が1つでもある）
+迷った場合はBを選ぶこと。
 
 判定した種類に応じて、次のどちらかの形式で出力してください。
 
@@ -136,8 +140,9 @@ ${ACTION_ITEM_RULES_JA}
 
 const SUMMARY_PROMPT_EN = `You are a meeting/lecture notes assistant.
 Read the transcript below and first decide which it is closer to:
-- A: Lecture/briefing (one person mainly speaks; may include Q&A)
-- B: Discussion/meeting (multiple people converse; decisions/tasks emerge)
+- A: Lecture/briefing (one person keeps explaining, and nothing is decided and no one takes on a task; may include Q&A)
+- B: Discussion/meeting (multiple people converse, or at least one decision or task for someone emerges)
+If unsure, choose B.
 
 Then output using the matching format only:
 
