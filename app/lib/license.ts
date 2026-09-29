@@ -205,13 +205,17 @@ export async function deactivatePortableLicense(licenseKey: string, instanceId: 
 }
 
 /**
- * Geminiが一時的に混雑(429/503)を返すことがあるため、短い間隔で自動リトライする。
+ * Geminiが一時的に混雑(429/503)を返すことがあるため、間隔を広げながら自動リトライする。
  * それ以外のエラー(4xx等)は即座に返す。
+ *
+ * 以前は0.4秒・0.8秒後の2回だけで、混雑が数秒続くと「要約に失敗しました (503)」が
+ * そのまま利用者に出ていた（実機で発生し、押し直すと成功した）。混雑の断りはすぐ返るため、
+ * 1秒・2秒・4秒と待っても合計7秒ほどで、関数の制限時間（60秒）には十分収まる。
  */
 export async function fetchWithRetry(
   url: string,
   init: RequestInit,
-  maxRetries = 2
+  maxRetries = 3
 ): Promise<Response> {
   let lastRes: Response | null = null
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -221,7 +225,7 @@ export async function fetchWithRetry(
     if (res.ok || (res.status !== 429 && res.status !== 503)) return res
     lastRes = res
     if (attempt < maxRetries) {
-      const delay = 400 * Math.pow(2, attempt) // 400ms, 800ms, 1600ms
+      const delay = 1000 * Math.pow(2, attempt) // 1秒, 2秒, 4秒
       await new Promise((r) => setTimeout(r, delay))
     }
   }

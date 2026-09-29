@@ -13,7 +13,7 @@ import {
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
-import { splitChatReply, splitTitle } from '../../lib/summaryTitle'
+import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/summaryTitle'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -629,11 +629,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (isChat) {
       const { type, body } = splitChatReply(text)
-      const content = toPlainJapaneseNotes(body)
+      const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(body)) : toPlainJapaneseNotes(body)
       return NextResponse.json({ type, content })
     }
     const { title: generatedTitle, body } = splitTitle(text)
-    const summary = toPlainJapaneseNotes(body)
+    const summary = removePlaceholderOwners(toPlainJapaneseNotes(body))
     return NextResponse.json({
       summary,
       title: validGeneratedTitle(generatedTitle) ? generatedTitle : null

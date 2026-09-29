@@ -32,3 +32,18 @@ export function splitChatReply(text: string): { type: 'revise' | 'answer'; body:
     .trim()
   return { type: match[1].toUpperCase() === 'REVISE' ? 'revise' : 'answer', body }
 }
+
+// 名前の代わりに使われがちな言葉。担当者欄にこれらが入っても誰のことか分からないため外す。
+const PLACEHOLDER_OWNERS = ['参加者', '相手', '自分', '担当者', '話者', '発言者', 'owner', 'participant', 'speaker']
+
+/**
+ * 番号付きの行の先頭にある「参加者：」「相手：」などの置き換え語の担当者を外す。
+ *
+ * 指示で禁止しても、録音によってはAIが担当者欄を「参加者」で埋め続けた（実測）。
+ * 指示だけに頼らず、出力の段階で確実に取り除く。「佐藤：」のような本当の名前は残す。
+ */
+export function removePlaceholderOwners(text: string): string {
+  const words = PLACEHOLDER_OWNERS.join('|')
+  const re = new RegExp(`^(\\s*\\d+\\.\\s*)(?:${words})(?:さん)?\\s*[：:]\\s*`, 'gimu')
+  return text.replace(re, '$1')
+}
