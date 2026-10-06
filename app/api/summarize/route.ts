@@ -40,7 +40,7 @@ const ACCURACY_RULES_JA = `詳しさ・正確さのルール:
 - 決定事項・やること・数字（日付/金額/数量）・固有名詞（会社名・製品名・地名など）は、重要度が低そうに見えても漏らさずすべて拾うこと。要点を絞りすぎないこと
 - 日付・金額・数量・固有名詞は文字起こしの表記のまま正確に書き写すこと（言い換えたり丸めたりしない）
 - 話し合いの要点は、話題名だけでなく「何が問題になり、どう結論に至ったか」が分かるように書くこと
-- 人の名前は一切書かないこと。誰が言ったか・誰がやるかは書かず、内容だけを書く（例:「佐藤さんが予算増を提案」ではなく「予算増の提案があった」）。文字起こしの人名は聞き間違いが多いため。「自分」「相手」「参加者」「話者」「担当者」などの言葉で人を置き換えることもしない
+- 人の名前は一切書かないこと。誰が言ったか・誰がやるかは書かず、内容だけを書く（例:「佐藤さんが予算増を提案」「参加者から予算増の提案」ではなく「予算増の提案があった」）。文字起こしの人名は聞き間違いが多いため。「自分」「相手」「参加者」「話者」「担当者」などの言葉で人を置き換えることもしない
 - 各項目を書く前に、文字起こしの中に根拠となる発言が実際にあるか確認すること。推測や一般論で埋めないこと`
 
 // 対応事項（やること）の書き方。以前は見本を「担当者：対応内容（期限 ○月○日）」としていたため、
@@ -58,7 +58,7 @@ const ACCURACY_RULES_EN = `Detail and accuracy rules:
 - Capture every decision, action item, number (date/amount/quantity), and proper noun (company, product, place, etc.), even if it seems minor. Do not over-condense
 - Copy dates, amounts, quantities, and proper nouns exactly as stated in the transcript. Do not paraphrase or round them
 - For key discussion points, explain what was at issue and how it was resolved, not just a topic label
-- Never write people's names. Do not say who said something or who will do something; write only the content (e.g. "A budget increase was proposed", not "Sato proposed a budget increase"). Names in transcripts are often misheard. Never substitute words like "me", "the other party", "participant", "speaker", or "owner" for a person either
+- Never write people's names. Do not say who said something or who will do something; write only the content (e.g. "A budget increase was proposed", not "Sato proposed a budget increase" or "A participant proposed a budget increase"). Names in transcripts are often misheard. Never substitute words like "me", "the other party", "participant", "speaker", or "owner" for a person either
 - Before writing each item, confirm there is an actual statement in the transcript backing it. Do not fill gaps with guesses or generic assumptions`
 
 // 話の中身はテーマ（話題）ごとに見出しを立てて書かせる。以前は「討議内容」「要点」の1つの見出しに
@@ -450,6 +450,8 @@ function toPlainJapaneseNotes(input: string): string {
     // 箇条書き: 行頭の «-» «*» «+» «・» を「・」へ揃える。インデントは
     // いったん字下げ量として保持し、後段で平らにする。
     s = s.replace(/^(\s*)[-*+]\s+/, '$1・')
+    // 番号付きの行: 「1.  見積書」のように空白が重なることがあるため1つに揃える
+    s = s.replace(/^(\s*\d+\.)[ \t　]{2,}/, '$1 ')
 
     // 強調記号を除去（**太字** / __太字__ / *斜体*）
     s = s.replace(/\*\*(.+?)\*\*/g, '$1')
