@@ -32,35 +32,48 @@ interface TranscriptSegment {
 // 対面の会議ではその場の全員の声が [マイク] になり、オンラインでも [パソコンの音] に
 // 複数人が混ざるため、印は発言者を表していなかった。名前が分からない担当者を
 // 「相手」「参加者」で埋めた議事録が実際に出ていた（担当者欄が全て「参加者」など）。
-// そのため印は渡さず、担当者は名前が発言された場合だけ書かせる。
+// そのため印は渡さない。
+// さらに、名前が発言された場合だけ書かせていた「佐藤：見積書を送る」「田中さんが〜と述べた」も、
+// 文字起こしの人名は聞き間違いが多く、議事録に誤った名前が残るため、人名自体を書かせないことにした
+// （辻直哉の判断。「誰々が、という書き方は名前が間違うことが多いから無くしたい」）。
 const ACCURACY_RULES_JA = `詳しさ・正確さのルール:
-- 決定事項・やること・数字（日付/金額/数量）・固有名詞は、重要度が低そうに見えても漏らさずすべて拾うこと。要点を絞りすぎないこと
+- 決定事項・やること・数字（日付/金額/数量）・固有名詞（会社名・製品名・地名など）は、重要度が低そうに見えても漏らさずすべて拾うこと。要点を絞りすぎないこと
 - 日付・金額・数量・固有名詞は文字起こしの表記のまま正確に書き写すこと（言い換えたり丸めたりしない）
 - 話し合いの要点は、話題名だけでなく「何が問題になり、どう結論に至ったか」が分かるように書くこと
-- 誰の発言かを推測しないこと。文字起こしの中で人の名前が明示されている場合だけ、その名前で書く。「自分」「相手」「参加者」「話者」などの言葉で発言者や担当者を置き換えない
+- 人の名前は一切書かないこと。誰が言ったか・誰がやるかは書かず、内容だけを書く（例:「佐藤さんが予算増を提案」ではなく「予算増の提案があった」）。文字起こしの人名は聞き間違いが多いため。「自分」「相手」「参加者」「話者」「担当者」などの言葉で人を置き換えることもしない
 - 各項目を書く前に、文字起こしの中に根拠となる発言が実際にあるか確認すること。推測や一般論で埋めないこと`
 
 // 対応事項（やること）の書き方。以前は見本を「担当者：対応内容（期限 ○月○日）」としていたため、
 // 名前が分からないと「相手」「参加者」で埋めたり、「担当者：」をそのまま写したりしていた（実測）。
-// 見本に置き換え用の言葉を置かず、名前が発言された場合だけ付けるよう具体例で示す。
+// 人名を書かない方針に合わせ、担当者は付けずにやることだけを書かせる。
 const ACTION_ITEM_RULES_JA = `対応事項の書き方:
-- 担当する人の名前が文字起こしの中で発言されている場合だけ、行頭に「名前：」を付ける（例: 「1. 佐藤：見積書を送る」）
-- 名前が分からない場合は何も付けず、やることから書く（例: 「2. 見積書を送る」）
-- 「担当者」「参加者」「相手」「自分」「話者」などの言葉を名前の代わりに使わない
+- やることだけを書く。担当する人の名前も「担当者」「参加者」「相手」「自分」などの言葉も付けない（例: 「1. 見積書を送る」）
 - 期限が発言されている場合だけ、行末に「（期限 10月3日）」のように付ける。発言が無ければ付けない`
 
 const ACTION_ITEM_RULES_EN = `How to write action items:
-- Prefix a line with "Name: " only when that person's name is stated in the transcript (e.g. "1. Sato: send the quote")
-- If no name is stated, write the task alone (e.g. "2. Send the quote")
-- Never use words like "owner", "participant", "the other party", "me", or "speaker" in place of a name
+- Write only the task. Never add a person's name or words like "owner", "participant", "the other party", or "me" (e.g. "1. Send the quote")
 - Add "(due Oct 3)" at the end only when a due date was stated`
 
 const ACCURACY_RULES_EN = `Detail and accuracy rules:
-- Capture every decision, action item, number (date/amount/quantity), and proper noun, even if it seems minor. Do not over-condense
+- Capture every decision, action item, number (date/amount/quantity), and proper noun (company, product, place, etc.), even if it seems minor. Do not over-condense
 - Copy dates, amounts, quantities, and proper nouns exactly as stated in the transcript. Do not paraphrase or round them
 - For key discussion points, explain what was at issue and how it was resolved, not just a topic label
-- Do not guess who said something. Name a person only when their name is stated in the transcript. Never substitute words like "me", "the other party", "participant", or "speaker" for a speaker or an owner
+- Never write people's names. Do not say who said something or who will do something; write only the content (e.g. "A budget increase was proposed", not "Sato proposed a budget increase"). Names in transcripts are often misheard. Never substitute words like "me", "the other party", "participant", "speaker", or "owner" for a person either
 - Before writing each item, confirm there is an actual statement in the transcript backing it. Do not fill gaps with guesses or generic assumptions`
+
+// 話の中身はテーマ（話題）ごとに見出しを立てて書かせる。以前は「討議内容」「要点」の1つの見出しに
+// 論点を並べていたため、複数の話題を扱った回では何の話か追いにくかった（辻直哉の要望）。
+const THEME_RULES_JA = `テーマごとの書き方:
+- 話の中身は、話題（テーマ）ごとに「■ テーマ名」の見出しを立てて書く。テーマ名は中身が分かる短い言葉にする（20文字以内。例:「■ 会場選び」「■ 来期の予算」）
+- テーマは話された順に並べる。各テーマの中は「・」で要点を書く
+- 「討議内容」「要点」「その他」のような、中身の分からないテーマ名を付けない
+- 本題と関係のない雑談や挨拶はテーマにしない`
+
+const THEME_RULES_EN = `How to write topics:
+- Write the body of the discussion under one "■ Topic name" heading per topic. Make each topic name short and specific (under 6 words, e.g. "■ Choosing the venue", "■ Next year's budget")
+- List topics in the order they were discussed. Under each topic, write points starting with "・"
+- Never use vague topic names like "Discussion", "Key points", or "Other"
+- Do not make small talk or greetings into a topic`
 
 // 全テンプレート共通の書き方ルール。議事録は最終的にLINEやメールへ
 // コピー＆ペーストして共有されるため、次の2点を最優先で守らせる。
@@ -108,8 +121,9 @@ Aの場合:
 ■ 概要
 （1〜2文でこの回の要点）
 
-■ 要点
-・（内容の要点をひとつずつ）
+■ （テーマ名）
+・（このテーマで話された内容。何が問題になり、どう結論に至ったか）
+（話題の数だけ、テーマごとに見出しを立てて繰り返す）
 
 ■ 確認事項
 ・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
@@ -124,8 +138,11 @@ Bの場合:
 ■ 対応事項
 1. （やることをひとつずつ。書き方は下の「対応事項の書き方」に従う。何も無ければ「特になし」）
 
-■ 討議内容
-・（重要な論点をひとつずつ）
+■ （テーマ名）
+・（このテーマで話された内容。何が問題になり、どう結論に至ったか）
+（話題の数だけ、テーマごとに見出しを立てて繰り返す）
+
+${THEME_RULES_JA}
 
 ${PLAIN_STYLE_RULES_JA}
 
@@ -150,8 +167,9 @@ If A:
 ■ Summary
 (1-2 sentences of the gist)
 
-■ Key points
-・(one important point per line)
+■ (topic name)
+・(what was discussed on this topic: what was at issue and how it was resolved)
+(repeat with one heading per topic)
 
 ■ Follow-up
 ・(what the listener should review or confirm; "None" if none)
@@ -166,8 +184,11 @@ If B:
 ■ Action items
 1. (one task per line, written as described in "How to write action items" below; "None" if there are none)
 
-■ Discussion
-・(one point per line)
+■ (topic name)
+・(what was discussed on this topic: what was at issue and how it was resolved)
+(repeat with one heading per topic)
+
+${THEME_RULES_EN}
 
 ${PLAIN_STYLE_RULES_EN}
 
@@ -193,9 +214,11 @@ const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです�
 ■ 対応事項
 1. （やることをひとつずつ。書き方は下の「対応事項の書き方」に従う。何も無ければ「特になし」）
 
-■ 討議内容
-・（重要な論点をひとつずつ）
+■ （テーマ名）
+・（このテーマで話された内容。何が問題になり、どう結論に至ったか）
+（話題の数だけ、テーマごとに見出しを立てて繰り返す）
 
+${THEME_RULES_JA}
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 ${ACTION_ITEM_RULES_JA}
@@ -208,12 +231,14 @@ const LECTURE_PROMPT_JA = `あなたはノート作成アシスタントです�
 ■ 概要
 （1〜2文でこの回の要点）
 
-■ 要点
-・（内容の要点をひとつずつ）
+■ （テーマ名）
+・（このテーマで話された内容。何が問題になり、どう結論に至ったか）
+（話題の数だけ、テーマごとに見出しを立てて繰り返す）
 
 ■ 確認事項
 ・（聞き手が持ち帰って確認・復習すべきこと。なければ「特になし」）
 
+${THEME_RULES_JA}
 ${PLAIN_STYLE_RULES_JA}
 ${ACCURACY_RULES_JA}
 注意:
@@ -281,7 +306,7 @@ const CHAT_PROMPT_JA = `あなたは議事録編集・質問応答アシスタ�
 
 まずユーザーのメッセージの意図を判定してください。
 - 議事録の書き直し・修正（例:「もっと詳しく」「短くして」「ToDoを増やして」）→ REVISE
-- 内容についての質問・コメント（例:「何時に終わった？」「誰が反対してた？」）→ ANSWER
+- 内容についての質問・コメント（例:「何時に終わった？」「予算はいくらと言っていた？」）→ ANSWER
 
 判定結果に応じて、次の形式で出力してください（1行目はREVISEかANSWERのどちらか、2行目は---のみ）。
 
@@ -320,7 +345,7 @@ Below is a transcript, the meeting notes generated from it, and a message from t
 
 First decide the user's intent:
 - A request to rewrite/revise the notes (e.g. "make it more detailed", "shorter please", "add more action items") → REVISE
-- A question or comment about the content (e.g. "when did it end?", "who disagreed?") → ANSWER
+- A question or comment about the content (e.g. "when did it end?", "what budget was mentioned?") → ANSWER
 
 Output in this exact format (line 1 is REVISE or ANSWER, line 2 is just ---):
 
@@ -358,7 +383,7 @@ TITLE: （15〜25文字程度の具体的なタイトル）
 ---
 （この下に指定された形式の本文）
 
-タイトルは冒頭の最初の話題だけで決めず、会話の後半まで見て、最終的に決まったこと・最も長く議論した中心テーマを優先してください。「〜の」「〜について」など助詞で終わる未完成な表現は禁止です。`
+タイトルは冒頭の最初の話題だけで決めず、会話の後半まで見て、最終的に決まったこと・最も長く議論した中心テーマを優先してください。「〜の」「〜について」など助詞で終わる未完成な表現は禁止です。人の名前はタイトルにも入れないでください。`
 
 const TITLE_OUTPUT_EN = `
 
@@ -367,7 +392,7 @@ TITLE: (a 5-10 word title)
 ---
 (the requested body below, in the specified format)
 
-Do not choose a title from only the opening topic. Prefer the final decision or the central topic discussed across the conversation.`
+Do not choose a title from only the opening topic. Prefer the final decision or the central topic discussed across the conversation. Do not put people's names in the title.`
 
 /** 見出しとして扱ってよい文字数の上限。実際の見出しは「経歴・スキル」程度が最長。
  *  これを超える行は、たとえ見出し記号で始まっていても本文とみなす（対応事項を
