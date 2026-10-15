@@ -13,7 +13,8 @@ import { fetchWithRetry } from './license'
 export type GeminiTier = 'quality' | 'economy'
 
 const CANDIDATES: Record<GeminiTier, string[]> = {
-  quality: ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3-flash'],
+  // 最後の 3.1 Flash-Lite は本番で動作確認済みの受け皿（後継の Flash の名前が違っても止まらないように）
+  quality: ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3-flash', 'gemini-3.1-flash-lite'],
   economy: ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash']
 }
 
