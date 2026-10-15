@@ -619,9 +619,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     userContent = `---文字起こし---\n${formatTranscript(segments)}`
   }
 
+  // 無料の利用（広告で運営）は Flash-Lite、有料は Flash。Flash の原価（45分の会議で約7円）は
+  // 広告収入（1人あたり月10円前後）で賄えないため、無料は原価が約5分の1のモデルにする。
+  const model = paid ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite'
   try {
     const res = await fetchWithRetry(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -635,7 +638,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             temperature: 0.2,
             // 2.5 Flashの動的thinkingは長い会話で待ち時間が大きく振れるため上限を固定する。
             // 要約・質問に必要な推論余地は残しつつ、数万thinking tokenへ膨らむのを防ぐ。
-            thinkingConfig: { thinkingBudget: 1024 },
+            // Flash-Lite は推論なしで使う（原価を抑えるため。抽出中心の作業なので推論なしでも足りる）
+            thinkingConfig: { thinkingBudget: paid ? 1024 : 0 },
             // 以前は初回生成だけ4096で、長い会議だと本文が途中で切れるリスクがあった。
             // チャット（書き直し）と同じ余裕を持たせて揃える。
             maxOutputTokens: 16384
