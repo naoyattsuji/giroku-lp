@@ -5,7 +5,6 @@ import {
   allowAnonymousRequest,
   allowMobilePaidRequest,
   isValidAnonymousDeviceId,
-  fetchWithRetry,
   isPaidLicense,
   isPaidPortableInstance,
   isPaidMobileAccount,
@@ -14,6 +13,7 @@ import {
   validTranscriptSegments
 } from '../../lib/license'
 import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/summaryTitle'
+import { generateContent, responseText } from '../../lib/gemini'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -619,13 +619,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     userContent = `---文字起こし---\n${formatTranscript(segments)}`
   }
 
+  // 無料の利用（広告で運営）は原価の安い Flash-Lite、有料は Flash（app/lib/gemini.ts）
   try {
-    const res = await fetchWithRetry(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    const { res, model } = await generateContent(
+      paid ? 'quality' : 'economy',
+      apiKey,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-        body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemInstructionText }] },
           contents: [{ role: 'user', parts: [{ text: userContent }] }],
           generationConfig: {
@@ -635,21 +634,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             temperature: 0.2,
             // 2.5 Flashの動的thinkingは長い会話で待ち時間が大きく振れるため上限を固定する。
             // 要約・質問に必要な推論余地は残しつつ、数万thinking tokenへ膨らむのを防ぐ。
-            thinkingConfig: { thinkingBudget: 1024 },
+            // （推論の上限は generateContent の thinkingBudget で指定する）
             // 以前は初回生成だけ4096で、長い会議だと本文が途中で切れるリスクがあった。
             // チャット（書き直し）と同じ余裕を持たせて揃える。
             maxOutputTokens: 16384
           }
-        })
-      }
+      },
+      { thinkingBudget: paid ? 1024 : 0 }
     )
     if (!res.ok) {
       return NextResponse.json({ error: `要約に失敗しました (${res.status})` }, { status: 502 })
     }
-    const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-    }
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ''
+    const text = responseText(await res.json()).trim()
     if (!text) {
       return NextResponse.json({ error: '要約の生成に失敗しました（空の応答）' }, { status: 502 })
     }
@@ -657,14 +653,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (isChat) {
       const { type, body } = splitChatReply(text)
       const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(body)) : toPlainJapaneseNotes(body)
-      return NextResponse.json({ type, content })
+      return NextResponse.json({ type, content }, { headers: { 'x-giroku-model': model } })
     }
     const { title: generatedTitle, body } = splitTitle(text)
     const summary = removePlaceholderOwners(toPlainJapaneseNotes(body))
-    return NextResponse.json({
-      summary,
-      title: validGeneratedTitle(generatedTitle) ? generatedTitle : null
-    })
+    return NextResponse.json(
+      { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null },
+      { headers: { 'x-giroku-model': model } }
+    )
   } catch {
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
   }

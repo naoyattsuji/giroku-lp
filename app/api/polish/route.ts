@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   allowApiRequest,
   allowLicenseRequest,
-  fetchWithRetry,
   isPaidLicense,
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
+
+import { generateContent, responseText } from '../../lib/gemini'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -123,8 +124,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const texts = segments.map((s) => s.text)
-  const GEMINI_URL =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
   // 通常の録音は1リクエストで本文補正とタイトル生成を完了する。長文だけ分割する。
   // 発話IDで対応付けるため、モデルが順序を変えても別の発話へ文章を上書きしない。
@@ -169,10 +168,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             includeTitle && batches.length > 1
               ? `\n\n${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}`
               : ''
-          const res = await fetchWithRetry(GEMINI_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-            body: JSON.stringify({
+          const { res } = await generateContent('quality', apiKey, {
               contents: [
                 {
                   role: 'user',
@@ -185,20 +181,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               ],
               generationConfig: {
                 responseMimeType: 'application/json',
-                maxOutputTokens: 65536,
-                thinkingConfig: { thinkingBudget: 512 }
+                maxOutputTokens: 65536
               }
-            })
-          })
+          }, { thinkingBudget: 512 })
           if (!res.ok) {
             complete = false
             console.warn(`[polish] batch ${index + 1}/${batches.length}: Gemini ${res.status}`)
             continue
           }
-          const data = (await res.json()) as {
-            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-          }
-          const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+          const raw = responseText(await res.json())
           const parsed = JSON.parse(raw) as { items?: unknown; title?: unknown }
           const returned = Array.isArray(parsed.items) ? parsed.items : []
           const expectedIds = new Set(current.items.map((item) => item.id))
