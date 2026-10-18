@@ -111,6 +111,14 @@ function SpiritOfflineIcon(): ReactElement {
   );
 }
 
+// 性能。数字や仕組みで言えることだけを短く書く（誇張しない）。
+const specs = [
+  { title: "端末の中で文字起こし", desc: "音声は外に出ません。ネットがなくても動きます。" },
+  { title: "固有名詞に強い高精度モード", desc: "名前や数字も正確に。軽快モードなら約1.7倍速く。" },
+  { title: "話したそばから文字に", desc: "録音中も、その場で文字になります。" },
+  { title: "テーマごとの議事録", desc: "決まったこと・やることを、話題ごとに整理します。" },
+];
+
 const reasons = [
   { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: SpiritStealthIcon },
   { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: SpiritMicIcon },
@@ -279,7 +287,7 @@ export default function Home() {
               </a>
               <a href="#scenes" className="text-link">使い方を見る →</a>
             </div>
-            <p className="hero-note">1か月120分まで無料 · 登録不要 · macOS/Windows対応</p>
+            <p className="hero-note">全機能無料 · 登録不要 · macOS/Windows対応</p>
           </div>
           <Reveal delay={120}>
             <div className="hero-product">
@@ -316,6 +324,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 性能 */}
+      <section id="performance" className="section">
+        <div className="lp-inner section-inner">
+          <Reveal>
+            <div className="section-heading">
+              <p className="section-eyebrow">性能</p>
+              <h2 className="section-title">速く、正確に、手元で。</h2>
+            </div>
+          </Reveal>
+          <div className="spec-grid">
+            {specs.map((s, i) => (
+              <Reveal key={s.title} delay={i * 60}>
+                <div className="spec-card">
+                  <h3>{s.title}</h3>
+                  <p>{s.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Scenes */}
       <section id="scenes" className="section scenes-section">
         <div className="lp-inner section-inner">
@@ -342,7 +372,7 @@ export default function Home() {
           <Reveal>
             <div className="section-heading">
               <p className="section-eyebrow">料金</p>
-              <h2 className="section-title">シンプルな2プラン。</h2>
+              <h2 className="section-title">全機能、無料。</h2>
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -352,11 +382,11 @@ export default function Home() {
                 <article className="plan-head">
                   <p className="plan-name">無料</p>
                   <div className="plan-price"><strong>¥0</strong></div>
-                  <p className="plan-meta" aria-hidden="true">&nbsp;</p>
+                  <p className="plan-meta">登録不要</p>
                   <a href="#download" className="plan-button plan-button-free">無料で始める</a>
                 </article>
                 <article className="plan-head plan-head-paid">
-                  <p className="plan-name">有料</p>
+                  <p className="plan-name">Plus</p>
                   <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
                   <p className="plan-meta">月約82円 · 1年間利用 · 自動更新なし</p>
                   <a
@@ -368,21 +398,26 @@ export default function Home() {
                 </article>
               </div>
 
-              <div className="comparison-body" role="table" aria-label="無料プランと有料プランの比較">
+              <div className="comparison-body" role="table" aria-label="無料と Plus の比較">
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">文字起こし</div>
-                  <div className="comparison-value" role="cell"><strong>月120分</strong></div>
+                  <div className="comparison-value" role="cell"><strong>制限なし</strong></div>
                   <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">AI議事録</div>
-                  <div className="comparison-value" role="cell"><strong>月2件</strong></div>
+                  <div className="comparison-label" role="rowheader">AI議事録・質問</div>
+                  <div className="comparison-value" role="cell"><strong>制限なし</strong></div>
                   <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">AIへの質問・修正</div>
-                  <div className="comparison-value" role="cell"><strong>1件につき10回</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
+                  <div className="comparison-label" role="rowheader">AIの品質</div>
+                  <div className="comparison-value" role="cell"><strong>標準</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>高品質・文章の仕上げつき</strong></div>
+                </div>
+                <div className="comparison-row" role="row">
+                  <div className="comparison-label" role="rowheader">スマホ版の広告</div>
+                  <div className="comparison-value" role="cell"><strong>あり</strong></div>
+                  <div className="comparison-value paid-value" role="cell"><strong>なし</strong></div>
                 </div>
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">端末での利用</div>
@@ -418,7 +453,7 @@ export default function Home() {
                 Android版 — 準備中
               </span>
             </div>
-            <p className="download-note">1か月120分まで無料 · macOS（Apple Silicon）・Windows対応</p>
+            <p className="download-note">全機能無料 · macOS（Apple Silicon）・Windows対応</p>
           </Reveal>
         </div>
       </section>

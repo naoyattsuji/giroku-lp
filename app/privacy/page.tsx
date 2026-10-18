@@ -70,7 +70,7 @@ export default function PrivacyPage() {
             <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>03</p>
             <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>データの利用目的</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {["音声の文字起こし処理（すべてデバイス内で実行）", "AI議事録・質問・修正の生成（Gemini APIを使用）", "使用量の制限管理（無料プランの月120分・AI議事録月2件・各10回）", "有料プランの購入・復元・有効性確認と最大2台の端末管理", "アプリの自動更新"].map((item) => (
+              {["音声の文字起こし処理（すべてデバイス内で実行）", "AI議事録・質問・修正の生成（Gemini APIを使用）", "AI機能の濫用防止（端末ごとの匿名IDによる短時間の利用回数の確認）", "Plus の購入・有効性確認と最大2台の端末管理", "スマートフォン版の無料版での広告表示（Google AdMob。利用者に合わせない広告のみ）", "アプリの自動更新"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -95,11 +95,7 @@ export default function PrivacyPage() {
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Apple / Google / RevenueCat</strong>：モバイル有料版の購入、購入検証、復元、利用期限の管理</span>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Supabase</strong>：有料アカウントのメール認証と最大2台の端末管理</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Google AdMob</strong>：スマートフォン版の無料版での広告表示（端末の広告識別子や利用状況などをGoogleが受け取ります。利用者に合わせた広告は使いません。録音・文字起こし・議事録の内容は送りません）</span>
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>

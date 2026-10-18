@@ -105,16 +105,16 @@ export default function TermsPage() {
 
           <section>
             <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>第5条</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>有料プランとライセンス</h2>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>無料版と Plus</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
-                "有料プランのライセンスは購入日から1年間有効です。",
+                "本アプリのすべての機能は無料で利用できます。スマートフォン版の無料版には広告が表示されます。",
+                "有料の Plus（ライセンス）は購入日から1年間有効で、高品質なAIと文章の仕上げを利用でき、スマートフォン版の広告が表示されなくなります。",
                 "変更後に購入されたライセンスは、1人のユーザーが所有する最大2台のデバイスで使用できます。変更前に3台の条件で購入された有効なライセンスには、購入時の条件を適用します。",
-                "無料プランは登録不要で、この端末ごとに月120分の文字起こし、月2件のAI議事録、各議事録10回のAIへの質問・修正を利用できます。失敗・キャンセル時はAI議事録枠を消費しません。",
+                "無料版は登録不要です。AI機能の濫用を防ぐため、短時間に大量の依頼があった場合は一時的に利用を制限することがあります。",
                 "デスクトップ版で購入した有効な購入キーは、iPhone・Android版にも入力できます。この場合、Mac・Windows・iPhone・Androidを合わせて最大2台まで利用できます。",
-                "Apple App StoreまたはGoogle Playで購入したモバイル有料版では、購入・復元と最大2台の端末管理のためメール認証を利用します。購入は1年分の一括購入で、自動更新されません。",
-                "ライセンスキーの他者への譲渡・共有は禁止します。",
-                "購入後のキャンセル・返金は、購入元であるLemonSqueezy、Apple App StoreまたはGoogle Playのポリシーに従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
+                                "ライセンスキーの他者への譲渡・共有は禁止します。",
+                "購入後のキャンセル・返金は、購入元であるLemonSqueezyのポリシーに従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                   <span style={{ fontSize: 10, color: "var(--text-3)", flexShrink: 0, fontFamily: "monospace", marginTop: 3 }}>{String(i + 1).padStart(2, "0")}</span>
