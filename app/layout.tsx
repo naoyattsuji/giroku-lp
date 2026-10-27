@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
+
+// 訪問者の数（Google アナリティクス。naoya-tsuji.com と同じ測定ID。管理画面 ads.naoya-tsuji.com でホスト名ごとに分けて見る）
+const GA_ID = "G-DQZVBGF3LS";
 
 export const metadata: Metadata = {
   title: "Giroku（議録）— 相手に気づかれない議事録アプリ",
@@ -29,7 +33,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className="h-full">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Script id="ga" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+        </Script>
+      </body>
     </html>
   );
 }
