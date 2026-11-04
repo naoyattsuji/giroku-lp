@@ -114,7 +114,8 @@ export default function TermsPage() {
                 "無料版は登録不要です。AI機能の濫用を防ぐため、短時間に大量の依頼があった場合は一時的に利用を制限することがあります。",
                 "デスクトップ版で購入した有効な購入キーは、iPhone・Android版にも入力できます。この場合、Mac・Windows・iPhone・Androidを合わせて最大2台まで利用できます。",
                                 "ライセンスキーの他者への譲渡・共有は禁止します。",
-                "購入後のキャンセル・返金は、購入元であるLemonSqueezyのポリシーに従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
+                "iPhone版では、Plus を App Store のアプリ内課金（1年ごとの自動更新サブスクリプション）でも購入できます。料金は購入時に表示される金額で、Apple ID に請求されます。更新日の24時間前までに解約しない限り自動で更新され、解約は iPhone の設定の「サブスクリプション」からいつでも行えます。App Store で購入した Plus はその Apple ID の iPhone で利用でき、デスクトップ版の購入キーにはなりません。",
+                "デスクトップ版の購入後のキャンセル・返金は、購入元であるLemonSqueezyのポリシーに従います。App Store で購入した Plus の返金は Apple の規定に従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                   <span style={{ fontSize: 10, color: "var(--text-3)", flexShrink: 0, fontFamily: "monospace", marginTop: 3 }}>{String(i + 1).padStart(2, "0")}</span>
