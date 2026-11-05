@@ -2,6 +2,7 @@
 // Geminiキーはこのサーバー側にのみ置き、アプリ本体には一切含めない構成にするための検証ヘルパー。
 
 import { createHash, createHmac } from 'node:crypto'
+import { checkAppleKey, isAppleKey } from './apple-key'
 
 // デスクトップ版のGIROKU-PROMO-招待コード（app/src/shared/promoCode.tsと同じHMAC方式）。
 // アプリ側は"paid"扱いにするだけでLemonSqueezyへ一切問い合わせないため、このAPIも
@@ -235,6 +236,8 @@ export async function fetchWithRetry(
 export async function isPaidLicense(licenseKey: string | undefined | null): Promise<boolean> {
   if (!licenseKey) return false
   if (isPromoCode(licenseKey)) return verifyPromoCode(licenseKey)
+  // iPhone で買った Plus を PC で使うキー（GIROKU-IOS-…）は Apple に有効か聞く
+  if (isAppleKey(licenseKey)) return checkAppleKey(licenseKey).then((s) => s.paid).catch(() => false)
   const cacheKey = createHash('sha256').update(licenseKey).digest('hex')
   const cached = licenseCache.get(cacheKey)
   if (cached && cached.expires > Date.now()) return cached.paid

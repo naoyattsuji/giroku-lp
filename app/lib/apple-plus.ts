@@ -7,9 +7,9 @@ import { Environment, SignedDataVerifier } from '@apple/app-store-server-library
  * 署名をたどって本物か確かめ、商品・アプリ・期限・返金を見る。アカウントもデータベースも使わない。
  * TestFlight・開発版の購入は Sandbox の記録になるので、本番で確かめられなければ Sandbox でも確かめる。
  */
-const BUNDLE_ID = 'app.giroku.mobile'
+export const BUNDLE_ID = 'app.giroku.mobile'
 const APP_APPLE_ID = 6826128219
-const PLUS_PRODUCT_ID = 'app.giroku.mobile.plus.yearly'
+export const PLUS_PRODUCT_ID = 'app.giroku.mobile.plus.yearly'
 
 // Apple Root CA - G3（https://www.apple.com/certificateauthority/AppleRootCA-G3.cer、公開されている証明書）
 // SHA-256 63:34:3A:BF:B8:9A:6A:03:EB:B5:7E:9B:3F:5F:A7:BE:7C:4F:5C:75:6F:30:17:B3:A8:C4:88:C3:65:3E:91:79
@@ -17,7 +17,7 @@ const APPLE_ROOT_CA_G3 = 'MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMB
 
 const roots = [Buffer.from(APPLE_ROOT_CA_G3, 'base64')]
 // 署名のたびに Apple へ失効確認を問い合わせると遅くなるため、手元の証明書だけで確かめる
-const verifiers = [
+export const verifiers = [
   new SignedDataVerifier(roots, false, Environment.PRODUCTION, BUNDLE_ID, APP_APPLE_ID),
   new SignedDataVerifier(roots, false, Environment.SANDBOX, BUNDLE_ID),
 ]
@@ -52,4 +52,24 @@ export async function isPaidAppleTransaction(signedTransaction: unknown): Promis
   if (cache.size > 5000) cache.clear()
   cache.set(key, { paid, expires: Date.now() + CACHE_MS })
   return paid
+}
+
+/** 確かめた上で、購入の大もとの番号（更新しても変わらない）を返す。有効でなければ null */
+export async function paidOriginalTransactionId(signedTransaction: unknown): Promise<string | null> {
+  if (!isPlausibleSignedTransaction(signedTransaction)) return null
+  for (const verifier of verifiers) {
+    try {
+      const tx = await verifier.verifyAndDecodeTransaction(signedTransaction)
+      const paid =
+        tx.bundleId === BUNDLE_ID &&
+        tx.productId === PLUS_PRODUCT_ID &&
+        !tx.revocationDate &&
+        typeof tx.expiresDate === 'number' &&
+        tx.expiresDate > Date.now()
+      return paid && tx.originalTransactionId ? tx.originalTransactionId : null
+    } catch {
+      // 次の環境で試す
+    }
+  }
+  return null
 }
