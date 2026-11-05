@@ -1,36 +1,39 @@
 // Giroku アプリからのAPIリクエストを、LemonSqueezyの有料ライセンスキーで検証する。
 // Geminiキーはこのサーバー側にのみ置き、アプリ本体には一切含めない構成にするための検証ヘルパー。
 
-import { createHash, createHmac } from 'node:crypto'
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { checkAppleKey, isAppleKey } from './apple-key'
 
-// デスクトップ版のGIROKU-PROMO-招待コード（app/src/shared/promoCode.tsと同じHMAC方式）。
-// アプリ側は"paid"扱いにするだけでLemonSqueezyへ一切問い合わせないため、このAPIも
-// 同じ判定を独立して行わないと、招待コードで有効化したユーザーは「有料」と表示されて
-// いるのにAI機能（要約・文章整形）だけが毎回「AI機能の認証に失敗しました」で弾かれ続ける
-// （実際にこの不整合で報告を受けて発覚）。GIROKU_PROMO_SECRETはデスクトップ版
-// （src/main/license.ts）と同じ値をVercelの環境変数に設定して共有する。
+// デスクトップ版のGIROKU-PROMO-招待コード（HMAC方式、Giroku/scripts/generate-promo-codes.mjs で発行）。
+// 鍵（GIROKU_PROMO_SECRET）はこのサーバーの環境変数にだけ置く。デスクトップ版は 0.1.68 から
+// 鍵を持たず、/api/license の action 'promo' でここへ問い合わせる（配布物から鍵を取り出して
+// 招待コードを作られないようにするため）。AI機能（要約・文章整形）も同じ判定を使う。
 const PROMO_PREFIX = 'GIROKU-PROMO-'
 
 function signPromoCode(payload: string, secret: string): string {
   return createHmac('sha256', secret).update(payload).digest('hex').slice(0, 8).toUpperCase()
 }
 
-function isPromoCode(input: string): boolean {
+export function isPromoCode(input: string): boolean {
   return input.trim().toUpperCase().startsWith(PROMO_PREFIX)
 }
 
-function verifyPromoCode(input: string): boolean {
+/** 鍵が設定されていなければ null（＝判定できない）。設定済みなら招待コードが正しいか。 */
+export function checkPromoCode(input: string): boolean | null {
   const secret = process.env.GIROKU_PROMO_SECRET?.trim()
-  if (!secret) return false
+  if (!secret) return null
   const code = input.trim().toUpperCase()
-  if (!code.startsWith(PROMO_PREFIX)) return false
-  const rest = code.slice(PROMO_PREFIX.length)
-  const parts = rest.split('-')
+  if (code.length > 64 || !code.startsWith(PROMO_PREFIX)) return false
+  const parts = code.slice(PROMO_PREFIX.length).split('-')
   if (parts.length !== 2) return false
   const [id, sig] = parts
   if (!/^[A-Z0-9]{8}$/.test(id) || !/^[A-Z0-9]{8}$/.test(sig)) return false
-  return signPromoCode(`${PROMO_PREFIX}${id}`, secret) === sig
+  const expected = Buffer.from(signPromoCode(`${PROMO_PREFIX}${id}`, secret))
+  return timingSafeEqual(expected, Buffer.from(sig))
+}
+
+function verifyPromoCode(input: string): boolean {
+  return checkPromoCode(input) === true
 }
 
 const GIROKU_STORE_ID = 410452
