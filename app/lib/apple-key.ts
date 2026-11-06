@@ -4,7 +4,7 @@ import { get, put } from '@vercel/blob'
 import { BUNDLE_ID, PLUS_PRODUCT_ID, verifiers } from './apple-plus'
 
 /**
- * iPhone（App Store）で買った Plus を、PC 版でも使うためのキー。
+ * iPhone（App Store）で買った Pro を、PC 版でも使うためのキー。
  *
  * 形：GIROKU-IOS-<購入の大もとの番号>-<署名12桁>
  * - 番号は Apple の originalTransactionId（自動更新しても変わらない）。署名はこのサーバーだけが作れる。
@@ -175,7 +175,7 @@ export async function claimAppleKeyDevice(key: string, deviceId: string): Promis
   } else {
     if (record.pcs.length >= PC_LIMIT) {
       throw new DeviceLimitError(
-        `この Plus は iPhone を含めて${DEVICE_LIMIT}台まで使えます。いま使っている PC の設定で「この端末で解除」をしてから、もう一度お試しください。`,
+        `この Pro は iPhone を含めて${DEVICE_LIMIT}台まで使えます。いま使っている PC の設定で「この端末で解除」をしてから、もう一度お試しください。`,
       )
     }
     record.pcs.push({ d, at: now })

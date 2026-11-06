@@ -538,7 +538,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     licenseKey?: string
     licenseInstanceId?: string
     deviceId?: string
-    /** iPhone のアプリ内課金の Plus の署名つき購入記録（StoreKit 2 の JWS） */
+    /** iPhone のアプリ内課金の Pro の署名つき購入記録（StoreKit 2 の JWS） */
     appleSignedTransaction?: string
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
@@ -580,7 +580,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const anonymous = !body.licenseKey && isValidAnonymousDeviceId(body.deviceId)
-  // iPhone のアプリ内課金の Plus（署名つきの購入記録を Apple の証明書で確かめる）
+  // iPhone のアプリ内課金の Pro（署名つきの購入記録を Apple の証明書で確かめる）
   const mobilePaid = anonymous
     ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
       (await isPaidMobileAccount(req, body.deviceId!)) ||

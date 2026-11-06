@@ -386,7 +386,7 @@ export default function Home() {
                   <a href="#download" className="plan-button plan-button-free">無料で始める</a>
                 </article>
                 <article className="plan-head plan-head-paid">
-                  <p className="plan-name">Plus</p>
+                  <p className="plan-name">Pro</p>
                   <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
                   <p className="plan-meta">月約82円 · 1年ごとに自動更新 · いつでも解約</p>
                   <a
@@ -398,7 +398,7 @@ export default function Home() {
                 </article>
               </div>
 
-              <div className="comparison-body" role="table" aria-label="無料と Plus の比較">
+              <div className="comparison-body" role="table" aria-label="無料と Pro の比較">
                 <div className="comparison-row" role="row">
                   <div className="comparison-label" role="rowheader">文字起こし</div>
                   <div className="comparison-value" role="cell"><strong>制限なし</strong></div>

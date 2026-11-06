@@ -2,7 +2,7 @@ import { createHash } from 'crypto'
 import { Environment, SignedDataVerifier } from '@apple/app-store-server-library'
 
 /**
- * iPhone のアプリ内課金の Plus（年額の自動更新サブスクリプション）を確かめる。
+ * iPhone のアプリ内課金の Pro（年額の自動更新サブスクリプション）を確かめる。
  * アプリは StoreKit 2 の署名つきの購入記録（JWS）をそのまま送ってくる。Apple のルート証明書から
  * 署名をたどって本物か確かめ、商品・アプリ・期限・返金を見る。アカウントもデータベースも使わない。
  * TestFlight・開発版の購入は Sandbox の記録になるので、本番で確かめられなければ Sandbox でも確かめる。

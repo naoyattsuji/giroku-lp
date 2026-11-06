@@ -6,7 +6,7 @@ import { allowApiRequest } from '../../lib/license'
 export const runtime = 'nodejs'
 
 /**
- * iPhone で買った Plus を PC 版でも使うためのキー。
+ * iPhone で買った Pro を PC 版でも使うためのキー。
  * - action "issue"：iPhone が署名つきの購入記録を送る → PC 用のキーを返す
  * - action "validate"：PC がキーと端末の番号を送る → いま有効か・いつまでかを返す（iPhone を含めて2台まで）
  * - action "release"：PC の「この端末で解除」→ 枠を空ける
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     if (body.action === 'issue') {
       const id = await paidOriginalTransactionId(body.signedTransaction)
-      if (!id) return NextResponse.json({ error: '有効な Plus の購入が見つかりません。' }, { status: 400 })
+      if (!id) return NextResponse.json({ error: '有効な Pro の購入が見つかりません。' }, { status: 400 })
       return NextResponse.json({ key: issueAppleKey(id) })
     }
     if (body.action === 'validate') {
