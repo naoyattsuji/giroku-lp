@@ -458,7 +458,8 @@ export function validTranscriptSegments(
   segments: Array<{ speaker?: unknown; text?: unknown }>,
   maxCharacters = 250_000
 ): boolean {
-  if (segments.length > 5000) return false
+  // 区切りの数ではなく文字数で長さを見る（昔の録音は1行が短く、3時間で7,000区切りを超えて議事録を作れなかった）
+  if (segments.length > 30000) return false
   let characters = 0
   for (const segment of segments) {
     if ((segment.speaker !== 'self' && segment.speaker !== 'other') || typeof segment.text !== 'string') {
