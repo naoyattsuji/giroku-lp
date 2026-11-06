@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isPaidAppleTransaction, isPlausibleSignedTransaction } from '../../lib/apple-plus'
 import {
   allowApiRequest,
   allowLicenseRequest,
@@ -89,28 +90,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
   }
 
-  let body: { licenseKey?: string; segments?: TranscriptSegment[]; lang?: 'ja' | 'en' | 'auto' }
+  let body: {
+    licenseKey?: string
+    appleSignedTransaction?: unknown
+    segments?: TranscriptSegment[]
+    lang?: 'ja' | 'en' | 'auto'
+  }
   try {
     body = await req.json()
   } catch {
     return NextResponse.json({ error: '不正なリクエストです' }, { status: 400 })
   }
 
+  // Pro の確かめ方は2通り：購入キー（PC・スマホ）か、iPhone のアプリ内課金の署名つきの購入記録
+  const hasKey = typeof body.licenseKey === 'string' && body.licenseKey.trim().length > 0 && body.licenseKey.length <= 256
+  const hasApple = isPlausibleSignedTransaction(body.appleSignedTransaction)
   if (
-    typeof body.licenseKey !== 'string' ||
-    body.licenseKey.trim().length === 0 ||
-    body.licenseKey.length > 256 ||
+    (!hasKey && !hasApple) ||
     !Array.isArray(body.segments) ||
     (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang))
   ) {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
 
-  if (!allowLicenseRequest(body.licenseKey)) {
+  const rateKey = hasKey ? body.licenseKey! : `apple:${String(body.appleSignedTransaction).slice(-64)}`
+  if (!allowLicenseRequest(rateKey)) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
 
-  const paid = await isPaidLicense(body.licenseKey)
+  const paid = hasKey ? await isPaidLicense(body.licenseKey) : await isPaidAppleTransaction(body.appleSignedTransaction)
   if (!paid) {
     return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
   }
