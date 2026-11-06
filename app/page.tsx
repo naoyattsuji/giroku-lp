@@ -388,7 +388,7 @@ export default function Home() {
                 <article className="plan-head plan-head-paid">
                   <p className="plan-name">Plus</p>
                   <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
-                  <p className="plan-meta">月約82円 · 1年間利用 · 自動更新なし</p>
+                  <p className="plan-meta">月約82円 · 1年ごとに自動更新 · いつでも解約</p>
                   <a
                     href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
                     className="plan-button plan-button-paid"
