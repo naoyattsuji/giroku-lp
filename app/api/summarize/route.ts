@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { compactTranscriptLines } from '../../lib/compactTranscript'
 import {
   allowApiRequest,
   allowLicenseRequest,
@@ -516,8 +517,9 @@ function validGeneratedTitle(title: string): boolean {
 
 // 話者の印（[マイク] / [パソコンの音]）は付けない。印が発言者を表しておらず、
 // AIが担当者を「相手」「参加者」で埋める原因になっていたため（冒頭のコメント参照）。
+// 言いよどみ・相づちだけの行・重なった行を除いてから送る（入力トークン＝原価を減らす。lib/compactTranscript.ts）
 function formatTranscript(segments: TranscriptSegment[]): string {
-  return segments.map((s) => s.text).join('\n')
+  return compactTranscriptLines(segments.map((s) => s.text)).join('\n')
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
