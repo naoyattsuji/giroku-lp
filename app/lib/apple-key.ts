@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { AppStoreServerAPIClient, Environment, Status } from '@apple/app-store-server-library'
+import { get, put } from '@vercel/blob'
 import { BUNDLE_ID, PLUS_PRODUCT_ID, verifiers } from './apple-plus'
 
 /**
@@ -112,4 +113,83 @@ export async function checkAppleKey(input: string): Promise<AppleKeyState> {
   if (cache.size > 5000) cache.clear()
   cache.set(cacheKey, { state: result, expires: Date.now() + (result.paid ? CACHE_MS : 60_000) })
   return result
+}
+
+/**
+ * 台数の上限：買った iPhone を1台と数えて、合計2台（＝ PC は1台）。PC のキー（Lemon Squeezy）と同じ考え方。
+ * PC の設定の「この端末で解除」で枠を空けて、別の PC に移せる。
+ * 記録は Vercel Blob（非公開の置き場 giroku-plus-devices）に、購入の番号も端末の番号も
+ * 元に戻せない形（ハッシュ）にして置く。置き場の設定がなければ上限をかけない。
+ */
+export const DEVICE_LIMIT = 2
+const PC_LIMIT = DEVICE_LIMIT - 1
+
+interface DeviceRecord {
+  pcs: Array<{ d: string; at: string }>
+}
+
+function hashed(value: string): string {
+  return createHash('sha256').update(`${secret() ?? ''}:${value}`).digest('hex')
+}
+
+function recordPath(id: string): string {
+  return `plus-devices/${hashed(id)}.json`
+}
+
+async function readRecord(id: string): Promise<DeviceRecord> {
+  const found = await get(recordPath(id), { access: 'private', useCache: false })
+  if (!found) return { pcs: [] }
+  const text = await new Response(found.stream).text()
+  try {
+    const parsed = JSON.parse(text) as DeviceRecord
+    return { pcs: Array.isArray(parsed.pcs) ? parsed.pcs : [] }
+  } catch {
+    return { pcs: [] }
+  }
+}
+
+async function writeRecord(id: string, record: DeviceRecord): Promise<void> {
+  await put(recordPath(id), JSON.stringify(record), {
+    access: 'private',
+    allowOverwrite: true,
+    addRandomSuffix: false,
+    contentType: 'application/json',
+  })
+}
+
+export class DeviceLimitError extends Error {}
+
+/** この PC で使えるか確かめ、使えるなら枠に入れる。上限を超えたら DeviceLimitError */
+export async function claimAppleKeyDevice(key: string, deviceId: string): Promise<void> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return
+  const id = parseAppleKey(key)
+  if (!id) return
+  const d = hashed(deviceId)
+  const record = await readRecord(id)
+  const now = new Date().toISOString()
+  const mine = record.pcs.find((p) => p.d === d)
+  if (mine) {
+    // 毎回書き込まない（1日に1回だけ最後に使った日を残す）
+    if (Date.now() - new Date(mine.at).getTime() < 24 * 60 * 60 * 1000) return
+    mine.at = now
+  } else {
+    if (record.pcs.length >= PC_LIMIT) {
+      throw new DeviceLimitError(
+        `この Plus は iPhone を含めて${DEVICE_LIMIT}台まで使えます。いま使っている PC の設定で「この端末で解除」をしてから、もう一度お試しください。`,
+      )
+    }
+    record.pcs.push({ d, at: now })
+  }
+  await writeRecord(id, record)
+}
+
+/** この PC の枠を空ける */
+export async function releaseAppleKeyDevice(key: string, deviceId: string): Promise<void> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return
+  const id = parseAppleKey(key)
+  if (!id) return
+  const d = hashed(deviceId)
+  const record = await readRecord(id)
+  const next = { pcs: record.pcs.filter((p) => p.d !== d) }
+  if (next.pcs.length !== record.pcs.length) await writeRecord(id, next)
 }
