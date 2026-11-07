@@ -148,7 +148,7 @@ export default function Home(): ReactElement {
             </div>
             <p className="h-hero-note"><strong>全機能無料</strong>・登録不要・iPhone／Mac／Windows</p>
           </div>
-          <div className="h-hero-stage" data-scroll>
+          <div className="h-hero-stage">
             <MacLive />
             <div className="h-hero-phone"><PhoneLive /></div>
           </div>
@@ -162,7 +162,7 @@ export default function Home(): ReactElement {
 
         <Section tone="gray">
           <h2 className="h-center-title" data-reveal>録音から議事録まで、これひとつで。</h2>
-          <div className="h-trio" data-scroll>
+          <div className="h-trio" data-reveal>
             <figure>
               <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
               <figcaption><b>AI が議事録をつくる</b>話のトピックごとに見出しを立てて、要点をまとめます</figcaption>
@@ -199,12 +199,6 @@ export default function Home(): ReactElement {
                 <li><Check />より高性能な AI で議事録を作成</li>
                 <li><Check />文字起こしの誤字・句読点を自動で直す</li>
               </ul>
-              {/* Pro の「文章の仕上げ」の例（Giroku の実際の録音で試したもの） */}
-              <div className="h-polish">
-                <p><span className="h-tag">仕上げ前</span><span>ブランドの<del className="h-before">常常的</del>価値について話します。</span></p>
-                <p><span className="h-tag h-tag-pro">仕上げ後</span><span>ブランドの<strong className="h-after">情緒的</strong>価値について話します。</span></p>
-                <p className="h-polish-note">聞き間違えた言葉を、前後の話から直します</p>
-              </div>
               <div className="h-plan-actions">
                 <div>
                   <p className="h-plan-where">iPhone</p>
