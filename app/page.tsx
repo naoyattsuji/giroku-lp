@@ -59,17 +59,31 @@ function MicrosoftStoreBadge(): ReactElement {
   );
 }
 
-/** 端末に合わせた一番の入口 */
-function PrimaryAction({ platform, compact = false }: { platform: Platform; compact?: boolean }): ReactElement {
-  if (platform === "ios") return <AppStoreBadge height={compact ? 36 : 48} />;
-  const label =
-    platform === "mac" ? "Mac 版をダウンロード" : platform === "windows" ? "Windows 版を入手" : "無料でダウンロード";
-  const href = platform === "mac" ? "/download/mac" : platform === "windows" ? "/download/windows" : "#download";
+/**
+ * Mac 版の直接ダウンロード。隣の App Store・Microsoft Store のバッジと同じ「黒い角丸・2段の文字」にそろえる。
+ * Apple のりんごの印は Apple の決まりで使えないので、ノートパソコンの形の印にする。
+ */
+function MacDownloadBadge({ height = 44 }: { height?: number }): ReactElement {
   return (
-    <a href={href} className={compact ? "h-button h-button-small" : "h-button"}>
-      {label}
+    <a href="/download/mac" className="h-mac-badge" style={{ height }} aria-label="Mac 版をダウンロード">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4.5" y="5" width="15" height="10" rx="1.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M2.5 17.6h19l-1.1 1.4H3.6z" fill="currentColor" />
+      </svg>
+      <span>
+        <small>Mac 版を</small>
+        ダウンロード
+      </span>
     </a>
   );
+}
+
+/** 端末に合わせた一番の入口（どれもストアのバッジと同じ形） */
+function PrimaryAction({ platform }: { platform: Platform }): ReactElement {
+  if (platform === "ios") return <AppStoreBadge height={48} />;
+  if (platform === "mac") return <MacDownloadBadge height={48} />;
+  if (platform === "windows") return <MicrosoftStoreBadge />;
+  return <a href="#download" className="h-button">無料でダウンロード</a>;
 }
 
 function Check(): ReactElement {
@@ -149,7 +163,7 @@ export default function Home(): ReactElement {
               <br />
               会話をまるごと記録。
             </h1>
-            <p className="h-lead">録音すると、その場で文字に。AI が議事録にまとめます。</p>
+            <p className="h-lead">録音するだけで、話した内容がその場で文字になり、AI が議事録にまとめます。</p>
             <div className="h-hero-actions">
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
@@ -165,34 +179,34 @@ export default function Home(): ReactElement {
         <Section id="features">
           <div className="h-points">
             <div>
-              <h3>気づかれない</h3>
-              <p>会議に Bot を入れません。相手の画面はいつもどおり。</p>
+              <h3>相手に気づかれない</h3>
+              <p>会議に録音用の参加者（Bot）を入れないので、相手の画面には何も表示されません。</p>
             </div>
             <div>
-              <h3>両方の声</h3>
-              <p>パソコン版は、マイクと相手の声（パソコンの音）を同時に。</p>
+              <h3>自分の声も、相手の声も</h3>
+              <p>Mac・Windows 版は、マイクの声と、パソコンから流れる相手の声を両方とも文字にします。</p>
             </div>
             <div>
-              <h3>端末の中で</h3>
-              <p>文字起こしはネット不要。音声は外に出ません。</p>
+              <h3>ネットがなくても文字に</h3>
+              <p>文字起こしは iPhone やパソコンの中で行います。音声がどこかへ送られることはありません。</p>
             </div>
           </div>
         </Section>
 
         <Section tone="gray">
-          <h2 className="h-center-title">録って、まとめて、すぐ見つかる。</h2>
+          <h2 className="h-center-title">録音から議事録まで、これひとつで。</h2>
           <div className="h-trio">
             <figure>
               <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
-              <figcaption>話題ごとの AI 議事録</figcaption>
+              <figcaption><b>AI が議事録に</b>決まったこと・やることを話題ごとに整理</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-05.webp" alt="議事録への質問に、吹き出しで答えが返る" />
-              <figcaption>聞けば答える</figcaption>
+              <figcaption><b>議事録に質問できる</b>「いつまでに？」と聞けば、録音の中から答えます</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-06.webp" alt="履歴。すべての録音・お気に入り・フォルダ・最近削除した項目" />
-              <figcaption>フォルダで整理</figcaption>
+              <figcaption><b>フォルダで整理</b>お気に入り・検索・消しても7日間は戻せる</figcaption>
             </figure>
           </div>
         </Section>
@@ -205,7 +219,7 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥0</strong></p>
               <ul className="h-list">
                 <li><Check />録音・文字起こし・AI 議事録</li>
-                <li><Check />回数の制限なし</li>
+                <li><Check />何回でも使える</li>
                 <li className="h-muted">iPhone 版は広告あり</li>
               </ul>
               <a href="#download" className="h-button h-button-gray">無料で始める</a>
@@ -215,13 +229,13 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
               <ul className="h-list">
                 <li><Check />広告なし</li>
-                <li><Check />より高品質な AI</li>
-                <li><Check />誤字・句読点を自動で整える</li>
+                <li><Check />より高性能な AI で議事録を作成</li>
+                <li><Check />文字起こしの誤字・句読点を自動で直す</li>
               </ul>
               <div className="h-plan-actions">
                 <div>
                   <p className="h-plan-where">iPhone</p>
-                  <p className="h-plan-how">アプリの［設定］から</p>
+                  <p className="h-plan-how">アプリの［設定］から購入</p>
                 </div>
                 <div>
                   <p className="h-plan-where">Mac・Windows</p>
@@ -246,7 +260,7 @@ export default function Home(): ReactElement {
               </div>
               <div className={`h-store${platform === "mac" ? " is-here" : ""}`}>
                 <h3>Mac</h3>
-                <a href="/download/mac" className="h-button">ダウンロード</a>
+                <MacDownloadBadge height={44} />
                 <p>macOS 13 以降・Apple シリコン</p>
               </div>
               <div className={`h-store${platform === "windows" ? " is-here" : ""}`}>

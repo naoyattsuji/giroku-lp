@@ -131,7 +131,18 @@
 .h-window img { display: block; width: 100%; height: auto; }
 
 /* iPhone の画面写真：角を丸め、細い縁と柔らかい影だけ */
-.h-phone { margin: 0; border-radius: 13% / 6%; overflow: hidden; background: #000; border: 6px solid #1d1d1f; box-shadow: 0 30px 50px -24px rgba(0, 0, 0, 0.35); }
+.h-phone {
+  /* 今の iPhone（17）に合わせて、縁は細く、角は画面と同じ丸み。外側に細い金属の縁取り */
+  margin: 0;
+  padding: 2.4%;
+  border-radius: 15.5% / 7.2%;
+  background: #0b0b0c;
+  box-shadow:
+    0 0 0 1.5px #8e8e93,
+    0 0 0 2.5px #d1d1d6,
+    0 28px 48px -22px rgba(0, 0, 0, 0.32);
+}
+.h-phone img { border-radius: 13.4% / 6.2%; }
 .h-phone img { display: block; width: 100%; height: auto; }
 
 /* ── 安心の帯 ── */
@@ -292,6 +303,42 @@
 @media (max-width: 760px) {
   .h-points { grid-template-columns: 1fr; gap: 24px; }
   .h-trio { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .h-trio .h-phone { border-width: 3px; }
-  .h-trio figcaption { font-size: 12px; margin-top: 8px; }
+  .h-trio .h-phone { padding: 2.2%; }
+}
+
+/* Mac のダウンロード：ストアのバッジと同じ形 */
+.h-mac-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 11px;
+  border-radius: 9px;
+  background: #000;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px #a6a6a6;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+.h-mac-badge:hover { background: #1d1d1f; }
+.h-mac-badge svg { width: 26px; height: 26px; flex: none; }
+.h-mac-badge span { display: flex; flex-direction: column; gap: 2px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.h-mac-badge small { font-size: 10px; font-weight: 500; letter-spacing: 0; }
+
+.h-trio figcaption { font-weight: 400 !important; color: var(--h-ink-2); font-size: 14px !important; line-height: 1.5; }
+.h-trio figcaption b { display: block; color: var(--h-ink); font-size: 16px; margin-bottom: 4px; }
+@media (max-width: 760px) {
+  /* スマホは横にすべらせて見る（縦に並べると長くなるため） */
+  .h-trio {
+    display: flex;
+    max-width: none;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 0 calc(var(--h-gutter) * -1);
+    padding: 0 var(--h-gutter) 8px;
+    scrollbar-width: none;
+  }
+  .h-trio::-webkit-scrollbar { display: none; }
+  .h-trio figure { flex: 0 0 62%; scroll-snap-align: center; }
+  .h-trio figcaption { font-size: 13px !important; margin-top: 12px; }
 }
