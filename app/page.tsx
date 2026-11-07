@@ -80,8 +80,8 @@ function MacDownloadBadge({ height = 44 }: { height?: number }): ReactElement {
 
 /** 端末に合わせた一番の入口（どれもストアのバッジと同じ形） */
 function PrimaryAction({ platform }: { platform: Platform }): ReactElement {
-  if (platform === "ios") return <AppStoreBadge height={48} />;
-  if (platform === "mac") return <MacDownloadBadge height={48} />;
+  if (platform === "ios") return <AppStoreBadge height={44} />;
+  if (platform === "mac") return <MacDownloadBadge height={44} />;
   if (platform === "windows") return <MicrosoftStoreBadge />;
   return <a href="#download" className="h-button">無料でダウンロード</a>;
 }
@@ -253,17 +253,17 @@ export default function Home(): ReactElement {
           <div className="h-inner">
             <h2>今すぐ、無料で。</h2>
             <div className="h-stores">
-              <div className={`h-store${platform === "ios" ? " is-here" : ""}`}>
+              <div className="h-store">
                 <h3>iPhone</h3>
                 <AppStoreBadge height={44} />
                 <p>iOS 16.4 以降</p>
               </div>
-              <div className={`h-store${platform === "mac" ? " is-here" : ""}`}>
+              <div className="h-store">
                 <h3>Mac</h3>
                 <MacDownloadBadge height={44} />
                 <p>macOS 13 以降・Apple シリコン</p>
               </div>
-              <div className={`h-store${platform === "windows" ? " is-here" : ""}`}>
+              <div className="h-store">
                 <h3>Windows</h3>
                 <MicrosoftStoreBadge />
                 <p>Windows 10・11</p>
