@@ -42,6 +42,9 @@
 .h-page h2 { font-size: clamp(30px, 4.6vw, 52px); }
 .h-page h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
 .h-page :where(p) { font-size: clamp(17px, 1.5vw, 19px); }
+/* 1文字だけ次の行に落ちないように：日本語は文節で折り返し、最後の行が短くなりすぎないよう整える */
+.h-page :where(p, li, figcaption, summary, h2, h3) { word-break: auto-phrase; text-wrap: pretty; line-break: strict; }
+.h-page :where(h1, h2, h3) { text-wrap: balance; }
 
 /* ── ナビ：細い帯。すりガラスは Apple のローカルナビと同じ役割（下の内容を透かして位置を伝える） ── */
 .h-nav {
@@ -297,9 +300,11 @@
 .h-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 4vw, 48px); }
 .h-points h3 { font-size: clamp(20px, 1.9vw, 24px); white-space: nowrap; }
 .h-points p { margin-top: 8px; color: var(--h-ink-2); }
-/* 強みの印：薄い赤の丸に、細い線の赤い印（Apple の製品ページの機能紹介と同じ作り） */
-.h-point-icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 18px; border-radius: 16px; background: var(--h-red-tint); color: var(--h-red); }
-.h-point-icon svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+/* 強みは、マスコット「ひそか」がそれぞれを演じる（気づかれない＝消える、両方の声＝マイクで揺れる、ネットなし＝跳ねる）。
+   動きは globals.css の .spirit-hook-*。D 案：背景なし・真ん中ぞろえ */
+.h-points { text-align: center; }
+.h-point-icon { display: grid; place-items: center; height: 104px; margin-bottom: 10px; }
+.h-point-icon svg { width: 104px; height: 104px; overflow: visible; }
 
 /* ── 画面3枚を横に ── */
 .h-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 3vw, 40px); max-width: 860px; margin: 0 auto; }

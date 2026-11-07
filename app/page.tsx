@@ -75,6 +75,55 @@ function PrimaryAction({ platform }: { platform: Platform }): ReactElement {
   return <a href="#download" className="h-button">無料でダウンロード</a>;
 }
 
+// マスコット「ひそか」の胴体（LogoMarkと同じパス）。3つの理由アイコンでは
+// 目・小道具だけを変え、体形は常に同じにして「ひそか」だと一目でわかるようにする。
+const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z";
+
+function SpiritStealthIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-stealth">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      {/* サングラス＝気づかれずこっそり見ている */}
+      <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
+      <rect x="13" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
+      <path d="M11 11.4h2" stroke="#1c1c1e" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SpiritMicIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-mic">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+      {/* 小さなマイク（丸頭+スタンド）を持っている＝音を両方拾う。定番の
+          マイクのシルエットの方が小さいサイズでも一目でわかるため採用 */}
+      <g transform="translate(15,12.4)">
+        <circle cx="1.8" cy="1.8" r="2.9" fill="#1c1c1e" />
+        <path d="M1.8 4.8v3.2" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M-0.4 8h4.4" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+}
+
+function SpiritOfflineIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-offline">
+      <path d={SPIRIT_BODY} fill="#e8192c" />
+      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
+      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
+      {/* wifi-offバッジ＝ネットなしでも平気（ひそかは止まらず浮遊し続ける） */}
+      <g transform="translate(14.6,13.6)">
+        <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
+        <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
+        <path d="M-0.6 0.4l7.6 5.8" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+}
+
 function Check(): ReactElement {
   return (
     <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
@@ -155,17 +204,17 @@ export default function Home(): ReactElement {
         <Section id="features">
           <div className="h-points" data-reveal>
             <div>
-              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6.5 9-6.5c1.9 0 3.5.7 4.9 1.7M21 12s-3.5 6.5-9 6.5c-1.9 0-3.5-.7-4.9-1.7" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /><path d="M4 20 20 4" /></svg></span>
+              <span className="h-point-icon" aria-hidden="true"><SpiritStealthIcon /></span>
               <h3>相手に気づかれない</h3>
               <p>会議に録音用の参加者が入らないので、相手には分かりません。</p>
             </div>
             <div>
-              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="5" height="9" rx="2.5" /><path d="M2.5 11a4 4 0 0 0 8 0M6.5 15v4" /><path d="M13.5 10h2.5l3.5-3v10l-3.5-3h-2.5z" /><path d="M21.5 9.5a3 3 0 0 1 0 5" /></svg></span>
+              <span className="h-point-icon" aria-hidden="true"><SpiritMicIcon /></span>
               <h3>自分の声も、パソコンの音も</h3>
               <p>パソコン版は、マイクとパソコンの音を同時に録音します。</p>
             </div>
             <div>
-              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.3a9.5 9.5 0 0 1 13 0M8.6 15.6a5 5 0 0 1 6.8 0" /><circle cx="12" cy="19" r="1" fill="currentColor" /><path d="M4 21 20 3" /></svg></span>
+              <span className="h-point-icon" aria-hidden="true"><SpiritOfflineIcon /></span>
               <h3>ネットがなくても文字に</h3>
               <p>文字起こしは端末の中だけ。音声は外に送られません。</p>
             </div>
@@ -224,7 +273,7 @@ export default function Home(): ReactElement {
             </article>
           </div>
           <p className="h-fineprint">
-            Pro は iPhone とパソコンで別々に購入します。1 年ごとの自動更新で、期間が終わる 24 時間前までに解約しない限り更新されます。
+            Pro は iPhone とパソコンで別々に購入します。1年ごとの自動更新で、期間が終わる 24時間前までに解約しない限り更新されます。
           </p>
         </Section>
 
