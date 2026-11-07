@@ -5,6 +5,7 @@ import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { ScrollFx } from "./components/ScrollFx";
 import { MacLive, PhoneLive } from "./components/HeroLive";
+import { MeetingScene } from "./components/MeetingScene";
 import "./home.css";
 
 /*
@@ -73,55 +74,6 @@ function PrimaryAction({ platform }: { platform: Platform }): ReactElement {
   if (platform === "mac") return <MacDownloadBadge height={44} />;
   if (platform === "windows") return <MicrosoftStoreBadge />;
   return <a href="#download" className="h-button">無料でダウンロード</a>;
-}
-
-// マスコット「ひそか」の胴体（LogoMarkと同じパス）。3つの理由アイコンでは
-// 目・小道具だけを変え、体形は常に同じにして「ひそか」だと一目でわかるようにする。
-const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z";
-
-function SpiritStealthIcon(): ReactElement {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-stealth">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      {/* サングラス＝気づかれずこっそり見ている */}
-      <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <rect x="13" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <path d="M11 11.4h2" stroke="#1c1c1e" strokeWidth="1" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function SpiritMicIcon(): ReactElement {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-mic">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* 小さなマイク（丸頭+スタンド）を持っている＝音を両方拾う。定番の
-          マイクのシルエットの方が小さいサイズでも一目でわかるため採用 */}
-      <g transform="translate(15,12.4)">
-        <circle cx="1.8" cy="1.8" r="2.9" fill="#1c1c1e" />
-        <path d="M1.8 4.8v3.2" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-        <path d="M-0.4 8h4.4" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-      </g>
-    </svg>
-  );
-}
-
-function SpiritOfflineIcon(): ReactElement {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-offline">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* wifi-offバッジ＝ネットなしでも平気（ひそかは止まらず浮遊し続ける） */}
-      <g transform="translate(14.6,13.6)">
-        <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
-        <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
-        <path d="M-0.6 0.4l7.6 5.8" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" />
-      </g>
-    </svg>
-  );
 }
 
 function Check(): ReactElement {
@@ -203,22 +155,8 @@ export default function Home(): ReactElement {
         </section>
 
         <Section id="features">
-          <div className="h-points" data-reveal>
-            <div>
-              <span className="h-point-icon" aria-hidden="true"><SpiritStealthIcon /></span>
-              <h3>相手に気づかれない</h3>
-              <p>会議に録音用の参加者が入らないので、相手には分かりません。</p>
-            </div>
-            <div>
-              <span className="h-point-icon" aria-hidden="true"><SpiritMicIcon /></span>
-              <h3>自分の声も、パソコンの音も</h3>
-              <p>パソコン版は、マイクとパソコンの音を同時に録音します。</p>
-            </div>
-            <div>
-              <span className="h-point-icon" aria-hidden="true"><SpiritOfflineIcon /></span>
-              <h3>ネットがなくても文字に</h3>
-              <p>文字起こしは端末の中だけ。音声は外に送られません。</p>
-            </div>
+          <div data-reveal>
+            <MeetingScene />
           </div>
         </Section>
 
