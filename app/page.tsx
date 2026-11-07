@@ -175,7 +175,7 @@ export default function Home(): ReactElement {
           <nav className="h-nav-links" aria-label="ページ内">
             <a href="#features">特長</a>
             <a href="#pricing">料金</a>
-            <a href="#download">ダウンロード</a>
+            <a href="#faq">よくある質問</a>
           </nav>
           <a href="#download" className="h-button h-button-small">ダウンロード</a>
         </div>
@@ -298,7 +298,7 @@ export default function Home(): ReactElement {
                 <p>Windows 10・11</p>
               </div>
             </div>
-            <div className="h-faq">
+            <div className="h-faq" id="faq">
               {faqs.map((item) => (
                 <details key={item.q}>
                   <summary>{item.q}</summary>
