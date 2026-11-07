@@ -297,6 +297,9 @@
 .h-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 4vw, 48px); }
 .h-points h3 { font-size: clamp(20px, 1.9vw, 24px); white-space: nowrap; }
 .h-points p { margin-top: 8px; color: var(--h-ink-2); }
+/* 強みの印：薄い赤の丸に、細い線の赤い印（Apple の製品ページの機能紹介と同じ作り） */
+.h-point-icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 18px; border-radius: 16px; background: var(--h-red-tint); color: var(--h-red); }
+.h-point-icon svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ── 画面3枚を横に ── */
 .h-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 3vw, 40px); max-width: 860px; margin: 0 auto; }

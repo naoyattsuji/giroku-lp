@@ -155,14 +155,17 @@ export default function Home(): ReactElement {
         <Section id="features">
           <div className="h-points" data-reveal>
             <div>
+              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6.5 9-6.5c1.9 0 3.5.7 4.9 1.7M21 12s-3.5 6.5-9 6.5c-1.9 0-3.5-.7-4.9-1.7" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /><path d="M4 20 20 4" /></svg></span>
               <h3>相手に気づかれない</h3>
               <p>会議に録音用の参加者が入らないので、相手には分かりません。</p>
             </div>
             <div>
+              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="5" height="9" rx="2.5" /><path d="M2.5 11a4 4 0 0 0 8 0M6.5 15v4" /><path d="M13.5 10h2.5l3.5-3v10l-3.5-3h-2.5z" /><path d="M21.5 9.5a3 3 0 0 1 0 5" /></svg></span>
               <h3>自分の声も、パソコンの音も</h3>
               <p>パソコン版は、マイクとパソコンの音を同時に録音します。</p>
             </div>
             <div>
+              <span className="h-point-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.3a9.5 9.5 0 0 1 13 0M8.6 15.6a5 5 0 0 1 6.8 0" /><circle cx="12" cy="19" r="1" fill="currentColor" /><path d="M4 21 20 3" /></svg></span>
               <h3>ネットがなくても文字に</h3>
               <p>文字起こしは端末の中だけ。音声は外に送られません。</p>
             </div>
