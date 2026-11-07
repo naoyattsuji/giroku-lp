@@ -17,72 +17,86 @@ type Step = {
   image: { src: string; alt: string };
 };
 
+// 中身は PC 版アプリの使い方（Giroku/app/src/renderer/src/views/GuideView.tsx）とそろえる。
+// 写真はアプリ側の step-*.png を Web 用に軽くした物（cwebp -q 86 -resize 1600 0）
 const steps: Step[] = [
   {
     num: "1",
     title: "赤いボタンを押す",
-    desc: "サイドバーの「録音」で、赤いボタンを押すだけで始まります。",
-    image: { src: "/guide/step-01-start.png", alt: "録音ボタンを押す" },
+    desc: "「録音」の赤いボタンを押すと始まります。",
+    image: { src: "/guide/step-01-start.webp", alt: "録音ボタンを押す" },
   },
   {
     num: "2",
-    title: "はじめての時だけ、ひとこと確認",
-    desc: "相手の同意についての確認です。チェックして進めば、次回からは出ません。",
-    image: { src: "/guide/step-02-consent.png", alt: "同意の確認ダイアログ" },
+    title: "はじめてだけ、ひとこと確認",
+    desc: "相手の同意についての確認です。チェックして進めば、次からは出ません。",
+    image: { src: "/guide/step-02-consent.webp", alt: "同意の確認" },
   },
   {
     num: "3",
     title: "話した内容が、その場で文字になる",
-    desc: "マイクの声も、パソコンの音（通話・動画）も、区別しながらリアルタイムで表示されます。",
-    image: { src: "/guide/step-03-live.png", alt: "録音中のライブ文字起こし" },
+    desc: "マイクの声とパソコンの音（通話・動画）を分けて表示します。文字にするのは、このパソコンの中です。",
+    image: { src: "/guide/step-03-live.webp", alt: "録音中の文字起こし" },
   },
   {
     num: "4",
-    title: "音源はその場でオン/オフできる",
-    desc: "マイクだけ、パソコンの音だけ、を録りたいときはワンクリックでミュートできます。",
-    image: { src: "/guide/step-04-mute.png", alt: "マイクをミュートする" },
+    title: "音はその場でオン/オフ",
+    desc: "マイクやパソコンの音のボタンを押すと、その音だけ止められます。",
+    image: { src: "/guide/step-04-mute.webp", alt: "マイクを止める" },
   },
   {
     num: "5",
-    title: "終わったら、停止するだけ",
-    desc: "「停止」を押すと、あとは自動で保存・文字起こしまで進みます。",
-    image: { src: "/guide/step-05-stop.png", alt: "録音を停止する" },
+    title: "小さくすると、ミニ表示に",
+    desc: "録音中にウィンドウを小さくすると、自動でミニ表示になります。大きくするか最大化すると、元に戻ります。",
+    image: { src: "/guide/step-05-mini.webp", alt: "ミニ表示" },
   },
   {
     num: "6",
-    title: "「議事録を作成」で、AIがまとめる",
-    desc: "決まったこと・やることを、AIが自動で整理します（無料で制限なく作成できます）。",
-    image: { src: "/guide/step-06-create.png", alt: "議事録を作成ボタン" },
+    title: "終わったら、停止するだけ",
+    desc: "「停止」を押すと、保存と文字起こしまで自動で進みます。",
+    image: { src: "/guide/step-06-stop.webp", alt: "録音を停止する" },
   },
   {
     num: "7",
-    title: "気になることは、そのまま聞ける",
-    desc: "「誰が担当？」「いつまで？」と話しかけると、AIがその場で答えたり、議事録を書き直したりします。",
-    image: { src: "/guide/step-07-result.png", alt: "完成した議事録とAIチャットでの質問" },
+    title: "「議事録を作成」で、AIがまとめる",
+    desc: "決まったこと・やることを、AIが整理します。",
+    image: { src: "/guide/step-07-create.webp", alt: "議事録を作成ボタン" },
   },
   {
     num: "8",
-    title: "履歴から、いつでも探せる",
-    desc: "検索・お気に入り・フォルダ分けで、あとから見返しやすくなっています。",
-    image: { src: "/guide/step-08-history.png", alt: "履歴画面での検索とお気に入り" },
+    title: "気になることは、そのまま聞ける",
+    desc: "下の欄に書くか「もう少し詳しく」「短くまとめる」を押すと、AIが吹き出しで答えます。Apple Intelligence が使える Mac なら、無料版でもパソコンの中のAIが答えます。",
+    image: { src: "/guide/step-08-chat.webp", alt: "議事録への質問と答え" },
   },
   {
     num: "9",
-    title: "複数まとめて、フォルダ移動や削除も",
-    desc: "「選択」でチェックを付けると、まとめてフォルダに移動したりゴミ箱に入れたりできます。",
-    image: { src: "/guide/step-09-select.png", alt: "複数選択して一括操作" },
+    title: "履歴から、いつでも探せる",
+    desc: "左の「すべての録音」「お気に入り」と各フォルダから見返せます。「＋ 新規フォルダ」でフォルダを作り、フォルダを右クリックすると名前の変更や削除ができます。",
+    image: { src: "/guide/step-09-history.webp", alt: "履歴" },
   },
   {
     num: "10",
-    title: "消しても、7日間はゴミ箱に残る",
-    desc: "うっかり消しても大丈夫。7日以内なら「元に戻す」でいつでも復元できます。",
-    image: { src: "/guide/step-10-trash.png", alt: "ゴミ箱画面" },
+    title: "まとめてフォルダ移動や削除も",
+    desc: "「選択」を押して録音を選ぶと、下の帯の「移動」「削除」でまとめて操作できます。フォルダの中の「項目を追加」からも入れられます。",
+    image: { src: "/guide/step-10-select.webp", alt: "複数を選んでまとめて操作" },
   },
   {
     num: "11",
+    title: "削除しても、7日間は元に戻せる",
+    desc: "削除したものは「最近削除した項目」に移ります。7日後に完全に削除され、それまでは「元に戻す」で戻せます。「選択」でまとめて戻すこともできます。",
+    image: { src: "/guide/step-11-deleted.webp", alt: "最近削除した項目" },
+  },
+  {
+    num: "12",
+    title: "Pro なら、文章も自動で整う",
+    desc: "録音のあと文字だけをAIに送り、誤字や句読点を直します。設定の「文章を自動で整える」で切り替えられます。",
+    image: { src: "/guide/step-12-pro.webp", alt: "設定の「文章を自動で整える」" },
+  },
+  {
+    num: "13",
     title: "困ったときは、設定の「ヘルプ」から",
-    desc: "このガイドにも、お問い合わせにも、設定画面からすぐに戻ってこられます。",
-    image: { src: "/guide/step-11-help.png", alt: "設定画面のヘルプセクション" },
+    desc: "アプリの中のこの使い方にも、お問い合わせにも、設定からすぐ戻れます。",
+    image: { src: "/guide/step-13-help.webp", alt: "設定のヘルプ" },
   },
 ];
 
@@ -99,8 +113,8 @@ function StepRow({ step }: { step: Step }): ReactElement {
           <Image
             src={step.image.src}
             alt={step.image.alt}
-            width={2080}
-            height={1440}
+            width={1600}
+            height={1108}
             sizes="(max-width: 768px) 100vw, 760px"
           />
         </div>
