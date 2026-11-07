@@ -58,16 +58,11 @@ function MicrosoftStoreBadge(): ReactElement {
  * Apple のりんごの印は Apple の決まりで使えないので、ノートパソコンの形の印にする。
  */
 function MacDownloadBadge({ height = 44 }: { height?: number }): ReactElement {
+  // 外形・縁・字の位置は App Store の公式バッジと同じ（public/badges/mac-download-ja-black.svg）
   return (
-    <a href="/download/mac" className="h-mac-badge" style={{ height }} aria-label="Mac 版をダウンロード">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="4.5" y="5" width="15" height="10" rx="1.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
-        <path d="M2.5 17.6h19l-1.1 1.4H3.6z" fill="currentColor" />
-      </svg>
-      <span>
-        Mac
-        <small>直接ダウンロード</small>
-      </span>
+    <a href="/download/mac" className="h-badge" aria-label="Mac 版を直接ダウンロード">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/badges/mac-download-ja-black.svg" alt="Mac 直接ダウンロード" height={height} style={{ height }} />
     </a>
   );
 }

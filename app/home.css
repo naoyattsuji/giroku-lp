@@ -311,24 +311,6 @@
 }
 
 /* Mac のダウンロード：ストアのバッジと同じ形 */
-.h-mac-badge {
-  /* App Store の公式バッジと同じ作り：黒地・灰色の細い縁・角丸・2段の文字（太字にしない） */
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 13px 0 10px;
-  border-radius: 8px;
-  background: #000;
-  color: #fff;
-  border: 1px solid #a6a6a6;
-  line-height: 1;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", sans-serif;
-}
-.h-mac-badge:hover { background: #1d1d1f; }
-.h-mac-badge svg { width: 24px; height: 24px; flex: none; }
-.h-mac-badge span { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; font-size: 18px; font-weight: 500; letter-spacing: -0.01em; }
-.h-mac-badge small { font-size: 9.5px; font-weight: 400; letter-spacing: 0.04em; }
-
 .h-trio figcaption { font-weight: 400 !important; color: var(--h-ink-2); font-size: 14px !important; line-height: 1.5; }
 .h-trio figcaption b { display: block; color: var(--h-ink); font-size: 16px; margin-bottom: 4px; }
 @media (max-width: 760px) {
@@ -392,10 +374,10 @@
   }
 
   /* 細かい動き：同じ曲線で、押すと沈む・指を乗せると浮く */
-  .h-button, .h-badge, .h-mac-badge, .h-link { transition: transform 0.25s var(--h-ease), background-color 0.2s ease, opacity 0.2s ease; }
-  .h-badge:hover, .h-mac-badge:hover { transform: translateY(-2px); }
+  .h-button, .h-badge, .h-link { transition: transform 0.25s var(--h-ease), background-color 0.2s ease, opacity 0.2s ease; }
+  .h-badge:hover { transform: translateY(-2px); }
   .h-link:hover { opacity: 0.7; }
-  .h-button:active, .h-badge:active, .h-mac-badge:active { transform: scale(0.97); }
+  .h-button:active, .h-badge:active { transform: scale(0.97); }
   .h-faq details[open] p { animation: h-rise 0.6s var(--h-ease) both; }
 }
 
