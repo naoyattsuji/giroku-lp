@@ -154,6 +154,7 @@ const faqs: { q: string; a: ReactNode }[] = [
   { q: "音声は外に送られますか？", a: "送られません。文字起こしは端末の中です。AI 議事録を作るときだけ、文字をサーバーへ送ります。" },
   { q: "iPhone で相手の声も録れますか？", a: "iPhone はマイクの音だけです。オンライン会議の相手の声まで録るなら、Mac 版・Windows 版を。" },
   { q: "相手に知らせなくていいですか？", a: "相手の画面には何も出ませんが、録音するときはひとこと伝えるのがマナーです。" },
+  { q: "使い方は？", a: "アプリの中の「使い方」（iPhone は下のタブ、パソコンは左の帯）から、画面つきで見られます。" },
   { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から。期間の終わりまでは Pro のままです。" },
 ];
 
@@ -174,7 +175,7 @@ export default function Home(): ReactElement {
           <nav className="h-nav-links" aria-label="ページ内">
             <a href="#features">特長</a>
             <a href="#pricing">料金</a>
-            <Link href="/guide">使い方</Link>
+            <a href="#download">ダウンロード</a>
           </nav>
           <a href="#download" className="h-button h-button-small">ダウンロード</a>
         </div>
@@ -312,7 +313,6 @@ export default function Home(): ReactElement {
       <footer className="h-footer">
         <div className="h-inner h-footer-inner">
           <div className="h-footer-links">
-            <Link href="/guide">使い方</Link>
             <Link href="/privacy">プライバシー</Link>
             <Link href="/terms">利用規約</Link>
             <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">お問い合わせ</a>

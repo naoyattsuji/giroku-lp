@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 使い方はアプリの中に一本化した（2026-11-08）。古いリンク（App Store のサポート URL など）はトップへ
+  async redirects() {
+    return [{ source: '/guide', destination: '/', permanent: true }];
+  },
   async headers() {
     return [
       {
