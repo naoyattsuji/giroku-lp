@@ -488,3 +488,14 @@
 .lv-tabs span { display: grid; justify-items: center; gap: 0.8cqw; font-size: 2.2cqw; font-weight: 600; padding: 1.4cqw 0; border-radius: 6cqw; }
 .lv-tabs span svg { width: 5.2cqw; height: 5.2cqw; }
 .lv-tabs span.is-on { background: #e8e8ed; color: var(--h-red); }
+
+/* ── 短い説明の行の長さをそろえる ──
+ * 文節で折り返す指定（上の :where(p, …)）だけでは、768px で「macOS 13 以降・Apple ／シリコン」、
+ * 390px で「…AIが議事録に／まとめます。」のように、短い説明の最後の行が短く残っていた。
+ * 2〜3行の短い説明は行の長さをそろえる（Safari は文節の折り返しにまだ対応しないので、Safari でも
+ * 語の途中で1〜2文字だけ落ちる「シリコ／ン」のような切れ方を減らせる）。
+ */
+.h-lead,
+.h-trio figcaption,
+.h-store p,
+.h-points p { text-wrap: balance; }

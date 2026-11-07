@@ -870,14 +870,19 @@ h1, h2, h3 {
   .nav-actions { gap: 0; }
   .nav-secondary-link { display: none; }
   .nav-download {
+    /* 丸の中の矢印（::before）を真ん中に置く。前は文字の流れの中に置かれて丸の左の外へはみ出し、
+       赤い丸だけが見えていた */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     max-width: none;
     width: 36px;
     height: 36px;
     padding: 0;
     overflow: hidden;
     color: transparent;
-    font-size: 12px;
-    text-overflow: ellipsis;
+    /* 文字（読み上げ用に残す）は幅を取らないよう 0 に。残すと矢印が横へ押し出される */
+    font-size: 0;
   }
   .nav-download::before {
     content: "";
