@@ -41,3 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# デザイン確認用の写真（公開しない）
+.impeccable/review/

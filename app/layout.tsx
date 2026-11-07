@@ -6,14 +6,16 @@ import "./globals.css";
 const GA_ID = "G-DQZVBGF3LS";
 
 export const metadata: Metadata = {
-  title: "Giroku（議録）— 相手に気づかれない議事録アプリ",
-  description: "会議に何も追加しないから、相手に気づかれず録音。オンライン会議も対面も講義も、パソコンの中だけで録音・文字起こし・AI議事録。全機能無料。",
+  title: "Giroku（ギロク）— 相手に気づかれない議事録アプリ",
+  description: "会議に Bot を入れず、録音するだけ。会議も講義も、端末の中で文字起こしし、AI が議事録にまとめます。iPhone・Mac・Windows。全機能無料。",
+  // iPhone の Safari では、ページの上に App Store の「入手」の帯が出る
+  itunes: { appId: "6826128219" },
   metadataBase: new URL("https://giroku.naoya-tsuji.com"),
   alternates: { canonical: "/" },
   keywords: ["議事録", "AI議事録", "文字起こし", "録音", "会議", "オンライン会議", "講義", "無料"],
   openGraph: {
     title: "Giroku — 相手に気づかれない議事録アプリ",
-    description: "会議に何も追加せず、相手に気づかれず録音。パソコンの中だけで録音・文字起こし・AI議事録。全機能無料。",
+    description: "会議に Bot を入れず、録音するだけ。端末の中で文字起こしし、AI が議事録に。iPhone・Mac・Windows。全機能無料。",
     url: "https://giroku.naoya-tsuji.com",
     siteName: "Giroku",
     locale: "ja_JP",
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Giroku — 相手に気づかれない議事録アプリ",
-    description: "会議に何も追加せず、相手に気づかれず録音。パソコンの中だけで録音・文字起こし・AI議事録。全機能無料。",
+    description: "会議に Bot を入れず、録音するだけ。端末の中で文字起こしし、AI が議事録に。iPhone・Mac・Windows。全機能無料。",
   },
 };
 

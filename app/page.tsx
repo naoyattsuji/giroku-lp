@@ -1,475 +1,427 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { ReactElement } from "react";
+import { useSyncExternalStore } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
-import {
-  SceneOnline,
-  SceneMeeting,
-  SceneLecture,
-  SceneImage,
-  LogoMark,
-} from "./components/Illustrations";
-import { AppMock } from "./components/AppMock";
+import Script from "next/script";
+import { LogoMark } from "./components/Illustrations";
 import { Reveal } from "./components/Reveal";
-import { usePrefersReducedMotion } from "./components/usePrefersReducedMotion";
+import "./home.css";
 
-const scenes = [
-  {
-    Illust: SceneOnline,
-    photo: "/scenes/online-meeting.jpg",
-    tag: "オンライン会議",
-    title: "会議画面は、そのまま。",
-    desc: "通話にボットを追加しないため、相手の画面に録音表示は出ません。",
-    lines: [
-      { speaker: "マイク", text: "次回は水曜日の10時でどうでしょう。" },
-      { speaker: "パソコンの音", text: "了解です。予定を入れておきます。" },
-      { speaker: "マイク", text: "資料は前日までに共有します。" },
-      { speaker: "パソコンの音", text: "ありがとうございます。確認しておきます。" },
-      { speaker: "マイク", text: "それでは、水曜日にお願いします。" },
-      { speaker: "パソコンの音", text: "はい、よろしくお願いします。" },
-    ],
-  },
-  {
-    Illust: SceneMeeting,
-    photo: "/scenes/in-person.jpg",
-    tag: "対面",
-    title: "パソコンを置くだけ。",
-    desc: "自分と相手の声をその場で文字に。メモを取らず、会話に集中できます。",
-    lines: [
-      { speaker: "マイク", text: "まずは画面案から確認しましょう。" },
-      { speaker: "マイク", text: "この配置なら見やすそうですね。" },
-      { speaker: "マイク", text: "色だけ少し調整できますか。" },
-      { speaker: "マイク", text: "今日中に修正版を作ります。" },
-      { speaker: "マイク", text: "金曜日までに共有をお願いします。" },
-      { speaker: "マイク", text: "分かりました。進めておきます。" },
-    ],
-  },
-  {
-    Illust: SceneLecture,
-    photo: "/scenes/lecture.jpg",
-    tag: "講義",
-    title: "聞くことに集中。",
-    desc: "聞き逃した箇所を、あとから文字と音声で確認できます。",
-    lines: [
-      { speaker: "マイク", text: "ここが今日の重要なポイントです。" },
-      { speaker: "マイク", text: "まず、前回の内容を振り返ります。" },
-      { speaker: "マイク", text: "この図を資料に残しておいてください。" },
-      { speaker: "マイク", text: "試験でも扱う予定です。" },
-      { speaker: "マイク", text: "次回までに資料を読んでおいてください。" },
-      { speaker: "マイク", text: "それでは、今日はここまでです。" },
-    ],
-  },
-];
+/*
+ * Giroku の紹介ページ。手本は Apple の製品ページ（短い見出し・本物の画面・余白）。
+ * 来た端末に合った入口を一番に出し、ページの下ではすべての端末を選べるようにする。
+ */
 
-// マスコット「ひそか」の胴体（LogoMarkと同じパス）。3つの理由アイコンでは
-// 目・小道具だけを変え、体形は常に同じにして「ひそか」だと一目でわかるようにする。
-const SPIRIT_BODY = "M12 3.5c4.7 0 7.5 3.3 7.5 8v6.3c0 .6-.7 1-1.2.6l-1.4-1.1-1.5 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.6 1.2c-.4.3-1 .3-1.3 0l-1.5-1.2-1.4 1.1c-.5.4-1.2 0-1.2-.6V11.5c0-4.7 2.8-8 7.4-8z";
+const APP_STORE_URL = "https://apps.apple.com/jp/app/giroku/id6826128219";
+const MS_STORE_ID = "9NC27ZW645KD";
+// PC 版 Pro の購入画面（Lemon Squeezy）。本番の商品ができたら差し替える（2026-11-08 時点は審査中）
+const PC_PRO_CHECKOUT_URL =
+  "https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747";
 
-function SpiritStealthIcon(): ReactElement {
+type Platform = "ios" | "mac" | "windows" | "other";
+
+/** 来た端末を見分ける。iPad は Mac と名乗るので、指で触れるかどうかで iPhone 側に寄せる。
+ *  サーバーで作る最初の HTML では分からないので "other"（全端末向けの入口）にしておく */
+function detectPlatform(): Platform {
+  const ua = navigator.userAgent;
+  const touch = navigator.maxTouchPoints > 1;
+  if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && touch)) return "ios";
+  if (/Macintosh|Mac OS X/.test(ua)) return "mac";
+  if (/Windows/.test(ua)) return "windows";
+  return "other";
+}
+const noSubscribe = () => () => {};
+function useVisitorPlatform(): Platform {
+  return useSyncExternalStore(noSubscribe, detectPlatform, () => "other");
+}
+
+function AppStoreBadge({ height = 44 }: { height?: number }): ReactElement {
   return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-stealth">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      {/* サングラス＝気づかれずこっそり見ている */}
-      <rect x="7.4" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <rect x="13" y="10.5" width="3.6" height="2.4" rx="1.2" fill="#1c1c1e" />
-      <path d="M11 11.4h2" stroke="#1c1c1e" strokeWidth="1" strokeLinecap="round" />
+    <a href={APP_STORE_URL} className="h-badge" aria-label="App Store からダウンロード">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/badges/app-store-ja-black.svg" alt="App Store からダウンロード" height={height} style={{ height }} />
+    </a>
+  );
+}
+
+/** Microsoft Store の公式バッジ（公式の部品を埋め込む。読み込めないときは文字のリンク） */
+function MicrosoftStoreBadge(): ReactElement {
+  return (
+    <span className="h-ms-badge">
+      <span
+        dangerouslySetInnerHTML={{
+          __html: `<ms-store-badge productid="${MS_STORE_ID}" productname="Giroku" window-mode="direct" theme="dark" language="ja" size="large" animation="off"></ms-store-badge>`,
+        }}
+      />
+      <noscript>
+        <a href={`https://apps.microsoft.com/detail/${MS_STORE_ID}`}>Microsoft Store で入手</a>
+      </noscript>
+    </span>
+  );
+}
+
+/** 端末に合わせた一番の入口 */
+function PrimaryAction({ platform, compact = false }: { platform: Platform; compact?: boolean }): ReactElement {
+  if (platform === "ios") return <AppStoreBadge height={compact ? 36 : 48} />;
+  const label =
+    platform === "mac" ? "Mac 版をダウンロード" : platform === "windows" ? "Windows 版を入手" : "無料でダウンロード";
+  const href = platform === "mac" ? "/download/mac" : platform === "windows" ? "/download/windows" : "#download";
+  return (
+    <a href={href} className={compact ? "h-button h-button-small" : "h-button"}>
+      {label}
+    </a>
+  );
+}
+
+function Check(): ReactElement {
+  return (
+    <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function SpiritMicIcon(): ReactElement {
+function Section({ id, tone = "white", children }: { id?: string; tone?: "white" | "gray"; children: ReactNode }): ReactElement {
   return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-mic">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* 小さなマイク（丸頭+スタンド）を持っている＝音を両方拾う。定番の
-          マイクのシルエットの方が小さいサイズでも一目でわかるため採用 */}
-      <g transform="translate(15,12.4)">
-        <circle cx="1.8" cy="1.8" r="2.9" fill="#1c1c1e" />
-        <path d="M1.8 4.8v3.2" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-        <path d="M-0.4 8h4.4" stroke="#1c1c1e" strokeWidth="1.3" strokeLinecap="round" />
-      </g>
-    </svg>
+    <section id={id} className={`h-section h-section-${tone}`}>
+      <div className="h-inner">{children}</div>
+    </section>
   );
 }
 
-function SpiritOfflineIcon(): ReactElement {
+/** Mac のウィンドウの枠（本物の画面写真を入れる） */
+function MacWindow({ src, alt }: { src: string; alt: string }): ReactElement {
   return (
-    <svg width="56" height="56" viewBox="0 0 24 24" aria-hidden="true" className="spirit-hook spirit-hook-offline">
-      <path d={SPIRIT_BODY} fill="#e8192c" />
-      <circle cx="9.3" cy="11.5" r="1" fill="#fff" />
-      <circle cx="14.7" cy="11.5" r="1" fill="#fff" />
-      {/* wifi-offバッジ＝ネットなしでも平気（ひそかは止まらず浮遊し続ける） */}
-      <g transform="translate(14.6,13.6)">
-        <path d="M0.4 3.1a5 5 0 0 1 5.6 0" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
-        <circle cx="3.2" cy="5.4" r="0.7" fill="#1c1c1e" />
-        <path d="M-0.6 0.4l7.6 5.8" stroke="#1c1c1e" strokeWidth="1.2" strokeLinecap="round" />
-      </g>
-    </svg>
+    <figure className="h-window">
+      <div className="h-window-bar" aria-hidden="true">
+        <i /><i /><i />
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} width={1600} height={1108} loading="lazy" />
+    </figure>
   );
 }
 
-// 性能。数字や仕組みで言えることだけを短く書く（誇張しない）。
-const specs = [
-  { title: "端末の中で文字起こし", desc: "音声は外に出ません。ネットがなくても動きます。" },
-  { title: "固有名詞に強い高精度モード", desc: "名前や数字も正確に。軽快モードなら約1.7倍速く。" },
-  { title: "話したそばから文字に", desc: "録音中も、その場で文字になります。" },
-  { title: "テーマごとの議事録", desc: "決まったこと・やることを、話題ごとに整理します。" },
+/** iPhone の画面写真（角を丸めて縁を付けるだけ。傾けたり影を足したりしない） */
+function PhoneShot({ src, alt, className = "" }: { src: string; alt: string; className?: string }): ReactElement {
+  return (
+    <figure className={`h-phone ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} width={640} height={1391} loading="lazy" />
+    </figure>
+  );
+}
+
+const faqs: { q: string; a: ReactNode }[] = [
+  {
+    q: "相手に知らせずに録音してもいいですか？",
+    a: "Giroku は会議に何も参加させないので、相手の画面には何も出ません。それでも、録音するときは相手にひとこと伝えるのがマナーです。大学の講義は、先生の決まりに従ってください。",
+  },
+  {
+    q: "音声はどこかに送られますか？",
+    a: "送られません。文字起こしは端末の中で行います。AI 議事録を作るときと、議事録に質問するときだけ、文字（音声ではありません）を Giroku のサーバーへ送り、AI（Google Gemini）で処理します。",
+  },
+  {
+    q: "ネットがない所でも使えますか？",
+    a: "録音と文字起こしは、ネットがなくても使えます。AI 議事録を作るときだけネットが必要です。",
+  },
+  {
+    q: "iPhone でもパソコンの音（相手の声）は録れますか？",
+    a: "iPhone はマイクの音を録ります。対面の会議や講義はそのまま録れます。オンライン会議の相手の声までしっかり残すなら、Mac 版・Windows 版をお使いください。マイクとパソコンの音の両方を録れます。",
+  },
+  {
+    q: "対応している端末は？",
+    a: "iPhone は iOS 16.4 以降、Mac は macOS 13 以降（Apple シリコン）、Windows は Windows 10・11（64ビット）です。iOS 26・macOS 26 以降では、Apple の音声認識で文字起こしします。Android 版はありません。",
+  },
+  {
+    q: "Pro の解約はどうすればいいですか？",
+    a: "iPhone で買った場合は、iPhone の［設定］→ 自分の名前 →［サブスクリプション］から解約できます。パソコン版をウェブで買った場合は、購入時のメールにある管理ページから解約できます。解約しても、期間の終わりまでは Pro のまま使えます。",
+  },
+  {
+    q: "アカウントの登録は必要ですか？",
+    a: "要りません。ダウンロードしてすぐに使えます。",
+  },
 ];
 
-const reasons = [
-  { title: "相手に、気づかれない。", desc: "通話に何も追加しません。相手の画面は、いつもと同じままです。", Icon: SpiritStealthIcon },
-  { title: "マイクも、スマホ・パソコンの音も。", desc: "オンライン会議も、対面も、講義も。全てきちんと録れます。", Icon: SpiritMicIcon },
-  { title: "ネットが、なくても。", desc: "機内でも、地下でも、電波の外でも。止まらず録れます。", Icon: SpiritOfflineIcon },
-];
-
-// 選択中の利用場面を、ヒーローのアプリモックと同じリズムで再生する。
-// 1人目を入力→短く間を置く→2人目を入力→会話全体を見せてから繰り返す。
-// 動きを減らすOS設定では、最初から全文を表示する。
-function LiveSceneTranscript({
-  lines,
-}: {
-  lines: { speaker: string; text: string }[];
-}): ReactElement {
-  const reducedMotion = usePrefersReducedMotion();
-  const [lineIndex, setLineIndex] = useState(0);
-  const [typed, setTyped] = useState(0);
-  const [cycle, setCycle] = useState(0);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const current = lines[lineIndex];
-    const timer =
-      typed < current.text.length
-        ? window.setTimeout(() => setTyped((value) => value + 1), 48)
-        : lineIndex < lines.length - 1
-          ? window.setTimeout(() => {
-              setLineIndex((value) => value + 1);
-              setTyped(0);
-            }, 760)
-          : window.setTimeout(() => {
-              setCycle((value) => value + 1);
-              setLineIndex(0);
-              setTyped(0);
-            }, 2400);
-
-    return () => window.clearTimeout(timer);
-  }, [lineIndex, lines, reducedMotion, typed]);
-
-  const fullTranscript = lines.map((line) => `${line.speaker}：${line.text}`).join(" ");
-  const displayedLines = reducedMotion ? lines.slice(0, 3) : lines;
-  const scrollOffset = reducedMotion ? 0 : Math.max(0, lineIndex - 2);
+export default function Home(): ReactElement {
+  const platform = useVisitorPlatform();
 
   return (
-    <div className="scene-transcript" aria-label={fullTranscript}>
-      <div key={cycle} className={`scene-transcript-track scene-offset-${scrollOffset}`}>
-        {displayedLines.map((line, index) => {
-          const visible = reducedMotion || index <= lineIndex;
-          const complete = reducedMotion || index < lineIndex || typed >= line.text.length;
-          const text = complete ? line.text : index === lineIndex ? line.text.slice(0, typed) : "";
+    <div className="h-page">
+      <Script src="https://get.microsoft.com/badge/ms-store-badge.bundled.js" type="module" strategy="lazyOnload" />
 
-          return (
-            <div
-              key={`${line.speaker}-${index}`}
-              className={`scene-transcript-line${visible ? " is-visible" : ""}`}
-              aria-hidden="true"
-            >
-              <span>{line.speaker}</span>
-              <p>
-                {text}
-                {visible && !complete && <i className="scene-cursor" />}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// 利用場面を1つずつ大きく見せる切り替え式パネル。写真だけに説明を任せず、
-// その場でGirokuが表示する文字起こしまで並べて、使い方を具体的に伝える。
-function SceneExperience(): ReactElement {
-  const [active, setActive] = useState(0);
-  const scene = scenes[active];
-  const ActiveIllustration = scene.Illust;
-
-  const moveTab = (index: number) => {
-    const next = (index + scenes.length) % scenes.length;
-    setActive(next);
-    document.getElementById(`scene-tab-${next}`)?.focus();
-  };
-
-  return (
-    <div className="scene-experience">
-      <div className="scene-tabs" role="tablist" aria-label="利用場面を選ぶ">
-        {scenes.map(({ tag }, index) => (
-          <button
-            id={`scene-tab-${index}`}
-            key={tag}
-            type="button"
-            role="tab"
-            aria-selected={active === index}
-            aria-controls="scene-panel"
-            tabIndex={active === index ? 0 : -1}
-            className={active === index ? "is-active" : ""}
-            onClick={() => setActive(index)}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowRight") { event.preventDefault(); moveTab(index + 1); }
-              if (event.key === "ArrowLeft") { event.preventDefault(); moveTab(index - 1); }
-              if (event.key === "Home") { event.preventDefault(); moveTab(0); }
-              if (event.key === "End") { event.preventDefault(); moveTab(scenes.length - 1); }
-            }}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
-
-      <div id="scene-panel" role="tabpanel" aria-labelledby={`scene-tab-${active}`} className="scene-experience-card" key={scene.tag}>
-        <div className="scene-experience-photo">
-          <SceneImage src={scene.photo} alt={`${scene.tag}でGirokuを使う様子`} fallback={<ActiveIllustration />} />
-          <span className="scene-recording"><i /> 録音中</span>
-        </div>
-        <div className="scene-experience-copy">
-          <p className="scene-tag">{scene.tag}</p>
-          <h3>{scene.title}</h3>
-          <p className="scene-description">{scene.desc}</p>
-          <LiveSceneTranscript key={scene.tag} lines={scene.lines} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <div className="site-shell">
-      {/* Nav */}
-      <header className="nav-sticky">
-        <div className="lp-inner nav-inner">
-          <span className="nav-brand">
+      <header className="h-nav">
+        <div className="h-nav-inner">
+          <a href="#top" className="h-brand">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/app-icon.png" alt="" width={26} height={26} />
+            <img src="/app-icon.png" alt="" width={24} height={24} />
             <span>Giroku</span>
-          </span>
-          <div className="nav-actions">
-            <a href="#pricing" className="nav-secondary-link">料金</a>
-            <Link href="/guide" className="nav-secondary-link">使い方ガイド</Link>
-            <a href="#download" className="nav-download">ダウンロード</a>
-          </div>
+          </a>
+          <nav className="h-nav-links" aria-label="ページ内">
+            <a href="#features">特長</a>
+            <a href="#pricing">料金</a>
+            <Link href="/guide">使い方</Link>
+          </nav>
+          <a href="#download" className="h-button h-button-small">ダウンロード</a>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="hero-section">
-        <div className="lp-inner hero-grid">
-          <div className="hero-copy">
-            <div className="hero-kicker">
-              <span className="hero-spirit">
-                <LogoMark size={34} />
-              </span>
-              <p>
-                録音 · 文字起こし · AI議事録
+      <main id="top">
+        {/* ひと目で分かる：何をするアプリか・一番の入口・本物の画面 */}
+        <section className="h-hero">
+          <div className="h-inner h-hero-copy">
+            <span className="h-hero-mark"><LogoMark size={44} /></span>
+            <h1>
+              相手に気づかれず、
+              <br />
+              会話をまるごと記録。
+            </h1>
+            <p className="h-lead">
+              録音すると、その場で文字に。AI が議事録にまとめます。
+              <br className="h-br-wide" />
+              会議に Bot は入れません。iPhone・Mac・Windows で。
+            </p>
+            <div className="h-hero-actions">
+              <PrimaryAction platform={platform} />
+              <a href="#download" className="h-link">ほかの端末 ›</a>
+            </div>
+            <p className="h-hero-note">全機能無料・登録不要</p>
+          </div>
+          <div className="h-hero-stage">
+            <MacWindow src="/shots/pc-03-live.webp" alt="Mac 版で録音中の画面。マイクの声とパソコンの音が、それぞれ文字になって並んでいる" />
+            <PhoneShot src="/shots/ios-02.webp" alt="iPhone 版で録音中の画面。話した言葉がその場で文字になっている" className="h-hero-phone" />
+          </div>
+        </section>
+
+        {/* 安心の帯 */}
+        <div className="h-facts" role="list">
+          {["会議に Bot を入れない", "音声は端末の外に出ない", "ネットなしで文字起こし", "登録不要・全機能無料"].map((fact) => (
+            <span key={fact} role="listitem"><Check />{fact}</span>
+          ))}
+        </div>
+
+        <div id="features" />
+
+        {/* 強み1：気づかれない */}
+        <Section tone="gray">
+          <Reveal>
+            <div className="h-split">
+              <div className="h-split-copy">
+                <h2>相手に、気づかれない。</h2>
+                <p>
+                  多くの議事録サービスは、録音用の参加者（Bot）を会議に入れます。Giroku は入れません。あなたの端末で録音するだけなので、相手の画面はいつもどおりです。
+                </p>
+                <p className="h-small">録音するときは、相手にひとこと伝えましょう。</p>
+              </div>
+              <div className="h-participants" aria-label="会議の参加者の表示の比較（イメージ）">
+                <div className="h-pcard">
+                  <p className="h-pcard-title">Bot を使う議事録サービス</p>
+                  <ul>
+                    <li><span className="h-avatar">山</span>山田</li>
+                    <li><span className="h-avatar">佐</span>佐藤</li>
+                    <li className="h-bot"><span className="h-avatar">AI</span>議事録 Bot が参加しました</li>
+                  </ul>
+                </div>
+                <div className="h-pcard h-pcard-giroku">
+                  <p className="h-pcard-title">Giroku</p>
+                  <ul>
+                    <li><span className="h-avatar">山</span>山田</li>
+                    <li><span className="h-avatar">佐</span>佐藤</li>
+                  </ul>
+                  <p className="h-pcard-note">参加者は増えません</p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* 強み2：両方の声 */}
+        <Section>
+          <Reveal>
+            <div className="h-center">
+              <h2>自分の声も、相手の声も。</h2>
+              <p className="h-sub">
+                パソコン版は、マイクとパソコンの音を同時に録ります。オンライン会議の相手の声も、こぼさず文字に。
               </p>
             </div>
-            <h1>
-              相手に気づかれず、会話をまるごと記録。
-            </h1>
-            <p className="hero-description">
-              マイクも、スマホ・パソコンの音も。ネットがなくても、あなたの端末だけで議事録に。
-            </p>
-            <div className="hero-actions">
-              <a href="#download" className="button button-dark">
-                無料でダウンロード
-              </a>
-              <a href="#scenes" className="text-link">使い方を見る →</a>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="h-wide-shot">
+              <MacWindow src="/shots/pc-03-live.webp" alt="「マイク」と「PC」の印つきで、自分と相手の発言が交互に並ぶ文字起こし" />
+              <div className="h-legend">
+                <span><b>マイク</b>あなたや、その場の声</span>
+                <span><b>PC</b>パソコンから流れる相手の声</span>
+              </div>
             </div>
-            <p className="hero-note">全機能無料 · 登録不要 · macOS/Windows対応</p>
-          </div>
+          </Reveal>
+        </Section>
+
+        {/* 強み3：端末の中で */}
+        <Section tone="gray">
+          <Reveal>
+            <div className="h-split h-split-reverse">
+              <div className="h-split-copy">
+                <h2>ネットがなくても、端末の中で文字に。</h2>
+                <p>
+                  文字起こしは、iPhone やパソコンの中で行います。音声は外に出ません。機内や地下でも止まりません。
+                </p>
+                <ul className="h-list">
+                  <li><Check />iPhone・Mac は、最新の OS なら Apple の音声認識</li>
+                  <li><Check />Windows は、日本語に強い Parakeet</li>
+                  <li><Check />話している途中は薄い文字で、確定すると濃く</li>
+                </ul>
+              </div>
+              <PhoneShot src="/shots/ios-02.webp" alt="iPhone で録音中。聞き取り中の言葉が薄い文字で出ている" className="h-phone-solo" />
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* 議事録 */}
+        <Section>
+          <Reveal>
+            <div className="h-center">
+              <h2>決まったこと、やること。<br />AI が話題ごとに。</h2>
+              <p className="h-sub">議事録には質問もできます。「いつまでに？」と聞けば、録音の中から答えます。</p>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="h-phones">
+              <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが見出しごとに並ぶ" />
+              <PhoneShot src="/shots/ios-05.webp" alt="議事録への質問。吹き出しで答えが返ってくる" />
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* 整理 */}
+        <Section tone="gray">
+          <Reveal>
+            <div className="h-center">
+              <h2>あとから、すぐ見つかる。</h2>
+              <p className="h-sub">
+                フォルダとお気に入りで整理。まとめて選んで移動・削除。消しても 7 日間は元に戻せます。
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="h-wide-shot">
+              <MacWindow src="/shots/pc-09-history.webp" alt="履歴の画面。左にすべての録音・お気に入り・フォルダ・最近削除した項目が並ぶ" />
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* 料金 */}
+        <Section id="pricing">
+          <Reveal>
+            <div className="h-center">
+              <h2>全機能、無料。</h2>
+              <p className="h-sub">録音・文字起こし・AI 議事録は、回数の制限なく使えます。もっと良くしたい人に、Pro。</p>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="h-plans">
+              <article className="h-plan">
+                <h3>無料</h3>
+                <p className="h-price"><strong>¥0</strong></p>
+                <ul className="h-list">
+                  <li><Check />録音・文字起こし・AI 議事録</li>
+                  <li><Check />議事録への質問・書き直し</li>
+                  <li><Check />フォルダ・お気に入り・検索</li>
+                  <li className="h-muted">iPhone 版は広告が出ます</li>
+                </ul>
+                <a href="#download" className="h-button h-button-gray">無料で始める</a>
+              </article>
+              <article className="h-plan h-plan-pro">
+                <h3>Pro</h3>
+                <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
+                <p className="h-price-note">月あたり約 82 円</p>
+                <ul className="h-list">
+                  <li><Check />広告なし</li>
+                  <li><Check />より高品質な AI で議事録</li>
+                  <li><Check />録音後に、誤字や句読点を自動で整える</li>
+                  <li><Check />iPhone で買えば、パソコンでも使える（2 台まで）</li>
+                </ul>
+                <div className="h-plan-actions">
+                  <div>
+                    <p className="h-plan-where">iPhone で買う</p>
+                    <p className="h-plan-how">iPhone とパソコンの両方で使えます。アプリの［設定］→［Pro にする］</p>
+                  </div>
+                  <div>
+                    <p className="h-plan-where">パソコンだけで使う</p>
+                    <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
+                    <p className="h-plan-how h-plan-sub">Mac・Windows で使えます</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </Reveal>
           <Reveal delay={120}>
-            <div className="hero-product">
-              <AppMock />
+            <div className="h-polish">
+              <p className="h-polish-title">Pro の「文章の仕上げ」の例</p>
+              <div className="h-polish-row">
+                <p><span className="h-tag">仕上げ前</span>ブランドの<mark className="h-before">常常的</mark>価値について話します。</p>
+                <p><span className="h-tag h-tag-pro">仕上げ後</span>ブランドの<mark className="h-after">情緒的</mark>価値について話します。</p>
+              </div>
+              <p className="h-small">聞き間違えた言葉を、前後の話から直します。Giroku の実際の録音で試した例です。</p>
             </div>
           </Reveal>
-        </div>
-      </section>
+          <p className="h-fineprint">
+            Pro は 1 年ごとの自動更新です。期間が終わる 24 時間前までに解約しない限り、同じ料金で更新されます。iPhone では［設定］→ 自分の名前 →［サブスクリプション］から、いつでも解約できます。解約しても、期間の終わりまでは Pro のまま使えます。
+          </p>
+        </Section>
 
-      {/* Girokuだけの3つ */}
-      <section className="section section-muted">
-        <div className="lp-inner section-inner">
-          <Reveal>
-            <div className="section-heading">
-              <p className="section-eyebrow">Girokuだけの3つ</p>
-              <h2 className="section-title">他にはない、3つの理由。</h2>
-            </div>
-          </Reveal>
-          <div className="reasons-list">
-            {reasons.map((r, i) => (
-              <Reveal key={r.title} delay={i * 80}>
-                <div className="reason-row">
-                  <div className="reason-icon">
-                    <r.Icon />
-                  </div>
-                  <div className="reason-copy">
-                    <h3>{r.title}</h3>
-                    <p>{r.desc}</p>
-                  </div>
-                </div>
-              </Reveal>
+        {/* よくある質問 */}
+        <Section tone="gray">
+          <h2 className="h-center-title">よくある質問</h2>
+          <div className="h-faq">
+            {faqs.map((item) => (
+              <details key={item.q}>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
             ))}
           </div>
-        </div>
-      </section>
+        </Section>
 
-      {/* 性能 */}
-      <section id="performance" className="section">
-        <div className="lp-inner section-inner">
-          <Reveal>
-            <div className="section-heading">
-              <p className="section-eyebrow">性能</p>
-              <h2 className="section-title">速く、正確に、手元で。</h2>
+        {/* ダウンロード：すべての端末を並べる */}
+        <section id="download" className="h-section h-download">
+          <div className="h-inner">
+            <span className="h-hero-mark"><LogoMark size={44} /></span>
+            <h2>今すぐ、無料で。</h2>
+            <p className="h-sub">登録せずに、すぐ使えます。</p>
+            <div className="h-stores">
+              <div className={`h-store${platform === "ios" ? " is-here" : ""}`}>
+                <h3>iPhone</h3>
+                <AppStoreBadge height={44} />
+                <p>iOS 16.4 以降</p>
+              </div>
+              <div className={`h-store${platform === "mac" ? " is-here" : ""}`}>
+                <h3>Mac</h3>
+                <a href="/download/mac" className="h-button">Mac 版をダウンロード</a>
+                <p>macOS 13 以降・Apple シリコン<br />Apple の公証済み・約 160MB</p>
+              </div>
+              <div className={`h-store${platform === "windows" ? " is-here" : ""}`}>
+                <h3>Windows</h3>
+                <MicrosoftStoreBadge />
+                <p>Windows 10・11（64ビット）</p>
+              </div>
             </div>
-          </Reveal>
-          <div className="spec-grid">
-            {specs.map((s, i) => (
-              <Reveal key={s.title} delay={i * 60}>
-                <div className="spec-card">
-                  <h3>{s.title}</h3>
-                  <p>{s.desc}</p>
-                </div>
-              </Reveal>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* Scenes */}
-      <section id="scenes" className="section scenes-section">
-        <div className="lp-inner section-inner">
-          <Reveal>
-            <div className="section-heading">
-              <p className="section-eyebrow">使える場面</p>
-              <h2 className="section-title">会議も、講義も。いつものまま記録。</h2>
-            </div>
-          </Reveal>
-          <Reveal>
-            <SceneExperience />
-          </Reveal>
-          <Reveal delay={80}>
-            <p className="scenes-guide-link">
-              <Link href="/guide" className="text-link">画面つきの使い方ガイドを見る →</Link>
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="section pricing-section">
-        <div className="lp-inner section-inner">
-          <Reveal>
-            <div className="section-heading">
-              <p className="section-eyebrow">料金</p>
-              <h2 className="section-title">全機能、無料。</h2>
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <div className="pricing-compare">
-              <div className="plan-head-row">
-                <div className="comparison-corner" aria-hidden="true" />
-                <article className="plan-head">
-                  <p className="plan-name">無料</p>
-                  <div className="plan-price"><strong>¥0</strong></div>
-                  <p className="plan-meta">登録不要</p>
-                  <a href="#download" className="plan-button plan-button-free">無料で始める</a>
-                </article>
-                <article className="plan-head plan-head-paid">
-                  <p className="plan-name">Pro</p>
-                  <div className="plan-price"><strong>¥980</strong><small>/ 年</small></div>
-                  <p className="plan-meta">月約82円 · 1年ごとに自動更新 · いつでも解約</p>
-                  <a
-                    href="https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747"
-                    className="plan-button plan-button-paid"
-                  >
-                    購入する
-                  </a>
-                </article>
-              </div>
-
-              <div className="comparison-body" role="table" aria-label="無料と Pro の比較">
-                <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">文字起こし</div>
-                  <div className="comparison-value" role="cell"><strong>制限なし</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
-                </div>
-                <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">AI議事録・質問</div>
-                  <div className="comparison-value" role="cell"><strong>制限なし</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>制限なし</strong></div>
-                </div>
-                <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">AIの品質</div>
-                  <div className="comparison-value" role="cell"><strong>標準</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>高品質・文章の仕上げつき</strong></div>
-                </div>
-                <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">スマホ版の広告</div>
-                  <div className="comparison-value" role="cell"><strong>あり</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>なし</strong></div>
-                </div>
-                <div className="comparison-row" role="row">
-                  <div className="comparison-label" role="rowheader">端末での利用</div>
-                  <div className="comparison-value" role="cell"><strong>登録不要</strong></div>
-                  <div className="comparison-value paid-value" role="cell"><strong>2台まで</strong></div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Download */}
-      <section id="download" className="section download-section">
-        <div className="lp-inner section-inner download-inner">
-          <Reveal>
-            <span className="hero-spirit download-spirit">
-              <LogoMark size={40} />
-            </span>
-            <h2 className="section-title">今すぐ始める。</h2>
-            <p className="download-description">登録せずに、すぐ使えます。</p>
-            <div className="download-grid">
-              <a href="/download/mac" className="download-option download-option-primary">
-                macOS版をダウンロード
-              </a>
-              <a href="/download/windows" className="download-option download-option-primary">
-                Windows版をダウンロード
-              </a>
-              <span className="download-option">
-                iPhone版 — 準備中
-              </span>
-              <span className="download-option">
-                Android版 — 準備中
-              </span>
-            </div>
-            <p className="download-note">全機能無料 · macOS（Apple Silicon）・Windows対応</p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="lp-inner footer-inner">
-          <span>© {new Date().getFullYear()} Naoya Tsuji</span>
-          <div className="footer-links">
-            <Link href="/guide">使い方ガイド</Link>
+      <footer className="h-footer">
+        <div className="h-inner h-footer-inner">
+          <div className="h-footer-links">
+            <Link href="/guide">使い方</Link>
             <Link href="/privacy">プライバシー</Link>
             <Link href="/terms">利用規約</Link>
-            <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">
-              お問い合わせ
-            </a>
+            <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">お問い合わせ</a>
           </div>
+          <p>© {new Date().getFullYear()} Naoya Tsuji</p>
+          <p className="h-legal">
+            iPhone、Mac、App Store は、米国およびその他の国で登録された Apple Inc. の商標です。Windows、Microsoft Store は Microsoft グループの商標です。
+          </p>
         </div>
       </footer>
     </div>
