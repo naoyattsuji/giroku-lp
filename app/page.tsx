@@ -71,8 +71,8 @@ function MacDownloadBadge({ height = 44 }: { height?: number }): ReactElement {
         <path d="M2.5 17.6h19l-1.1 1.4H3.6z" fill="currentColor" />
       </svg>
       <span>
-        Mac 版
-        <small>をダウンロード</small>
+        Mac
+        <small>直接ダウンロード</small>
       </span>
     </a>
   );
@@ -183,8 +183,8 @@ export default function Home(): ReactElement {
               <p>会議に録音用の参加者を入れません。相手の画面はいつもどおりです。</p>
             </div>
             <div>
-              <h3>自分の声も、相手の声も</h3>
-              <p>パソコン版は、オンライン会議の相手の声も文字にします。</p>
+              <h3>パソコンの音も録れる</h3>
+              <p>パソコン版は、オンライン会議の相手の声も一緒に文字にします。</p>
             </div>
             <div>
               <h3>ネットがなくても文字に</h3>
@@ -255,17 +255,17 @@ export default function Home(): ReactElement {
             <div className="h-stores">
               <div className="h-store">
                 <h3>iPhone</h3>
-                <AppStoreBadge height={44} />
+                <div className="h-store-badge"><AppStoreBadge height={44} /></div>
                 <p>iOS 16.4 以降</p>
               </div>
               <div className="h-store">
                 <h3>Mac</h3>
-                <MacDownloadBadge height={44} />
+                <div className="h-store-badge"><MacDownloadBadge height={44} /></div>
                 <p>macOS 13 以降・Apple シリコン</p>
               </div>
               <div className="h-store">
                 <h3>Windows</h3>
-                <MicrosoftStoreBadge />
+                <div className="h-store-badge"><MicrosoftStoreBadge /></div>
                 <p>Windows 10・11</p>
               </div>
             </div>

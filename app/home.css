@@ -259,6 +259,9 @@
 .h-stores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: clamp(40px, 6vw, 56px); }
 .h-store { background: var(--h-gray); border-radius: var(--h-radius); padding: 32px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .h-store p { color: var(--h-ink-3); font-size: 13px !important; line-height: 1.6; }
+/* バッジの置き場の高さを3つとも同じにして、下の字の行をそろえる */
+.h-store-badge { height: 52px; display: flex; align-items: center; justify-content: center; }
+.h-store-badge .h-ms-badge { min-height: 0; }
 
 
 /* ── フッター ── */
