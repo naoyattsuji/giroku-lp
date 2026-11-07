@@ -146,7 +146,7 @@ export default function Home(): ReactElement {
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
             </div>
-            <p className="h-hero-note"><strong>全機能無料</strong>・登録不要・iPhone／Mac／Windows</p>
+            <p className="h-hero-note">無料</p>
           </div>
           <div className="h-hero-stage">
             <MacLive />

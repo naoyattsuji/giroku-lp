@@ -84,12 +84,10 @@ function SpeakerIcon(): ReactElement {
   );
 }
 
+// 左の帯は大事な所だけ（2026-11-08 本人：細かい項目が並びすぎる）。実際のアプリにはフォルダ・設定なども並ぶ
 const SIDEBAR = [
   { label: "すべての録音", count: 7 },
   { label: "お気に入り", count: 1 },
-  { label: "ゼミ", count: 1, folder: true },
-  { label: "取引先", count: 1, folder: true },
-  { label: "採用", count: 2, folder: true },
 ];
 
 /** Mac 版の録音中の画面 */
@@ -110,21 +108,14 @@ export function MacLive(): ReactElement {
       <div className="lv-mac-body" aria-hidden="true">
         <aside className="lv-side">
           <p className="lv-side-rec"><span className="lv-dot" />録音</p>
-          <p className="lv-side-head">履歴</p>
           {SIDEBAR.map((item) => (
             <p key={item.label} className="lv-side-item">
-              <span className={item.folder ? "lv-ico lv-ico-folder" : "lv-ico"} />
+              <span className="lv-ico" />
               {item.label}
               <em>{item.count}</em>
             </p>
           ))}
-          <p className="lv-side-new">＋ 新規フォルダ</p>
           <p className="lv-side-item"><span className="lv-ico lv-ico-trash" />最近削除した項目</p>
-          <div className="lv-side-foot">
-            <p>設定</p>
-            <p>使い方</p>
-            <p className="lv-online"><span />オンライン</p>
-          </div>
         </aside>
         <main className="lv-main">
           <div className="lv-top">

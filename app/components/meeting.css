@@ -45,19 +45,19 @@
 .ms-lines .is-new { animation: ms-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes ms-in { from { opacity: 0; transform: translateY(1.5cqw); } to { opacity: 1; transform: none; } }
 
-/* ①②③の印：画面の中の場所を指す */
+/* ①②③の印：画面の中の場所を指す。押せないので赤にせず、黒（暗い表示では白）の丸。赤は押す所だけ */
 .ms-pin {
   position: absolute;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--h-red, #e8192c);
-  color: #fff;
+  background: var(--h-ink, #1d1d1f);
+  color: var(--h-bg, #fff);
   font-weight: 700;
   font-size: 15px;
   display: grid;
   place-items: center;
-  box-shadow: 0 0 0 4px var(--h-bg, #fff), 0 6px 14px -4px rgba(232, 25, 44, 0.5);
+  box-shadow: 0 0 0 4px var(--h-bg, #fff), 0 6px 14px -4px rgba(0, 0, 0, 0.35);
   font-variant-numeric: tabular-nums;
 }
 .ms-pin-1 { left: -14px; top: 34%; }
@@ -66,7 +66,7 @@
 
 .ms-points { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(22px, 3vw, 32px); }
 .ms-points li { display: grid; grid-template-columns: 34px 1fr; gap: 16px; align-items: start; }
-.ms-num { width: 34px; height: 34px; border-radius: 50%; background: var(--h-red, #e8192c); color: #fff; font-weight: 700; font-size: 15px; display: grid; place-items: center; }
+.ms-num { width: 34px; height: 34px; border-radius: 50%; background: var(--h-ink, #1d1d1f); color: var(--h-bg, #fff); font-weight: 700; font-size: 15px; display: grid; place-items: center; }
 .ms-points h3 { font-size: clamp(20px, 2vw, 24px); margin-top: 3px; }
 .ms-points p { margin-top: 6px; color: var(--h-ink-2, #6e6e73); }
 

@@ -1,7 +1,8 @@
 /*
  * 紹介ページ（app/page.tsx）だけの見た目。ほかのページ（使い方・規約）は globals.css のまま。
  * 手本は Apple の製品ページ：白と薄い灰色の帯を交互に、短く大きな見出し、本物の画面、広い余白。
- * 差し色は Giroku の赤だけ。ボタンと印にだけ使う。
+ * 差し色は Giroku の赤だけ。押す所（ボタン）にだけ使う。押せない所の印は黒（暗い表示では白）か灰色にする（2026-11-08 本人の決定）。
+ * ただし最初の画面や会議の画面の中の「アプリの再現」は、実際のアプリと同じく赤のまま。
  */
 .h-page {
   --h-ink: #1d1d1f;
@@ -102,8 +103,8 @@
 .h-hero-mark { display: inline-flex; margin-bottom: 20px; }
 .h-lead { margin: 22px auto 0; max-width: 40em; color: var(--h-ink-2); font-size: clamp(19px, 2vw, 24px) !important; line-height: 1.55; }
 .h-hero-actions { margin-top: 32px; display: flex; gap: 24px; justify-content: center; align-items: center; flex-wrap: wrap; }
-.h-hero-note { margin-top: 16px; color: var(--h-ink-2); font-size: 15px !important; }
-.h-hero-note strong { color: var(--h-ink); font-weight: 700; }
+/* ボタンのすぐ下に「無料」の1語だけ。控えめな灰色・普通の太さ */
+.h-hero-note { margin-top: 12px; color: var(--h-ink-3); font-size: 14px !important; }
 
 .h-hero-stage {
   position: relative;
@@ -165,7 +166,7 @@
   font-weight: 600;
 }
 .h-facts span { display: inline-flex; align-items: center; gap: 8px; }
-.h-check { width: 18px; height: 18px; color: var(--h-red); flex: none; }
+.h-check { width: 18px; height: 18px; color: var(--h-ink); flex: none; }
 
 /* ── 帯 ── */
 .h-section { padding: var(--h-space) 0; }
@@ -211,7 +212,7 @@
 .h-plan { background: var(--h-gray); border-radius: var(--h-radius); padding: 32px; display: flex; flex-direction: column; }
 .h-plan .h-list { flex: 1; align-content: start; margin-bottom: 22px; }
 .h-plan .h-button { align-self: flex-start; }
-.h-plan-pro { background: var(--h-bg, #fff); box-shadow: inset 0 0 0 2px var(--h-red); }
+.h-plan-pro { background: var(--h-bg, #fff); box-shadow: inset 0 0 0 2px var(--h-ink); }
 .h-price { margin-top: 10px; display: flex; align-items: baseline; gap: 4px; }
 .h-price strong { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .h-price span { color: var(--h-ink-2); font-size: 15px; }
@@ -405,16 +406,12 @@
 .lv-side { width: 18.8cqw; flex: none; background: #ebebef; border-right: 1px solid rgba(0, 0, 0, 0.06); padding: 5.4cqw 1cqw 1.6cqw; display: flex; flex-direction: column; font-size: 1.3cqw; }
 .lv-side-rec { display: flex; align-items: center; gap: 1.2cqw; padding: 0.9cqw 1.3cqw; border-radius: 0.7cqw; background: #dcdce1; font-weight: 600; }
 .lv-dot { width: 1cqw; height: 1cqw; border-radius: 50%; background: var(--h-red); }
-.lv-side-head { margin: 2.2cqw 1cqw 0.8cqw !important; font-size: 1cqw !important; font-weight: 700; color: #8e8e93; }
 .lv-side-item { display: flex; align-items: center; gap: 1.2cqw; padding: 0.95cqw 1.3cqw; color: #3a3a3c; }
+/* 左の帯は「録音」と履歴3つだけ。録音のすぐ下に少し間を空けて、まとまりを分ける */
+.lv-side-rec + .lv-side-item { margin-top: 2.2cqw; }
 .lv-side-item em { margin-left: auto; font-style: normal; color: #a1a1a6; font-size: 1.05cqw; }
 .lv-ico { width: 1.25cqw; height: 1.05cqw; border-radius: 0.2cqw; border: 0.16cqw solid var(--h-red); opacity: 0.85; }
-.lv-ico-folder { border-radius: 0.15cqw 0.35cqw 0.25cqw 0.25cqw; }
 .lv-ico-trash { width: 1.05cqw; height: 1.25cqw; border-top-width: 0.3cqw; }
-.lv-side-new { padding: 0.6cqw 1.3cqw; color: #a1a1a6; font-size: 1.15cqw !important; }
-.lv-side-foot { margin-top: auto; display: grid; gap: 1.6cqw; padding: 0 1.3cqw; color: #3a3a3c; }
-.lv-online { display: flex; align-items: center; gap: 0.8cqw; color: #8e8e93; font-size: 1.1cqw !important; }
-.lv-online span { width: 0.75cqw; height: 0.75cqw; border-radius: 50%; background: #1a9d4b; }
 
 .lv-main { flex: 1; min-width: 0; padding: 3.4cqw 3.6cqw 0 3.6cqw; }
 .lv-top { display: flex; align-items: center; gap: 1.6cqw; padding-bottom: 2.2cqw; border-bottom: 1px solid #dedee3; }
