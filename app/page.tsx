@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { ScrollFx } from "./components/ScrollFx";
+import { MacLive, PhoneLive } from "./components/HeroLive";
 import "./home.css";
 
 /*
@@ -95,19 +96,6 @@ function Section({ id, tone = "white", children }: { id?: string; tone?: "white"
   );
 }
 
-/** Mac のウィンドウの枠（本物の画面写真を入れる） */
-function MacWindow({ src, alt }: { src: string; alt: string }): ReactElement {
-  return (
-    <figure className="h-window">
-      <div className="h-window-bar" aria-hidden="true">
-        <i /><i /><i />
-      </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} width={1600} height={1108} loading="lazy" />
-    </figure>
-  );
-}
-
 /** iPhone の画面写真（角を丸めて縁を付けるだけ。傾けたり影を足したりしない） */
 function PhoneShot({ src, alt, className = "" }: { src: string; alt: string; className?: string }): ReactElement {
   return (
@@ -164,8 +152,8 @@ export default function Home(): ReactElement {
             <p className="h-hero-note">全機能無料・登録不要・iPhone／Mac／Windows</p>
           </div>
           <div className="h-hero-stage" data-scroll>
-            <MacWindow src="/shots/pc-03-live.webp" alt="Mac 版で録音中。マイクの声とパソコンの音が、それぞれ文字になって並ぶ" />
-            <PhoneShot src="/shots/ios-02.webp" alt="iPhone 版で録音中。話した言葉がその場で文字になる" className="h-hero-phone" />
+            <MacLive />
+            <div className="h-hero-phone"><PhoneLive /></div>
           </div>
         </section>
 

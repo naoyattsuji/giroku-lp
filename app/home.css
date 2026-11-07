@@ -41,7 +41,7 @@
 .h-page h1 { font-size: clamp(34px, 7vw, 80px); }
 .h-page h2 { font-size: clamp(30px, 4.6vw, 52px); }
 .h-page h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
-.h-page p { font-size: clamp(17px, 1.5vw, 19px); }
+.h-page :where(p) { font-size: clamp(17px, 1.5vw, 19px); }
 
 /* ── ナビ：細い帯。すりガラスは Apple のローカルナビと同じ役割（下の内容を透かして位置を伝える） ── */
 .h-nav {
@@ -86,8 +86,8 @@
 .h-button-small { min-height: 32px; padding: 0 16px; font-size: 14px; }
 .h-button-gray { background: #e8e8ed; color: var(--h-ink); }
 .h-button-gray:hover { background: #dcdce1; }
-.h-link { color: var(--h-red); font-size: 17px; font-weight: 500; }
-.h-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.h-link { color: var(--h-ink); font-size: 17px; font-weight: 500; }
+.h-link:hover { text-decoration: none; }
 .h-badge { display: inline-block; line-height: 0; }
 .h-badge img { width: auto; }
 .h-ms-badge { display: inline-flex; min-height: 44px; align-items: center; }
@@ -107,7 +107,7 @@
   margin: clamp(32px, 5vw, 56px) auto 0;
   padding: 0 var(--h-gutter);
 }
-.h-hero-stage .h-window { margin-right: clamp(40px, 12vw, 150px); }
+.h-hero-stage .h-window, .h-hero-stage .lv-mac { margin-right: clamp(40px, 12vw, 150px); }
 .h-hero-phone {
   position: absolute;
   right: var(--h-gutter);
@@ -277,7 +277,7 @@
   .h-nav-links { display: none; }
   .h-nav-inner > .h-button { margin-left: auto; }
   .h-br-wide { display: none; }
-  .h-hero-stage .h-window { margin-right: 0; }
+  .h-hero-stage .h-window, .h-hero-stage .lv-mac { margin-right: 0; }
   .h-hero-phone { right: calc(var(--h-gutter) - 6px); bottom: -32px; width: 34%; }
   .h-split { grid-template-columns: 1fr; }
   .h-split-reverse .h-phone-solo { order: 2; }
@@ -352,36 +352,38 @@
  * 基本は「最後の姿」。JavaScript が動いたとき（.fx-ready）だけ、最初の姿から動かす。
  * 動きを減らす設定の人には、何も動かさない。
  */
+/*
+ * 動きの決まり（1種類にそろえる）
+ * - 現れ方：少し下から、ふわっと浮き上がる（ぼかしは使わない）。速さ 0.9 秒・曲線 --h-ease
+ * - 順番：同じかたまりの中は 0.1 秒ずつずらす
+ * - スクロールで動くのは「最初の画面の奥行き」と「画面3枚が広がる」の2つだけ
+ */
+.h-page { --h-ease: cubic-bezier(0.16, 1, 0.3, 1); }
 @media (prefers-reduced-motion: no-preference) {
-  /* 最初の画面：見出し→説明→ボタン→画面の順に、ふわっと現れる */
-  .h-hero-copy > * { animation: h-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
-  .h-hero-copy > :nth-child(2) { animation-delay: 0.08s; }
-  .h-hero-copy > :nth-child(3) { animation-delay: 0.16s; }
-  .h-hero-copy > :nth-child(4) { animation-delay: 0.22s; }
-  .h-hero-stage .h-window { animation: h-lift 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
-  .h-hero-stage .h-hero-phone { animation: h-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both; }
+  .h-hero-copy > *,
+  .h-hero-stage .lv-mac,
+  .h-hero-stage .h-hero-phone > * { animation: h-rise 0.9s var(--h-ease) both; }
+  .h-hero-copy > :nth-child(2) { animation-delay: 0.1s; }
+  .h-hero-copy > :nth-child(3) { animation-delay: 0.2s; }
+  .h-hero-copy > :nth-child(4) { animation-delay: 0.3s; }
+  .h-hero-stage .lv-mac { animation-delay: 0.3s; }
+  .h-hero-stage .h-hero-phone > * { animation-delay: 0.4s; }
 
-  /* スクロールすると、iPhone が Mac より速く上へ（奥行き）。Mac はわずかに縮む */
-  .h-hero-stage .h-window { transform: scale(calc(1 - var(--exit, 0) * 0.05)); transform-origin: 50% 0; }
+  /* スクロール：iPhone が Mac より速く上へ（奥行き）。Mac はわずかに縮む */
+  .h-hero-stage .lv-mac { scale: calc(1 - var(--exit, 0) * 0.05); transform-origin: 50% 0; }
   .h-hero-stage .h-hero-phone { translate: 0 calc(var(--exit, 0) * -140px); }
 
-  /* 画面に入ったら、ぼかしから順番にくっきり */
+  /* 画面に入ったら、同じ浮き上がり方で順番に */
   .fx-ready [data-reveal] > *,
-  .fx-ready h2[data-reveal] {
-    transition:
-      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  .fx-ready h2[data-reveal] { transition: opacity 0.9s var(--h-ease), transform 0.9s var(--h-ease); }
   .fx-ready [data-reveal]:not(.is-in) > *,
-  .fx-ready h2[data-reveal]:not(.is-in) { opacity: 0; transform: translateY(28px); filter: blur(10px); }
+  .fx-ready h2[data-reveal]:not(.is-in) { opacity: 0; transform: translateY(24px); }
   .fx-ready [data-reveal] > :nth-child(2) { transition-delay: 0.1s; }
   .fx-ready [data-reveal] > :nth-child(3) { transition-delay: 0.2s; }
-  .fx-ready h2[data-reveal] { display: block; }
 
-  /* 画面3枚（パソコンの幅）：最初は真ん中に重なり、スクロールに合わせて左右へ広がる */
+  /* 画面3枚（パソコンの幅）：真ん中に重なった所から、スクロールに合わせて左右へ */
   @media (min-width: 761px) {
-    .h-trio figure { transition: none; will-change: transform; }
+    .h-trio figure { will-change: transform; }
     .h-trio figure:nth-child(1) { transform: translateX(calc((1 - var(--enter, 1)) * 104%)) scale(calc(0.9 + var(--enter, 1) * 0.1)); }
     .h-trio figure:nth-child(2) { position: relative; z-index: 2; transform: translateY(calc((1 - var(--enter, 1)) * -24px)); }
     .h-trio figure:nth-child(3) { transform: translateX(calc((1 - var(--enter, 1)) * -104%)) scale(calc(0.9 + var(--enter, 1) * 0.1)); }
@@ -389,13 +391,110 @@
     .h-trio figure:nth-child(3) figcaption { opacity: calc((var(--enter, 1) - 0.6) * 2.5); }
   }
 
-  /* 細かい動き：押すと少し沈む・指を乗せると少し浮く */
-  .h-button, .h-badge, .h-mac-badge { transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease; }
+  /* 細かい動き：同じ曲線で、押すと沈む・指を乗せると浮く */
+  .h-button, .h-badge, .h-mac-badge, .h-link { transition: transform 0.25s var(--h-ease), background-color 0.2s ease, opacity 0.2s ease; }
   .h-badge:hover, .h-mac-badge:hover { transform: translateY(-2px); }
+  .h-link:hover { opacity: 0.7; }
   .h-button:active, .h-badge:active, .h-mac-badge:active { transform: scale(0.97); }
-  .h-faq details[open] p { animation: h-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .h-faq details[open] p { animation: h-rise 0.6s var(--h-ease) both; }
 }
 
-@keyframes h-rise { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes h-lift { from { opacity: 0; translate: 0 48px; } to { opacity: 1; translate: 0 0; } }
-@keyframes h-slide { from { opacity: 0; transform: translate(60px, 24px); } to { opacity: 1; transform: none; } }
+@keyframes h-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+/* ───────── 最初の画面の「動く実機」（components/HeroLive.tsx） ─────────
+ * 寸法はアプリの画面写真から測った割合。cqw＝枠の幅の 1%。
+ */
+.lv-mac {
+  container-type: inline-size;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f2f2f7;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.22), 0 10px 24px -12px rgba(0, 0, 0, 0.12);
+  color: #1c1c1e;
+  text-align: left;
+  font-feature-settings: "palt";
+}
+.lv-mac-bar { height: 28px; display: flex; gap: 8px; align-items: center; padding: 0 12px; background: #e8e8ed; }
+.lv-mac-bar i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.lv-mac-bar i:nth-child(2) { background: #febc2e; }
+.lv-mac-bar i:nth-child(3) { background: #28c840; }
+.lv-mac-body { display: flex; aspect-ratio: 2080 / 1300; }
+.lv-mac :where(p), .lv-phone :where(p) { margin: 0; font-size: inherit; }
+
+.lv-side { width: 18.8cqw; flex: none; background: #ebebef; border-right: 1px solid rgba(0, 0, 0, 0.06); padding: 5.4cqw 1cqw 1.6cqw; display: flex; flex-direction: column; font-size: 1.3cqw; }
+.lv-side-rec { display: flex; align-items: center; gap: 1.2cqw; padding: 0.9cqw 1.3cqw; border-radius: 0.7cqw; background: #dcdce1; font-weight: 600; }
+.lv-dot { width: 1cqw; height: 1cqw; border-radius: 50%; background: var(--h-red); }
+.lv-side-head { margin: 2.2cqw 1cqw 0.8cqw !important; font-size: 1cqw !important; font-weight: 700; color: #8e8e93; }
+.lv-side-item { display: flex; align-items: center; gap: 1.2cqw; padding: 0.95cqw 1.3cqw; color: #3a3a3c; }
+.lv-side-item em { margin-left: auto; font-style: normal; color: #a1a1a6; font-size: 1.05cqw; }
+.lv-ico { width: 1.25cqw; height: 1.05cqw; border-radius: 0.2cqw; border: 0.16cqw solid var(--h-red); opacity: 0.85; }
+.lv-ico-folder { border-radius: 0.15cqw 0.35cqw 0.25cqw 0.25cqw; }
+.lv-ico-trash { width: 1.05cqw; height: 1.25cqw; border-top-width: 0.3cqw; }
+.lv-side-new { padding: 0.6cqw 1.3cqw; color: #a1a1a6; font-size: 1.15cqw !important; }
+.lv-side-foot { margin-top: auto; display: grid; gap: 1.6cqw; padding: 0 1.3cqw; color: #3a3a3c; }
+.lv-online { display: flex; align-items: center; gap: 0.8cqw; color: #8e8e93; font-size: 1.1cqw !important; }
+.lv-online span { width: 0.75cqw; height: 0.75cqw; border-radius: 50%; background: #1a9d4b; }
+
+.lv-main { flex: 1; min-width: 0; padding: 3.4cqw 3.6cqw 0 3.6cqw; }
+.lv-top { display: flex; align-items: center; gap: 1.6cqw; padding-bottom: 2.2cqw; border-bottom: 1px solid #dedee3; }
+.lv-timer { font-size: 2.35cqw; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; margin-right: 0.4cqw; }
+.lv-src { display: flex; align-items: center; gap: 1cqw; }
+.lv-round { width: 3.1cqw; height: 3.1cqw; border-radius: 50%; background: #fff; border: 1px solid #e3e3e8; display: grid; place-items: center; color: #1c1c1e; }
+.lv-round svg { width: 1.5cqw; height: 1.5cqw; }
+.lv-src-copy { display: grid; gap: 0.6cqw; }
+.lv-src-copy b { font-size: 1.2cqw; }
+.lv-meter { width: 9cqw; height: 0.65cqw; border-radius: 1cqw; background: #e3e3e8; overflow: hidden; }
+.lv-meter i { display: block; height: 100%; background: var(--h-red); border-radius: inherit; transform-origin: 0 50%; transition: transform 0.14s linear; }
+.lv-top-actions { margin-left: auto; display: flex; gap: 3.4cqw; font-size: 1.2cqw; color: #8e8e93; }
+.lv-stop { display: inline-flex; align-items: center; gap: 0.5cqw; color: var(--h-red); font-weight: 700; }
+.lv-stop i { width: 0.95cqw; height: 0.95cqw; border-radius: 0.2cqw; background: var(--h-red); }
+.lv-lines { padding-top: 2.4cqw; display: grid; gap: 2.4cqw; }
+.lv-line { display: grid; grid-template-columns: 4.6cqw 1fr; gap: 1.1cqw; align-items: baseline; font-size: 1.35cqw; line-height: 1.5; }
+.lv-line b { text-align: right; color: var(--h-red); font-size: 1.1cqw; }
+.lv-wait { display: inline-flex; align-items: center; gap: 0.8cqw; color: #8e8e93; }
+.lv-wait i { width: 1.1cqw; height: 1.1cqw; border-radius: 50%; border: 0.18cqw solid #e3e3e8; border-top-color: var(--h-red); animation: lv-spin 0.8s linear infinite; }
+@keyframes lv-spin { to { transform: rotate(360deg); } }
+
+/* iPhone */
+.lv-phone { container-type: inline-size; }
+.lv-screen {
+  position: relative;
+  aspect-ratio: 1206 / 2622;
+  background: #f2f2f7;
+  border: 2.6cqw solid #0b0b0c;
+  border-radius: 15.6% / 7.2%;
+  box-shadow: 0 0 0 1px #9a9aa0, 0 0 0 2px #dcdce0, 0 28px 48px -22px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  color: #1c1c1e;
+  text-align: center;
+  font-feature-settings: "palt";
+}
+.lv-status { position: absolute; inset: 3.2cqw 7cqw auto; display: flex; justify-content: space-between; align-items: center; font-size: 3.8cqw; font-weight: 600; }
+.lv-island { position: absolute; left: 50%; top: -0.6cqw; width: 28cqw; height: 8cqw; margin-left: -14cqw; border-radius: 5cqw; background: #000; }
+.lv-status-r { display: inline-flex; align-items: center; gap: 1.6cqw; }
+.lv-status-r svg { width: 4.6cqw; height: 3cqw; fill: currentColor; }
+.lv-batt { width: 6.6cqw; height: 3.1cqw; border-radius: 1cqw; border: 0.35cqw solid rgba(0, 0, 0, 0.35); padding: 0.35cqw; }
+.lv-batt i { display: block; height: 100%; width: 85%; border-radius: 0.5cqw; background: #1c1c1e; }
+.lv-pill { display: inline-flex; align-items: center; gap: 1cqw; margin-top: 19cqw !important; padding: 0.8cqw 2.6cqw; border-radius: 4cqw; background: #fff0f1; color: var(--h-red); font-weight: 700; font-size: 2.9cqw !important; }
+.lv-pill span { width: 1.6cqw; height: 1.6cqw; border-radius: 50%; background: var(--h-red); animation: lv-blink 1.4s ease-in-out infinite; }
+@keyframes lv-blink { 50% { opacity: 0.3; } }
+.lv-big { font-size: 12.6cqw !important; font-weight: 300; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 1.4cqw !important; }
+.lv-micname { margin-top: 1.6cqw !important; font-size: 2.7cqw !important; color: #8e8e93; }
+.lv-micname b { color: #1c1c1e; }
+.lv-pmeter { display: block; width: 25cqw; height: 0.9cqw; margin: 1.6cqw auto 0; border-radius: 1cqw; background: #e3e3e8; overflow: hidden; }
+.lv-pmeter i { display: block; height: 100%; background: var(--h-red); transform-origin: 0 50%; transition: transform 0.14s linear; }
+.lv-pbtns { display: flex; justify-content: center; gap: 2.6cqw; margin-top: 4cqw; font-size: 3.3cqw; font-weight: 700; }
+.lv-pbtns > span { padding: 2.2cqw 4.6cqw; border-radius: 6cqw; background: #fff; }
+.lv-pstop { display: inline-flex; align-items: center; gap: 1.2cqw; color: var(--h-red); }
+.lv-pstop i { width: 2.4cqw; height: 2.4cqw; border-radius: 0.5cqw; background: var(--h-red); }
+.lv-card { margin: 4.6cqw 4cqw 0; padding: 4.2cqw 4.4cqw; height: 56cqw; border-radius: 5cqw; background: #fff; text-align: left; overflow: hidden; }
+.lv-card-head { display: flex; justify-content: space-between; align-items: center; font-size: 3.3cqw !important; }
+.lv-card-head span { display: inline-flex; align-items: center; gap: 1cqw; font-size: 2.5cqw; color: #8e8e93; }
+.lv-card-head span i { width: 1.6cqw; height: 1.6cqw; border-radius: 50%; background: var(--h-red); opacity: 0.7; }
+.lv-card-text { margin-top: 3cqw !important; font-size: 3.3cqw !important; line-height: 1.85; color: #1c1c1e; }
+.lv-draft { color: #a1a1a6; }
+.lv-tabs { position: absolute; left: 4cqw; right: 4cqw; bottom: 3.6cqw; height: 13cqw; border-radius: 7cqw; background: rgba(255, 255, 255, 0.92); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; padding: 0 1.4cqw; }
+.lv-tabs span { display: grid; justify-items: center; gap: 0.8cqw; font-size: 2.2cqw; font-weight: 600; padding: 1.4cqw 0; border-radius: 6cqw; }
+.lv-tabs span svg { width: 5.2cqw; height: 5.2cqw; }
+.lv-tabs span.is-on { background: #e8e8ed; color: var(--h-red); }
