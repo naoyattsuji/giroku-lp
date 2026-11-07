@@ -19,7 +19,7 @@ export default function TermsPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
         <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>TERMS OF SERVICE</p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>利用規約</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年7月18日</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年11月8日</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
@@ -112,9 +112,8 @@ export default function TermsPage() {
                 "有料の Pro は1年ごとの自動更新で、高品質なAIと文章の仕上げを利用でき、スマートフォン版の広告が表示されなくなります。デスクトップ版のサイトで購入した Pro は、更新日までに解約しない限り同じ料金で自動更新され、解約は購入時のメールにある管理画面からいつでも行えます。解約後も期間の終わりまでは利用できます。なお、2026年11月より前に購入された1年間の Pro は、購入日から1年間有効で自動更新されません。",
                 "変更後に購入されたライセンスは、1人のユーザーが所有する最大2台のデバイスで使用できます。変更前に3台の条件で購入された有効なライセンスには、購入時の条件を適用します。",
                 "無料版は登録不要です。AI機能の濫用を防ぐため、短時間に大量の依頼があった場合は一時的に利用を制限することがあります。",
-                "デスクトップ版で購入した有効な購入キーは、iPhone・Android版にも入力できます。この場合、Mac・Windows・iPhone・Androidを合わせて最大2台まで利用できます。",
                                 "ライセンスキーの他者への譲渡・共有は禁止します。",
-                "iPhone版では、Pro を App Store のアプリ内課金（1年ごとの自動更新サブスクリプション）でも購入できます。料金は購入時に表示される金額で、Apple ID に請求されます。更新日の24時間前までに解約しない限り自動で更新され、解約は iPhone の設定の「サブスクリプション」からいつでも行えます。App Store で購入した Pro はその Apple ID の iPhone で利用できます。iPhone版の設定の「PC版で使うキー」を入力すると、デスクトップ版でも利用できます（iPhone を含めて最大2台）。",
+                "iPhone版では、Pro を App Store のアプリ内課金（1年ごとの自動更新サブスクリプション）でも購入できます。料金は購入時に表示される金額で、Apple ID に請求されます。更新日の24時間前までに解約しない限り自動で更新され、解約は iPhone の設定の「サブスクリプション」からいつでも行えます。App Store で購入した Pro はその Apple ID の iPhone で利用できます。iPhone版とデスクトップ版（Mac・Windows）の Pro は別々の購入で、一方で購入した Pro をもう一方で使うことはできません。",
                 "デスクトップ版の購入後のキャンセル・返金は、購入元であるLemonSqueezyのポリシーに従います。App Store で購入した Pro の返金は Apple の規定に従います。技術的な問題により本アプリが正常に動作しない場合は、サポートへお問い合わせください。",
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>

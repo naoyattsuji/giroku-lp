@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
         <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>PRIVACY POLICY</p>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>プライバシーポリシー</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年10月28日</p>
+        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年11月8日</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           <section>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
             <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>外部に送信される情報</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-              {["購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windows・iPhone・Androidを合わせた最大2台の管理に使用します", "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）", "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）"].map((item) => (
+              {["購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windowsを合わせた最大2台の管理に使用します", "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）", "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）"].map((item) => (
                 <div key={item} style={{ display: "flex", gap: 12 }}>
                   <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
                   <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>LemonSqueezy</strong>：購入キーの購入・認証・Mac／Windows／iPhone／Androidを合わせた最大2台の管理</span>
+                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>LemonSqueezy</strong>：購入キーの購入・認証・Mac／Windowsを合わせた最大2台の管理</span>
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>

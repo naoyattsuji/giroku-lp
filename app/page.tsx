@@ -339,17 +339,16 @@ export default function Home(): ReactElement {
                   <li><Check />広告なし</li>
                   <li><Check />より高品質な AI で議事録</li>
                   <li><Check />録音後に、誤字や句読点を自動で整える</li>
-                  <li><Check />iPhone で買えば、パソコンでも使える（2 台まで）</li>
-                </ul>
+                                  </ul>
                 <div className="h-plan-actions">
                   <div>
-                    <p className="h-plan-where">iPhone で買う</p>
-                    <p className="h-plan-how">iPhone とパソコンの両方で使えます。アプリの［設定］→［Pro にする］</p>
+                    <p className="h-plan-where">iPhone</p>
+                    <p className="h-plan-how">アプリの［設定］→［Pro にする］</p>
                   </div>
                   <div>
-                    <p className="h-plan-where">パソコンだけで使う</p>
+                    <p className="h-plan-where">Mac・Windows</p>
                     <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
-                    <p className="h-plan-how h-plan-sub">Mac・Windows で使えます</p>
+                    <p className="h-plan-how h-plan-sub">パソコン 2 台まで</p>
                   </div>
                 </div>
               </article>
@@ -366,7 +365,7 @@ export default function Home(): ReactElement {
             </div>
           </Reveal>
           <p className="h-fineprint">
-            Pro は 1 年ごとの自動更新です。期間が終わる 24 時間前までに解約しない限り、同じ料金で更新されます。iPhone では［設定］→ 自分の名前 →［サブスクリプション］から、いつでも解約できます。解約しても、期間の終わりまでは Pro のまま使えます。
+            Pro は、iPhone とパソコンで別々に購入します（iPhone の Pro は iPhone で、パソコンの Pro は Mac・Windows で使えます）。Pro は 1 年ごとの自動更新です。期間が終わる 24 時間前までに解約しない限り、同じ料金で更新されます。iPhone では［設定］→ 自分の名前 →［サブスクリプション］から、いつでも解約できます。解約しても、期間の終わりまでは Pro のまま使えます。
           </p>
         </Section>
 
