@@ -295,8 +295,7 @@
 
 /* ── 3つの特長（1行に並べる） ── */
 .h-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 4vw, 48px); }
-.h-points h3 { font-size: clamp(22px, 2.4vw, 28px); }
-.h-points h3::before { content: ""; display: block; width: 28px; height: 3px; border-radius: 2px; background: var(--h-red); margin-bottom: 14px; }
+.h-points h3 { font-size: clamp(20px, 1.9vw, 24px); white-space: nowrap; }
 .h-points p { margin-top: 8px; color: var(--h-ink-2); }
 
 /* ── 画面3枚を横に ── */
@@ -348,3 +347,55 @@
   .h-trio figure { flex: 0 0 62%; scroll-snap-align: center; }
   .h-trio figcaption { font-size: 13px !important; margin-top: 12px; }
 }
+
+/* ───────── 動き ─────────
+ * 基本は「最後の姿」。JavaScript が動いたとき（.fx-ready）だけ、最初の姿から動かす。
+ * 動きを減らす設定の人には、何も動かさない。
+ */
+@media (prefers-reduced-motion: no-preference) {
+  /* 最初の画面：見出し→説明→ボタン→画面の順に、ふわっと現れる */
+  .h-hero-copy > * { animation: h-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .h-hero-copy > :nth-child(2) { animation-delay: 0.08s; }
+  .h-hero-copy > :nth-child(3) { animation-delay: 0.16s; }
+  .h-hero-copy > :nth-child(4) { animation-delay: 0.22s; }
+  .h-hero-stage .h-window { animation: h-lift 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+  .h-hero-stage .h-hero-phone { animation: h-slide 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both; }
+
+  /* スクロールすると、iPhone が Mac より速く上へ（奥行き）。Mac はわずかに縮む */
+  .h-hero-stage .h-window { transform: scale(calc(1 - var(--exit, 0) * 0.05)); transform-origin: 50% 0; }
+  .h-hero-stage .h-hero-phone { translate: 0 calc(var(--exit, 0) * -140px); }
+
+  /* 画面に入ったら、ぼかしから順番にくっきり */
+  .fx-ready [data-reveal] > *,
+  .fx-ready h2[data-reveal] {
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fx-ready [data-reveal]:not(.is-in) > *,
+  .fx-ready h2[data-reveal]:not(.is-in) { opacity: 0; transform: translateY(28px); filter: blur(10px); }
+  .fx-ready [data-reveal] > :nth-child(2) { transition-delay: 0.1s; }
+  .fx-ready [data-reveal] > :nth-child(3) { transition-delay: 0.2s; }
+  .fx-ready h2[data-reveal] { display: block; }
+
+  /* 画面3枚（パソコンの幅）：最初は真ん中に重なり、スクロールに合わせて左右へ広がる */
+  @media (min-width: 761px) {
+    .h-trio figure { transition: none; will-change: transform; }
+    .h-trio figure:nth-child(1) { transform: translateX(calc((1 - var(--enter, 1)) * 104%)) scale(calc(0.9 + var(--enter, 1) * 0.1)); }
+    .h-trio figure:nth-child(2) { position: relative; z-index: 2; transform: translateY(calc((1 - var(--enter, 1)) * -24px)); }
+    .h-trio figure:nth-child(3) { transform: translateX(calc((1 - var(--enter, 1)) * -104%)) scale(calc(0.9 + var(--enter, 1) * 0.1)); }
+    .h-trio figure:nth-child(1) figcaption,
+    .h-trio figure:nth-child(3) figcaption { opacity: calc((var(--enter, 1) - 0.6) * 2.5); }
+  }
+
+  /* 細かい動き：押すと少し沈む・指を乗せると少し浮く */
+  .h-button, .h-badge, .h-mac-badge { transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease; }
+  .h-badge:hover, .h-mac-badge:hover { transform: translateY(-2px); }
+  .h-button:active, .h-badge:active, .h-mac-badge:active { transform: scale(0.97); }
+  .h-faq details[open] p { animation: h-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
+@keyframes h-rise { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes h-lift { from { opacity: 0; translate: 0 48px; } to { opacity: 1; translate: 0 0; } }
+@keyframes h-slide { from { opacity: 0; transform: translate(60px, 24px); } to { opacity: 1; transform: none; } }

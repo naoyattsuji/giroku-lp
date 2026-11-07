@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
-import Script from "next/script";
+import { ScrollFx } from "./components/ScrollFx";
 import "./home.css";
 
 /*
@@ -12,7 +12,6 @@ import "./home.css";
  */
 
 const APP_STORE_URL = "https://apps.apple.com/jp/app/giroku/id6826128219";
-const MS_STORE_ID = "9NC27ZW645KD";
 // PC 版 Pro の購入画面（Lemon Squeezy）。本番の商品ができたら差し替える（2026-11-08 時点は審査中）
 const PC_PRO_CHECKOUT_URL =
   "https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747";
@@ -43,19 +42,13 @@ function AppStoreBadge({ height = 44 }: { height?: number }): ReactElement {
   );
 }
 
-/** Microsoft Store の公式バッジ（公式の部品を埋め込む。読み込めないときは文字のリンク） */
+/** Microsoft Store の公式バッジ画像（Microsoft が配るもの。高さ 44px で、ほかの2つとそろう） */
 function MicrosoftStoreBadge(): ReactElement {
   return (
-    <span className="h-ms-badge">
-      <span
-        dangerouslySetInnerHTML={{
-          __html: `<ms-store-badge productid="${MS_STORE_ID}" productname="Giroku" window-mode="direct" theme="dark" language="ja" size="large" animation="off"></ms-store-badge>`,
-        }}
-      />
-      <noscript>
-        <a href={`https://apps.microsoft.com/detail/${MS_STORE_ID}`}>Microsoft Store で入手</a>
-      </noscript>
-    </span>
+    <a href="/download/windows" className="h-badge" aria-label="Microsoft Store からダウンロード">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="https://get.microsoft.com/images/ja%20dark.svg" alt="Microsoft Store からダウンロード" width={161} height={44} style={{ height: 44 }} />
+    </a>
   );
 }
 
@@ -137,7 +130,7 @@ export default function Home(): ReactElement {
 
   return (
     <div className="h-page">
-      <Script src="https://get.microsoft.com/badge/ms-store-badge.bundled.js" type="module" strategy="lazyOnload" />
+      <ScrollFx />
 
       <header className="h-nav">
         <div className="h-nav-inner">
@@ -163,46 +156,46 @@ export default function Home(): ReactElement {
               <br />
               会話をまるごと記録。
             </h1>
-            <p className="h-lead">録音すると、その場で文字に。AI が議事録にまとめます。</p>
+            <p className="h-lead">録音して、そのまま文字に。AIが議事録にまとめます。</p>
             <div className="h-hero-actions">
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
             </div>
             <p className="h-hero-note">全機能無料・登録不要・iPhone／Mac／Windows</p>
           </div>
-          <div className="h-hero-stage">
+          <div className="h-hero-stage" data-scroll>
             <MacWindow src="/shots/pc-03-live.webp" alt="Mac 版で録音中。マイクの声とパソコンの音が、それぞれ文字になって並ぶ" />
             <PhoneShot src="/shots/ios-02.webp" alt="iPhone 版で録音中。話した言葉がその場で文字になる" className="h-hero-phone" />
           </div>
         </section>
 
         <Section id="features">
-          <div className="h-points">
+          <div className="h-points" data-reveal>
             <div>
               <h3>相手に気づかれない</h3>
-              <p>会議に録音用の参加者を入れません。相手の画面はいつもどおりです。</p>
+              <p>会議に録音用の参加者が入らないので、相手には分かりません。</p>
             </div>
             <div>
-              <h3>パソコンの音も録れる</h3>
-              <p>パソコン版は、オンライン会議の相手の声も一緒に文字にします。</p>
+              <h3>自分の声も、パソコンの音も</h3>
+              <p>パソコン版は、マイクとパソコンの音を同時に録音します。</p>
             </div>
             <div>
               <h3>ネットがなくても文字に</h3>
-              <p>文字起こしは端末の中で行うので、音声は外に送られません。</p>
+              <p>文字起こしは端末の中だけ。音声は外に送られません。</p>
             </div>
           </div>
         </Section>
 
         <Section tone="gray">
-          <h2 className="h-center-title">録音から議事録まで、これひとつで。</h2>
-          <div className="h-trio">
+          <h2 className="h-center-title" data-reveal>録音から議事録まで、これひとつで。</h2>
+          <div className="h-trio" data-scroll>
             <figure>
               <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
-              <figcaption><b>AI が議事録をつくる</b>「決まったこと」「やること」を話題ごとにまとめます</figcaption>
+              <figcaption><b>AI が議事録をつくる</b>話のトピックごとに見出しを立てて、要点をまとめます</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-05.webp" alt="議事録への質問に、吹き出しで答えが返る" />
-              <figcaption><b>議事録に質問できる</b>「締め切りはいつ？」と聞くと、録音の内容から答えます</figcaption>
+              <figcaption><b>AI と録音の内容について話せる</b>気になることを聞いたり、書き直しを頼んだりできます</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-06.webp" alt="履歴。すべての録音・お気に入り・フォルダ・最近削除した項目" />
@@ -212,8 +205,8 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          <h2 className="h-center-title">全機能、無料。</h2>
-          <div className="h-plans">
+          <h2 className="h-center-title" data-reveal>全機能、無料。</h2>
+          <div className="h-plans" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
@@ -251,8 +244,8 @@ export default function Home(): ReactElement {
 
         <section id="download" className="h-section h-section-gray h-download">
           <div className="h-inner">
-            <h2>今すぐ、無料で。</h2>
-            <div className="h-stores">
+            <h2 data-reveal>今すぐ、無料で。</h2>
+            <div className="h-stores" data-reveal>
               <div className="h-store">
                 <h3>iPhone</h3>
                 <div className="h-store-badge"><AppStoreBadge height={44} /></div>
