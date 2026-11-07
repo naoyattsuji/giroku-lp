@@ -71,8 +71,8 @@ function MacDownloadBadge({ height = 44 }: { height?: number }): ReactElement {
         <path d="M2.5 17.6h19l-1.1 1.4H3.6z" fill="currentColor" />
       </svg>
       <span>
-        <small>Mac 版を</small>
-        ダウンロード
+        Mac 版
+        <small>をダウンロード</small>
       </span>
     </a>
   );
@@ -163,7 +163,7 @@ export default function Home(): ReactElement {
               <br />
               会話をまるごと記録。
             </h1>
-            <p className="h-lead">録音するだけで、話した内容がその場で文字になり、AI が議事録にまとめます。</p>
+            <p className="h-lead">録音すると、その場で文字に。AI が議事録にまとめます。</p>
             <div className="h-hero-actions">
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
@@ -180,15 +180,15 @@ export default function Home(): ReactElement {
           <div className="h-points">
             <div>
               <h3>相手に気づかれない</h3>
-              <p>会議に録音用の参加者（Bot）を入れないので、相手の画面には何も表示されません。</p>
+              <p>会議に録音用の参加者を入れません。相手の画面はいつもどおりです。</p>
             </div>
             <div>
               <h3>自分の声も、相手の声も</h3>
-              <p>Mac・Windows 版は、マイクの声と、パソコンから流れる相手の声を両方とも文字にします。</p>
+              <p>パソコン版は、オンライン会議の相手の声も文字にします。</p>
             </div>
             <div>
               <h3>ネットがなくても文字に</h3>
-              <p>文字起こしは iPhone やパソコンの中で行います。音声がどこかへ送られることはありません。</p>
+              <p>文字起こしは端末の中で行うので、音声は外に送られません。</p>
             </div>
           </div>
         </Section>
@@ -198,15 +198,15 @@ export default function Home(): ReactElement {
           <div className="h-trio">
             <figure>
               <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
-              <figcaption><b>AI が議事録に</b>決まったこと・やることを話題ごとに整理</figcaption>
+              <figcaption><b>AI が議事録をつくる</b>「決まったこと」「やること」を話題ごとにまとめます</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-05.webp" alt="議事録への質問に、吹き出しで答えが返る" />
-              <figcaption><b>議事録に質問できる</b>「いつまでに？」と聞けば、録音の中から答えます</figcaption>
+              <figcaption><b>議事録に質問できる</b>「締め切りはいつ？」と聞くと、録音の内容から答えます</figcaption>
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-06.webp" alt="履歴。すべての録音・お気に入り・フォルダ・最近削除した項目" />
-              <figcaption><b>フォルダで整理</b>お気に入り・検索・消しても7日間は戻せる</figcaption>
+              <figcaption><b>録音を整理できる</b>フォルダ分け・お気に入り・検索。消しても7日間は戻せます</figcaption>
             </figure>
           </div>
         </Section>

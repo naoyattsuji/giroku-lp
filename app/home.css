@@ -212,7 +212,7 @@
 .h-price strong { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .h-price span { color: var(--h-ink-2); font-size: 15px; }
 .h-price-note { color: var(--h-ink-3); font-size: 14px !important; }
-.h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 20px; border-top: 1px solid #e8e8ed; }
+.h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .h-plan-where { font-size: 13px !important; font-weight: 600; color: var(--h-ink-3); margin-bottom: 6px; }
 .h-plan-how { font-size: 15px !important; }
 .h-plan-sub { margin-top: 8px; color: var(--h-ink-3); font-size: 13px !important; }
@@ -324,8 +324,8 @@
 }
 .h-mac-badge:hover { background: #1d1d1f; }
 .h-mac-badge svg { width: 24px; height: 24px; flex: none; }
-.h-mac-badge span { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1px; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
-.h-mac-badge small { font-size: 9px; font-weight: 400; letter-spacing: 0.02em; }
+.h-mac-badge span { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; font-size: 18px; font-weight: 500; letter-spacing: -0.01em; }
+.h-mac-badge small { font-size: 9.5px; font-weight: 400; letter-spacing: 0.04em; }
 
 .h-trio figcaption { font-weight: 400 !important; color: var(--h-ink-2); font-size: 14px !important; line-height: 1.5; }
 .h-trio figcaption b { display: block; color: var(--h-ink); font-size: 16px; margin-bottom: 4px; }
