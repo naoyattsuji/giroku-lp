@@ -168,7 +168,7 @@ export default function Home(): ReactElement {
               <figcaption><b>AI が議事録をつくる</b>話のトピックごとに見出しを立てて、要点をまとめます</figcaption>
             </figure>
             <figure>
-              <PhoneShot src="/shots/ios-05.webp" alt="議事録への質問に、吹き出しで答えが返る" />
+              <PhoneShot src="/shots/ios-05-chat.webp" alt="議事録への質問に、吹き出しで答えが返る" />
               <figcaption><b>AI と録音の内容について話せる</b>気になることを聞いたり、書き直しを頼んだりできます</figcaption>
             </figure>
             <figure>
