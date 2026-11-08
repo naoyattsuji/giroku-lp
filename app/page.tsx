@@ -179,7 +179,7 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          <h2 className="h-center-title" data-reveal>基本の機能は、すべて無料。</h2>
+          <h2 className="h-center-title" data-reveal>基本は、無料。</h2>
           <div className="h-plans" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
