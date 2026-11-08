@@ -306,10 +306,25 @@
   .h-plan-actions { grid-template-columns: 1fr 1fr; }
   /* ダウンロード：白い枠なしで、iPhone と Mac を上に2つ、Windows を下に。
    * 3つを1列に並べるとバッジが小さくなりすぎる（App Store のバッジは画面で高さ 40px 以上の決まり）ため 2＋1 にした */
-  .h-stores { grid-template-columns: 1fr 1fr; gap: 28px 12px; }
-  .h-store { background: none; padding: 0; gap: 12px; }
-  .h-store:last-child { grid-column: 1 / -1; }
+  /* ダウンロード：白い枠なしで横1列。次の物が見切れて「横にもある」と分かる（料金・画面3枚と同じ形。2026-11-08 本人の案）。
+   * バッジは高さ 44px のまま（App Store のバッジは画面で 40px 以上の決まり） */
+  .h-stores {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-left: calc(var(--h-gutter) * -1);
+    margin-right: calc(var(--h-gutter) * -1);
+    padding: 0 var(--h-gutter) 8px;
+    scrollbar-width: none;
+  }
+  .h-stores::-webkit-scrollbar { display: none; }
+  .h-store { flex: 0 0 62%; scroll-snap-align: center; background: none; padding: 8px 0; gap: 12px; }
   .h-store h3 { font-size: 17px; }
+
+  /* 縦のスクロールで横に送るとき（components/HScroll.tsx が .hs-on を付ける）：指の横すべりと吸い付きは止める */
+  .hs-on .hs-sticky { position: sticky; }
+  .hs-on .hs-track { overflow-x: hidden; scroll-snap-type: none; }
   .h-window-bar { height: 20px; }
   .h-window-bar i { width: 8px; height: 8px; }
   .h-facts { justify-content: flex-start; gap: 12px 24px; font-size: 15px; }

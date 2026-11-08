@@ -6,6 +6,7 @@ import { ScrollFx } from "./components/ScrollFx";
 import { MacLive, PhoneLive } from "./components/HeroLive";
 import { MeetingScene } from "./components/MeetingScene";
 import { SiteFooter } from "./components/SiteFooter";
+import { HScroll } from "./components/HScroll";
 import "./home.css";
 
 /*
@@ -180,8 +181,9 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section tone="gray">
+          <HScroll>
           <h2 className="h-center-title h-trio-title" data-reveal><Words parts={["録音から", "議事録まで、", "これひとつで。"]} /></h2>
-          <div className="h-trio" data-reveal>
+          <div className="h-trio hs-track" data-reveal>
             <figure>
               <PhoneShot src="/shots/ios-04-minutes.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
               <figcaption><b>AI が議事録をつくる</b>話のトピックごとに見出しを立てて、要点をまとめます</figcaption>
@@ -195,11 +197,13 @@ export default function Home(): ReactElement {
               <figcaption><b>録音を整理できる</b>フォルダ分け・お気に入り・検索ができます。消しても7日間は戻せます</figcaption>
             </figure>
           </div>
+          </HScroll>
         </Section>
 
         <Section id="pricing">
+          <HScroll>
           <h2 className="h-center-title" data-reveal><Words parts={["基本は、", "無料。"]} /></h2>
-          <div className="h-plans" data-reveal>
+          <div className="h-plans hs-track" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
@@ -233,12 +237,14 @@ export default function Home(): ReactElement {
           <p className="h-fineprint">
             Pro は iPhone とパソコンで別々に購入します。1年ごとの自動更新で、期間が終わる 24時間前までに解約しない限り更新されます。
           </p>
+          </HScroll>
         </Section>
 
         <section id="download" className="h-section h-section-gray h-download">
           <div className="h-inner">
+            <HScroll>
             <h2 data-reveal><Words parts={["今すぐ、", "はじめよう。"]} /></h2>
-            <div className="h-stores" data-reveal>
+            <div className="h-stores hs-track" data-reveal>
               <div className="h-store">
                 <h3>iPhone</h3>
                 <div className="h-store-badge"><AppStoreBadge height={44} /></div>
@@ -255,6 +261,7 @@ export default function Home(): ReactElement {
                 <p>Windows 10・11</p>
               </div>
             </div>
+            </HScroll>
             <div className="h-faq" id="faq">
               {faqs.map((item) => (
                 <details key={item.q}>
