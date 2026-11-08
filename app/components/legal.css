@@ -1,0 +1,38 @@
+/* 利用規約・プライバシーポリシー（LegalPage.tsx）。色と字は home.css の変数を使う。読むページなので行間を広く、1行を長くしすぎない */
+.lg { max-width: 760px; margin: 0 auto; padding: clamp(48px, 8vw, 96px) var(--h-gutter) clamp(64px, 10vw, 120px); }
+.lg-head h1 { font-size: clamp(32px, 5vw, 48px) !important; }
+.lg-updated { margin-top: 12px; color: var(--h-ink-3); font-size: 15px !important; }
+.lg-intro { margin-top: 24px; color: var(--h-ink-2); line-height: 1.8; }
+
+/* 目次：灰色の箱に、条の番号と名前を並べる */
+.lg-toc { margin-top: clamp(32px, 5vw, 48px); padding: 24px 28px; background: var(--h-gray); border-radius: var(--h-radius); }
+.lg-toc-title { font-weight: 700; font-size: 15px !important; margin-bottom: 10px; }
+.lg-toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px; }
+.lg-toc a { display: flex; gap: 10px; padding: 4px 0; font-size: 15px; color: var(--h-ink); }
+.lg-toc a span { color: var(--h-ink-3); min-width: var(--lg-label-w, 3.4em); font-variant-numeric: tabular-nums; }
+.lg-toc a:hover { color: var(--h-red); }
+
+/* 各条 */
+.lg-section { padding-top: clamp(40px, 6vw, 56px); scroll-margin-top: 72px; }
+.lg-section + .lg-section { margin-top: clamp(40px, 6vw, 56px); border-top: 1px solid var(--h-line); }
+.lg-section h2 { font-size: clamp(22px, 2.6vw, 28px) !important; line-height: 1.35; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.lg-label { color: var(--h-ink-3); font-size: 0.62em; font-weight: 600; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+.lg-section h3 { margin-top: 28px; font-size: 17px !important; }
+.lg-section p { margin-top: 16px; color: var(--h-ink); line-height: 1.85; }
+.lg-section .lg-note { color: var(--h-ink-2); font-size: 15px !important; line-height: 1.75; }
+.lg-section ol, .lg-section ul { margin: 16px 0 0; padding-left: 1.6em; display: grid; gap: 10px; }
+/* 全体の初期設定（globals.css）で印が消えているので、ここで出す */
+.lg-section ol { list-style: decimal; }
+.lg-section ul { list-style: disc; }
+.lg-section li { display: list-item; }
+.lg-section li { line-height: 1.8; font-size: clamp(16px, 1.4vw, 17px); padding-left: 4px; }
+.lg-section ol li::marker { color: var(--h-ink-3); font-variant-numeric: tabular-nums; }
+.lg-section ul li::marker { color: var(--h-ink-3); }
+.lg-section a { color: var(--h-ink); text-decoration: underline; text-underline-offset: 3px; }
+.lg-section code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; background: var(--h-gray); padding: 2px 6px; border-radius: 6px; word-break: break-all; }
+.lg-section b { font-weight: 600; }
+
+@media (max-width: 640px) {
+  .lg-toc { padding: 20px; }
+  .lg-toc ol { grid-template-columns: 1fr; }
+}

@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import type { ReactElement } from "react";
+import { LegalPage, type LegalSection } from "../components/LegalPage";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー — Giroku",
@@ -7,161 +8,143 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-export default function PrivacyPage() {
-  return (
-    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
-      <nav style={{ borderBottom: "1px solid var(--border)", padding: "0 40px" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", height: 56, display: "flex", alignItems: "center" }}>
-          <Link href="/" style={{ fontSize: 11, color: "var(--text-2)", letterSpacing: "0.1em", textDecoration: "none" }}>← GIROKU</Link>
-        </div>
-      </nav>
+/* 文面は 2026-11-08 の版から変えていない（見た目だけ作り直し） */
+const sections: LegalSection[] = [
+  {
+    id: "p1",
+    label: "1",
+    title: "基本方針",
+    blocks: [
+      {
+        p: "Giroku（以下「本アプリ」）は、ユーザーのプライバシーを最大限に尊重します。本アプリはオフライン処理を基本設計とし、録音した音声データはデバイス内のみで処理されます。AI要約機能を使用した場合に限り、文字起こしテキストが外部AIサービスへ送信されることがあります。",
+      },
+    ],
+  },
+  {
+    id: "p2",
+    label: "2",
+    title: "収集する情報",
+    blocks: [
+      { h3: "デバイス上にのみ保存される情報" },
+      {
+        list: [
+          "録音した音声データ（.webm形式）",
+          "音声の文字起こし・AI議事録・AIとの会話履歴（JSON形式）",
+          "使用時間・設定・学習語彙の記録",
+          "ライセンスキー（OSの安全な保管機能で暗号化）",
+          "クラッシュ診断ファイル（外部へ自動送信しません）",
+        ],
+      },
+      {
+        note: (
+          <>
+            上記のデータはすべて <code>~/Library/Application Support/Giroku/</code>（macOS）または <code>%APPDATA%\Giroku\</code>（Windows）に保存され、ユーザー自身が管理します。
+          </>
+        ),
+      },
+      { h3: "外部に送信される情報" },
+      {
+        list: [
+          "購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windowsを合わせた最大2台の管理に使用します",
+          "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）",
+          "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）",
+          "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信",
+          "文字起こしモデル取得時：通信情報（Hugging Face）",
+          "アプリ更新確認時：バージョン・通信情報（GitHub Releases）",
+          "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）",
+        ],
+      },
+      { note: "※音声データは外部に送信されません。AI要約はテキスト化後のみ送信されます。" },
+    ],
+  },
+  {
+    id: "p3",
+    label: "3",
+    title: "データの利用目的",
+    blocks: [
+      {
+        list: [
+          "音声の文字起こし処理（すべてデバイス内で実行）",
+          "AI議事録・質問・修正の生成（Gemini APIを使用）",
+          "AI機能の濫用防止（端末ごとの匿名IDによる短時間の利用回数の確認）",
+          "Pro の購入・有効性確認と最大2台の端末管理",
+          "スマートフォン版の無料版での広告表示（Google AdMob。利用者に合わせない広告のみ）",
+          "アプリの自動更新",
+        ],
+      },
+    ],
+  },
+  {
+    id: "p4",
+    label: "4",
+    title: "第三者への提供",
+    blocks: [
+      {
+        p: "収集した個人情報を、法令に基づく場合を除き、第三者に提供することはありません。ただし、以下のサービスはユーザーの操作に応じてデータを受信します。",
+      },
+      {
+        list: [
+          <>
+            <b>LemonSqueezy</b>：購入キーの購入・認証・Mac／Windowsを合わせた最大2台の管理
+          </>,
+          <>
+            <b>Google AdMob</b>：スマートフォン版の無料版での広告表示（端末の広告識別子や利用状況などをGoogleが受け取ります。利用者に合わせた広告は使いません。録音・文字起こし・議事録の内容は送りません）
+          </>,
+          <>
+            <b>Vercel</b>：Giroku APIの提供（文字起こしテキスト、ライセンスキー、IPアドレス等の通信情報）
+          </>,
+          <>
+            <b>Google Gemini API</b>：AI要約生成時（文字起こしテキスト）
+          </>,
+          <>
+            <b>Hugging Face / GitHub</b>：モデル取得・更新確認時（IPアドレス等の通信情報）
+          </>,
+        ],
+      },
+    ],
+  },
+  {
+    id: "p5",
+    label: "5",
+    title: "データの削除",
+    blocks: [
+      {
+        p: "録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。アプリ自体のアンインストール後も、データディレクトリは残る場合があります。有料アカウントは、モバイルアプリの設定画面にある「アカウントを削除」からメールアドレスと端末登録を削除できます。外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。",
+      },
+    ],
+  },
+  {
+    id: "p6",
+    label: "6",
+    title: "セキュリティ",
+    blocks: [
+      {
+        p: "ライセンスキーはOSのキーチェーン等を利用して暗号化して保存されます。AIサービスのAPIキーは本アプリ内に保存せず、Girokuのサーバー側で管理します。ただし、本アプリは個人利用を前提としており、エンタープライズグレードのセキュリティ要件には対応していない場合があります。",
+      },
+    ],
+  },
+  {
+    id: "p7",
+    label: "7",
+    title: "ポリシーの変更",
+    blocks: [{ p: "本ポリシーは予告なく変更される場合があります。重要な変更がある場合はアプリ内でお知らせします。" }],
+  },
+  {
+    id: "p8",
+    label: "8",
+    title: "お問い合わせ",
+    blocks: [
+      {
+        p: (
+          <>
+            プライバシーに関するお問い合わせは <a href="mailto:naoyattsuji@gmail.com">naoyattsuji@gmail.com</a> までご連絡ください。
+          </>
+        ),
+      },
+    ],
+  },
+];
 
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "64px 40px" }}>
-        <p style={{ fontSize: 10, letterSpacing: "0.25em", color: "var(--text-3)", marginBottom: 20 }}>PRIVACY POLICY</p>
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--text-1)", marginBottom: 8 }}>プライバシーポリシー</h1>
-        <p style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 56, letterSpacing: "0.05em" }}>最終更新日：2026年11月8日</p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>01</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>基本方針</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              Giroku（以下「本アプリ」）は、ユーザーのプライバシーを最大限に尊重します。
-              本アプリはオフライン処理を基本設計とし、録音した音声データはデバイス内のみで処理されます。
-              AI要約機能を使用した場合に限り、文字起こしテキストが外部AIサービスへ送信されることがあります。
-            </p>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>02</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>収集する情報</h2>
-            <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>デバイス上にのみ保存される情報</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-              {["録音した音声データ（.webm形式）", "音声の文字起こし・AI議事録・AIとの会話履歴（JSON形式）", "使用時間・設定・学習語彙の記録", "ライセンスキー（OSの安全な保管機能で暗号化）", "クラッシュ診断ファイル（外部へ自動送信しません）"].map((item) => (
-                <div key={item} style={{ display: "flex", gap: 12 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                  <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-            <p style={{ fontSize: 12, color: "var(--text-3)", lineHeight: 1.8, marginBottom: 24 }}>
-              上記のデータはすべて{" "}
-              <code style={{ fontFamily: "monospace", color: "var(--text-2)", fontSize: 11 }}>~/Library/Application Support/Giroku/</code>（macOS）または{" "}
-              <code style={{ fontFamily: "monospace", color: "var(--text-2)", fontSize: 11 }}>%APPDATA%\Giroku\</code>（Windows）に保存され、ユーザー自身が管理します。
-            </p>
-
-            <h3 style={{ fontSize: 12, fontWeight: 600, color: "var(--text-2)", marginBottom: 12, letterSpacing: "0.08em" }}>外部に送信される情報</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-              {["購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windowsを合わせた最大2台の管理に使用します", "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）", "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）", "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信", "文字起こしモデル取得時：通信情報（Hugging Face）", "アプリ更新確認時：バージョン・通信情報（GitHub Releases）", "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）"].map((item) => (
-                <div key={item} style={{ display: "flex", gap: 12 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                  <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-            <p style={{ fontSize: 11, color: "var(--text-3)" }}>※音声データは外部に送信されません。AI要約はテキスト化後のみ送信されます。</p>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>03</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 16 }}>データの利用目的</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {["音声の文字起こし処理（すべてデバイス内で実行）", "AI議事録・質問・修正の生成（Gemini APIを使用）", "AI機能の濫用防止（端末ごとの匿名IDによる短時間の利用回数の確認）", "Pro の購入・有効性確認と最大2台の端末管理", "スマートフォン版の無料版での広告表示（Google AdMob。利用者に合わせない広告のみ）", "アプリの自動更新"].map((item) => (
-                <div key={item} style={{ display: "flex", gap: 12 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                  <span style={{ fontSize: 13, color: "var(--text-2)" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>04</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>第三者への提供</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9, marginBottom: 16 }}>
-              収集した個人情報を、法令に基づく場合を除き、第三者に提供することはありません。
-              ただし、以下のサービスはユーザーの操作に応じてデータを受信します。
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>LemonSqueezy</strong>：購入キーの購入・認証・Mac／Windowsを合わせた最大2台の管理</span>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Google AdMob</strong>：スマートフォン版の無料版での広告表示（端末の広告識別子や利用状況などをGoogleが受け取ります。利用者に合わせた広告は使いません。録音・文字起こし・議事録の内容は送りません）</span>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Vercel</strong>：Giroku APIの提供（文字起こしテキスト、ライセンスキー、IPアドレス等の通信情報）</span>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Google Gemini API</strong>：AI要約生成時（文字起こしテキスト）</span>
-              </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <span style={{ fontSize: 11, color: "var(--text-3)", flexShrink: 0 }}>—</span>
-                <span style={{ fontSize: 13, color: "var(--text-2)" }}><strong style={{ color: "var(--text-1)", fontWeight: 500 }}>Hugging Face / GitHub</strong>：モデル取得・更新確認時（IPアドレス等の通信情報）</span>
-              </div>
-            </div>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>05</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>データの削除</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。
-              アプリ自体のアンインストール後も、データディレクトリは残る場合があります。
-              有料アカウントは、モバイルアプリの設定画面にある「アカウントを削除」からメールアドレスと端末登録を削除できます。
-              外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。
-            </p>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>06</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>セキュリティ</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              ライセンスキーはOSのキーチェーン等を利用して暗号化して保存されます。AIサービスのAPIキーは本アプリ内に保存せず、Girokuのサーバー側で管理します。
-              ただし、本アプリは個人利用を前提としており、エンタープライズグレードのセキュリティ要件には
-              対応していない場合があります。
-            </p>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>07</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>ポリシーの変更</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              本ポリシーは予告なく変更される場合があります。重要な変更がある場合はアプリ内でお知らせします。
-            </p>
-          </section>
-
-          <div style={{ borderTop: "1px solid var(--border)" }} />
-
-          <section>
-            <p style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--red)", fontFamily: "monospace", marginBottom: 16 }}>08</p>
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>お問い合わせ</h2>
-            <p style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.9 }}>
-              プライバシーに関するお問い合わせは{" "}
-              <a href="mailto:naoyattsuji@gmail.com" style={{ color: "var(--text-1)", textDecoration: "underline" }}>
-                naoyattsuji@gmail.com
-              </a>{" "}
-              までご連絡ください。
-            </p>
-          </section>
-        </div>
-      </div>
-    </div>
-  );
+export default function PrivacyPage(): ReactElement {
+  return <LegalPage title="プライバシーポリシー" updated="2026年11月8日" sections={sections} />;
 }

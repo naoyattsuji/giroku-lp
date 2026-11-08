@@ -2,10 +2,10 @@
 
 import { useSyncExternalStore } from "react";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
-import Link from "next/link";
 import { ScrollFx } from "./components/ScrollFx";
 import { MacLive, PhoneLive } from "./components/HeroLive";
 import { MeetingScene } from "./components/MeetingScene";
+import { SiteFooter } from "./components/SiteFooter";
 import "./home.css";
 
 /*
@@ -267,19 +267,7 @@ export default function Home(): ReactElement {
         </section>
       </main>
 
-      <footer className="h-footer">
-        <div className="h-inner h-footer-inner">
-          <div className="h-footer-links">
-            <Link href="/privacy">プライバシー</Link>
-            <Link href="/terms">利用規約</Link>
-            <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">お問い合わせ</a>
-          </div>
-          <p>© {new Date().getFullYear()} Naoya Tsuji</p>
-          <p className="h-legal">
-            iPhone、Mac、App Store は、米国およびその他の国で登録された Apple Inc. の商標です。Windows、Microsoft Store は Microsoft グループの商標です。
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

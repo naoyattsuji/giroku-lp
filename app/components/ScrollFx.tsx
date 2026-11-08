@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /**
  * スクロールに合わせた動き（紹介ページ用）。画面には何も描かない。
  *
- * - data-reveal：画面に入ったら .is-in を付ける（CSS で、ぼかしから浮き上がって現れる）
+ * - data-reveal：画面に入ったら .is-in を付ける（CSS で、少し下から浮き上がって現れる。早めに出して、読む前に待たせない）
  * - data-scroll：見えている間だけ、位置を CSS の変数に渡す
  *     --enter：要素の上端が画面の下に来たとき 0、画面の 35% の高さまで来たとき 1
  *     --exit ：要素が上へ抜けていくほど 0 → 1
@@ -27,7 +27,7 @@ export function ScrollFx(): null {
           reveal.unobserve(entry.target);
         }
       },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+      { rootMargin: "0px 0px -4% 0px", threshold: 0.04 },
     );
     document.querySelectorAll("[data-reveal]").forEach((el) => reveal.observe(el));
 
