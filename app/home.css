@@ -439,7 +439,8 @@
   .h-hero-stage .h-hero-phone > * { animation: h-device 1.2s var(--h-ease-soft) 0.75s both, h-float 9s ease-in-out 2s infinite alternate; --fx: 1; }
   /* スマホは iPhone 1台を下で切って見せるので、漂う動きは付けない（傾きと横揺れで、切った端や縁が動いて不自然に見えた。2026-11-08 本人の指摘） */
   @media (max-width: 760px) {
-    .h-hero-stage .h-hero-phone > * { animation: h-device 1.2s var(--h-ease-soft) 0.75s both; }
+    /* スマホは縦にだけ小さく上下させる（2026-11-09 本人の希望）。左右に動かしたり傾けたりすると、左右の縁が白く欠けて見えたため。上の余白（14px）より小さく動かすので、上の縁も欠けない */
+    .h-hero-stage .h-hero-phone > * { animation: h-device 1.2s var(--h-ease-soft) 0.75s both, h-float-y 7s ease-in-out 2s infinite alternate; }
   }
 
   /* 画面に入ったら：見出しは文節ごと、ほかは同じ現れ方で順番に */
@@ -473,6 +474,7 @@
   50% { translate: calc(var(--fx, 1) * 6px) -10px; rotate: calc(var(--fx, 1) * var(--fr, 1) * 0.4deg); }
   100% { translate: calc(var(--fx, 1) * -4px) 6px; rotate: calc(var(--fx, 1) * var(--fr, 1) * -0.3deg); }
 }
+@keyframes h-float-y { from { translate: 0 0; } to { translate: 0 -6px; } }
 @keyframes h-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
 /* ───────── 最初の画面の「動く実機」（components/HeroLive.tsx） ─────────
