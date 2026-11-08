@@ -104,10 +104,10 @@ function PhoneShot({ src, alt, className = "" }: { src: string; alt: string; cla
 
 const faqs: { q: string; a: ReactNode }[] = [
   { q: "音声は外に送られますか？", a: "送られません。文字起こしは端末の中です。AI 議事録を作るときだけ、文字をサーバーへ送ります。" },
-  { q: "iPhone で相手の声も録れますか？", a: "iPhone はマイクの音だけです。オンライン会議の相手の声まで録るなら、Mac 版・Windows 版を。" },
+  { q: "iPhone で相手の声も録れますか？", a: "iPhone はマイクの音だけです。オンライン会議の相手の声まで録るなら、Mac 版・Windows 版をお使いください。" },
   { q: "相手に知らせなくていいですか？", a: "相手の画面には何も出ませんが、録音するときはひとこと伝えるのがマナーです。" },
   { q: "使い方は？", a: "アプリの中の「使い方」（iPhone は下のタブ、パソコンは左の帯）から、画面つきで見られます。" },
-  { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から。期間の終わりまでは Pro のままです。" },
+  { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から解約できます。期間の終わりまでは Pro のままです。" },
 ];
 
 /**
@@ -192,7 +192,7 @@ export default function Home(): ReactElement {
             </figure>
             <figure>
               <PhoneShot src="/shots/ios-06.webp" alt="履歴。すべての録音・お気に入り・フォルダ・最近削除した項目" />
-              <figcaption><b>録音を整理できる</b>フォルダ分け・お気に入り・検索。消しても7日間は戻せます</figcaption>
+              <figcaption><b>録音を整理できる</b>フォルダ分け・お気に入り・検索ができます。消しても7日間は戻せます</figcaption>
             </figure>
           </div>
         </Section>
