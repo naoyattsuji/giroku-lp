@@ -77,6 +77,44 @@ function PrimaryAction({ platform }: { platform: Platform }): ReactElement {
   return <a href="#download" className="h-button">無料でダウンロード</a>;
 }
 
+/** ダウンロードの所の3つ（見ている端末を先頭にして並べる） */
+type StoreKey = "ios" | "mac" | "windows";
+const STORES: Record<StoreKey, ReactElement> = {
+  ios: (
+    <>
+      <h3>iPhone</h3>
+      <div className="h-store-badge"><AppStoreBadge height={44} /></div>
+      <p>iOS 16.4 以降</p>
+    </>
+  ),
+  mac: (
+    <>
+      <h3>Mac</h3>
+      <div className="h-store-badge"><MacDownloadBadge height={44} /></div>
+      <p>macOS 13 以降・Apple シリコン</p>
+    </>
+  ),
+  windows: (
+    <>
+      <h3>Windows</h3>
+      <div className="h-store-badge"><MicrosoftStoreBadge /></div>
+      <p>Windows 10・11</p>
+    </>
+  ),
+};
+function orderStores(platform: Platform): StoreKey[] {
+  const all: StoreKey[] = ["ios", "mac", "windows"];
+  return platform === "other" ? all : [platform, ...all.filter((k) => k !== platform)];
+}
+
+/** 上の帯の「ダウンロード」の行き先：見ている端末の入手先へ直接（分からないときはページの下へ） */
+function downloadHref(platform: Platform): string {
+  if (platform === "ios") return APP_STORE_URL;
+  if (platform === "mac") return "/download/mac";
+  if (platform === "windows") return "/download/windows";
+  return "#download";
+}
+
 function Check(): ReactElement {
   return (
     <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
@@ -151,7 +189,7 @@ export default function Home(): ReactElement {
             <a href="#pricing">料金</a>
             <a href="#faq">よくある質問</a>
           </nav>
-          <a href="#download" className="h-button h-button-small">ダウンロード</a>
+          <a href={downloadHref(platform)} className="h-button h-button-small">ダウンロード</a>
         </div>
       </header>
 
@@ -242,26 +280,13 @@ export default function Home(): ReactElement {
 
         <section id="download" className="h-section h-section-gray h-download">
           <div className="h-inner">
-            <HScroll>
             <h2 data-reveal><Words parts={["今すぐ、", "はじめよう。"]} /></h2>
-            <div className="h-stores hs-track" data-reveal>
-              <div className="h-store">
-                <h3>iPhone</h3>
-                <div className="h-store-badge"><AppStoreBadge height={44} /></div>
-                <p>iOS 16.4 以降</p>
-              </div>
-              <div className="h-store">
-                <h3>Mac</h3>
-                <div className="h-store-badge"><MacDownloadBadge height={44} /></div>
-                <p>macOS 13 以降・Apple シリコン</p>
-              </div>
-              <div className="h-store">
-                <h3>Windows</h3>
-                <div className="h-store-badge"><MicrosoftStoreBadge /></div>
-                <p>Windows 10・11</p>
-              </div>
+            {/* 見ている端末の入口を先頭に。ここは押してもらう所なので、スクロールで自動に流さない（指で横にすべらせるのは可） */}
+            <div className="h-stores" data-reveal>
+              {orderStores(platform).map((key) => (
+                <div className="h-store" key={key}>{STORES[key]}</div>
+              ))}
             </div>
-            </HScroll>
             <div className="h-faq" id="faq">
               {faqs.map((item) => (
                 <details key={item.q}>

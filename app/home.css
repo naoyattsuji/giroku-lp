@@ -279,6 +279,16 @@
 .h-footer p { font-size: 12px !important; }
 .h-legal { line-height: 1.6; }
 
+/* 押せる範囲：見た目は変えずに、指で押せる範囲だけ高さ 44 にする（Apple の決まりのすすめ。2026-11-08） */
+.h-nav-inner > .h-button,
+.h-link,
+.h-plan-actions .h-button,
+.h-footer-links a { position: relative; }
+.h-nav-inner > .h-button::after,
+.h-link::after,
+.h-plan-actions .h-button::after,
+.h-footer-links a::after { content: ""; position: absolute; left: -6px; right: -6px; top: 50%; height: 44px; transform: translateY(-50%); }
+
 /* ── スマホ ── */
 @media (max-width: 760px) {
   .h-nav-links { display: none; }
@@ -287,6 +297,15 @@
   /* スマホでは iPhone だけを真ん中に出す。2台を重ねると、どちらも小さく読めずごちゃつくため（2026-11-08 本人の指摘） */
   .h-hero-stage .lv-mac { display: none; }
   .h-hero-phone { position: relative; right: auto; bottom: auto; width: min(60%, 250px); margin: 0 auto; }
+  /* 画面の下半分は空白が多いので、下の方を背景に溶かして短くする（画面3枚の所と同じ見せ方。すぐ下の区切りが見え始める） */
+  .h-hero-phone {
+    height: min(340px, 84vw);
+    overflow: hidden;
+    padding-top: 14px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  }
+  .h-hero { padding-bottom: 8px; }
   .h-split { grid-template-columns: 1fr; }
   .h-split-reverse .h-phone-solo { order: 2; }
   .h-polish-row { grid-template-columns: 1fr; }
