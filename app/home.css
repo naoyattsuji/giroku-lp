@@ -296,10 +296,11 @@
   .h-br-wide { display: none; }
   /* スマホでは iPhone だけを真ん中に出す。2台を重ねると、どちらも小さく読めずごちゃつくため（2026-11-08 本人の指摘） */
   .h-hero-stage .lv-mac { display: none; }
-  .h-hero-phone { position: relative; right: auto; bottom: auto; width: min(60%, 250px); margin: 0 auto; }
+  /* 幅は画面の7割ほど：6割では中の文字が読めなかった。8割だと最初の画面からはみ出し、見出しより目立つ（2026-11-09 本人と比べて決めた） */
+  .h-hero-phone { position: relative; right: auto; bottom: auto; width: min(72%, 290px); margin: 0 auto; }
   /* 画面の下半分は空白が多いので、下の方を背景に溶かして短くする（画面3枚の所と同じ見せ方。すぐ下の区切りが見え始める） */
   .h-hero-phone {
-    height: min(340px, 84vw);
+    height: min(400px, 100vw);
     /* 下だけ切る。横は切らない（横まで切ると、枠の外側の縁や影が白く欠けて見えた） */
     overflow-x: visible;
     overflow-y: clip;
