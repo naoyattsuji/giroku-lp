@@ -77,6 +77,15 @@
   .ms-pin-3 { right: -8px; top: -10px; }
   .ms-num { width: 28px; height: 28px; font-size: 13px; }
   .ms-points li { grid-template-columns: 28px 1fr; gap: 12px; }
+  /* 絵の中の文字：スマホでは絵の幅に合わせて縮むと 8〜9px になり読めなかったので、一回り大きく（11〜12px くらい。2026-11-09） */
+  .ms-head { font-size: 3.4cqw; }
+  .ms-offline svg { width: 3.4cqw; height: 3.4cqw; }
+  .ms-name { font-size: 3.2cqw; }
+  .ms-giroku { grid-template-columns: 36cqw 1fr; }
+  .ms-meters { font-size: 3.2cqw; }
+  .ms-lines { font-size: 3.4cqw; }
+  .ms-lines p { grid-template-columns: 6cqw 1fr; }
+  .ms-lines b { font-size: 2.8cqw; }
 }
 
 @media (prefers-reduced-motion: reduce) {

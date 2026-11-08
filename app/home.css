@@ -99,7 +99,8 @@
 .h-ms-badge ms-store-badge::part(img) { height: 44px; max-height: 44px; width: auto; }
 
 /* ── 最初の画面 ── */
-.h-hero { padding-top: clamp(40px, 6vw, 72px); padding-bottom: 48px; overflow: hidden; }
+/* 横だけ切る（端末が漂って横にはみ出しても横スクロールが出ないように）。縦は切らない：切ると Mac の下の影が横一直線に切れて見えた（2026-11-09） */
+.h-hero { padding-top: clamp(40px, 6vw, 72px); padding-bottom: 48px; overflow-x: clip; overflow-y: visible; }
 .h-hero-copy { text-align: center; }
 .h-hero-mark { display: inline-flex; margin-bottom: 20px; }
 .h-lead { margin: 22px auto 0; max-width: 40em; color: var(--h-ink-2); font-size: clamp(19px, 2vw, 24px) !important; line-height: 1.55; }
