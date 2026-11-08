@@ -3,88 +3,93 @@
 import { useEffect, useRef, type ReactElement, type ReactNode } from "react";
 
 /**
- * 横に並んだ物（中の .hs-track）を、縦のスクロールで横に送る（スマホだけ。2026-11-08 本人の案）。
+ * 横に並んだ物（中の .hs-track）を、縦のスクロールに合わせて少しずつ横へ流す（スマホだけ）。
  *
- * しくみ：
- * - 外側の箱を「横に動かす距離」の分だけ縦に長くし、中身（.hs-sticky）は画面に貼り付けておく。
- * - 縦にスクロールした量に合わせて、並びを横へ送る（scrollLeft）。最後まで見えたら貼り付けが外れ、次の区切りへ進む。
- * - パソコン（横幅が広く、全部が見えている）と、動きを減らす設定の人には何もしない（普通の横すべり／並び）。
+ * 2026-11-08 作り直し：画面を止めて横に送る形（ピン留め）は「勝手に動く」感じがして不自然だった（本人の指摘）。
+ * 今の形：
+ * - 画面は止めない。並びが画面の下から上へ通り過ぎる間に、スクロールした分だけ横へ流れる。
+ * - 動きは目標の位置へ毎フレーム少しずつ近づける（なめらかに追いつく）。指の動きにぴったり付いてきつつ、カクつかない。
+ * - 指で横にすべらせたら、その並びはそこから先は自分で動かさない（指の操作が優先。吸い付きも戻す）。
+ * - パソコン（全部が見えている）と、動きを減らす設定の人には何もしない。
  */
-const NAV_HEIGHT = 52;
-
 export function HScroll({ children }: { children: ReactNode }): ReactElement {
   const outer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const box = outer.current;
-    if (!box) return;
-    const sticky = box.firstElementChild as HTMLElement | null;
-    const track = box.querySelector<HTMLElement>(".hs-track");
-    if (!sticky || !track) return;
+    const track = box?.querySelector<HTMLElement>(".hs-track");
+    if (!box || !track) return;
 
     const mq = window.matchMedia("(max-width: 760px) and (prefers-reduced-motion: no-preference)");
-    let dist = 0;
+    let handedOver = false; // 指で触ったら true（以後は自分で動かさない）
+    let current = 0;
     let frame = 0;
 
-    const reset = () => {
-      box.classList.remove("hs-on");
-      box.style.height = "";
-      sticky.style.top = "";
-      track.scrollLeft = 0;
+    const target = (): number => {
+      const dist = track.scrollWidth - track.clientWidth;
+      if (dist <= 0) return 0;
+      const r = track.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // 並びの真ん中が画面の下から 80% の所に来たら流れ始め、35% の所で流れ終わる
+      const center = r.top + r.height / 2;
+      const p = (vh * 0.8 - center) / (vh * 0.45);
+      return Math.min(1, Math.max(0, p)) * dist;
     };
 
-    const measure = () => {
-      if (!mq.matches) {
-        reset();
-        return;
-      }
-      box.classList.add("hs-on");
-      // 並びの右端までの距離（最後の物が右の余白まで来たら終わり）
-      dist = Math.max(0, track.scrollWidth - track.clientWidth);
-      if (dist === 0) {
-        reset();
-        return;
-      }
-      const h = sticky.offsetHeight;
-      const room = window.innerHeight - NAV_HEIGHT;
-      // 画面の高さに収まるなら真ん中に貼る。収まらないときは上に貼る
-      sticky.style.top = `${NAV_HEIGHT + Math.max(0, (room - h) / 2)}px`;
-      box.style.height = `${h + dist}px`;
-      update();
-    };
-
-    const update = () => {
+    const tick = () => {
       frame = 0;
-      if (!box.classList.contains("hs-on")) return;
-      const top = box.getBoundingClientRect().top - parseFloat(sticky.style.top || "0");
-      const p = Math.min(1, Math.max(0, -top / dist));
-      // 並びは overflow: hidden の箱なので、横の位置を直接動かす（指での横すべりは止めて、縦の動きだけで送る）
-      track.scrollLeft = p * dist;
+      if (handedOver || !mq.matches) return;
+      const goal = target();
+      current += (goal - current) * 0.18;
+      if (Math.abs(goal - current) < 0.5) current = goal;
+      track.scrollLeft = current;
+      if (current !== goal) frame = requestAnimationFrame(tick);
     };
     const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+      if (!frame) frame = requestAnimationFrame(tick);
     };
 
-    measure();
-    // 画像の読み込みで高さが変わるので、大きさが変わったら測り直す
-    const ro = new ResizeObserver(() => measure());
-    ro.observe(sticky);
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", measure);
-    mq.addEventListener("change", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", measure);
-      mq.removeEventListener("change", measure);
+    const setup = () => {
+      if (mq.matches && !handedOver) {
+        track.classList.add("hs-driven");
+        current = track.scrollLeft;
+        schedule();
+      } else {
+        track.classList.remove("hs-driven");
+      }
+    };
+
+    // 指で横にすべらせたら、指に任せる
+    const handOver = () => {
+      if (handedOver) return;
+      handedOver = true;
+      track.classList.remove("hs-driven");
       if (frame) cancelAnimationFrame(frame);
-      reset();
+      frame = 0;
+    };
+
+    setup();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", setup);
+    mq.addEventListener("change", setup);
+    // 横の位置が、こちらで動かした位置からずれたら＝指で横にすべらせた（縦にスクロールしただけでは外さない）
+    const onTrackScroll = () => {
+      if (Math.abs(track.scrollLeft - current) > 2) handOver();
+    };
+    track.addEventListener("scroll", onTrackScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", setup);
+      mq.removeEventListener("change", setup);
+      track.removeEventListener("scroll", onTrackScroll);
+      if (frame) cancelAnimationFrame(frame);
+      track.classList.remove("hs-driven");
     };
   }, []);
 
   return (
     <div ref={outer} className="hs">
-      <div className="hs-sticky">{children}</div>
+      {children}
     </div>
   );
 }

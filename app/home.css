@@ -322,9 +322,9 @@
   .h-store { flex: 0 0 62%; scroll-snap-align: center; background: none; padding: 8px 0; gap: 12px; }
   .h-store h3 { font-size: 17px; }
 
-  /* 縦のスクロールで横に送るとき（components/HScroll.tsx が .hs-on を付ける）：指の横すべりと吸い付きは止める */
-  .hs-on .hs-sticky { position: sticky; }
-  .hs-on .hs-track { overflow-x: hidden; scroll-snap-type: none; }
+  /* 縦のスクロールに合わせて横へ流している間（components/HScroll.tsx が .hs-driven を付ける）は、吸い付きを止める。
+   * 吸い付きが効いていると、少しずつ流すたびに近くの枠へ引き戻されてカクつくため。指で触ると外れて、吸い付きが戻る */
+  .hs-track.hs-driven { scroll-snap-type: none; }
   .h-window-bar { height: 20px; }
   .h-window-bar i { width: 8px; height: 8px; }
   .h-facts { justify-content: flex-start; gap: 12px 24px; font-size: 15px; }
