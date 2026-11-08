@@ -259,6 +259,7 @@ export default function Home(): ReactElement {
                 <li><Check />広告なし</li>
                 <li><Check />より高性能な AI で議事録を作成</li>
                 <li><Check />文字起こしの誤字・句読点を自動で直す</li>
+                <li><Check />コピーした議事録の末尾に付く「Giroku で作成」の一文を消せる</li>
               </ul>
               <div className="h-plan-actions">
                 <div>
