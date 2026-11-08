@@ -361,29 +361,40 @@
  * 動きを減らす設定の人には、何も動かさない。
  */
 /*
- * 動きの決まり（1種類にそろえる）
- * - 現れ方：少し下から、ふわっと浮き上がる（ぼかしは使わない）。速さ 0.9 秒・曲線 --h-ease
- * - 順番：同じかたまりの中は 0.1 秒ずつずらす
- * - スクロールに合わせて形が変わる動きは使わない（どこも同じ現れ方だけ。2026-11-08 本人「一貫性がない」）
+ * 動きの決まり（1種類にそろえる。2026-11-08 本人が Gemini の紹介ページの動きを気に入ったので、その考え方に寄せた）
+ * - 現れ方：ぼかしが晴れながら、少し下からふわっと浮き上がる。曲線 --h-ease
+ * - 見出し：文節ごとに 0.12 秒ずつずらして現れる（.h-w）
+ * - そのほか：同じかたまりの中は 0.1 秒ずつずらす
+ * - 最初の画面の Mac と iPhone は、現れたあと、ゆっくり漂い続ける（周期をずらす。Mac は字がにじまないよう傾けない）
+ * - スクロールに合わせて形が変わる動きは使わない（2026-11-08 本人「一貫性がない」）
  */
-.h-page { --h-ease: cubic-bezier(0.16, 1, 0.3, 1); }
+.h-page { --h-ease: cubic-bezier(0.16, 1, 0.3, 1); --h-ease-soft: cubic-bezier(0.2, 0, 0, 1); }
+.h-w { display: inline-block; }
 @media (prefers-reduced-motion: no-preference) {
-  .h-hero-copy > *,
-  .h-hero-stage .lv-mac,
-  .h-hero-stage .h-hero-phone > * { animation: h-rise 0.9s var(--h-ease) both; }
-  .h-hero-copy > :nth-child(2) { animation-delay: 0.1s; }
-  .h-hero-copy > :nth-child(3) { animation-delay: 0.2s; }
-  .h-hero-copy > :nth-child(4) { animation-delay: 0.3s; }
-  .h-hero-stage .lv-mac { animation-delay: 0.3s; }
-  .h-hero-stage .h-hero-phone > * { animation-delay: 0.4s; }
+  /* 最初の画面：一言 → 見出し（文節ごと） → 説明 → ボタン */
+  .h-hero-copy .h-eyebrow { animation: h-in 0.8s var(--h-ease-soft) both; }
+  .h-hero-copy h1 .h-w { animation: h-in 0.9s var(--h-ease-soft) both; animation-delay: calc(0.15s + var(--i, 0) * 0.12s); }
+  .h-hero-copy .h-lead { animation: h-in 0.9s var(--h-ease-soft) 0.8s both; }
+  .h-hero-copy .h-hero-actions { animation: h-in 0.9s var(--h-ease-soft) 1s both; }
 
-  /* 画面に入ったら、同じ浮き上がり方で順番に */
-  .fx-ready [data-reveal] > *,
-  .fx-ready h2[data-reveal] { transition: opacity 0.9s var(--h-ease), transform 0.9s var(--h-ease); }
-  .fx-ready [data-reveal]:not(.is-in) > *,
-  .fx-ready h2[data-reveal]:not(.is-in) { opacity: 0; transform: translateY(24px); }
+  /* Mac と iPhone：大きく沈んだ所から現れ、そのあと漂う（漂いは translate、現れは transform なので重ならない） */
+  .h-hero-stage .lv-mac { animation: h-device 1.4s var(--h-ease-soft) 0.9s both, h-float 13s ease-in-out 2.3s infinite alternate; --fx: -1; --fr: 0; }
+  .h-hero-stage .h-hero-phone > * { animation: h-device 1.4s var(--h-ease-soft) 1.1s both, h-float 9s ease-in-out 2.5s infinite alternate; --fx: 1; }
+
+  /* 画面に入ったら：見出しは文節ごと、ほかは同じ現れ方で順番に */
+  .fx-ready h2[data-reveal] .h-w { transition: opacity 0.8s ease, filter 0.8s ease, transform 0.9s var(--h-ease-soft); transition-delay: calc(var(--i, 0) * 0.12s); }
+  .fx-ready h2[data-reveal]:not(.is-in) .h-w { opacity: 0; filter: blur(10px); transform: translateY(0.3em); }
+  .fx-ready [data-reveal]:not(h2) > * { transition: opacity 0.9s ease, filter 0.9s ease, transform 1s var(--h-ease-soft); }
+  .fx-ready [data-reveal]:not(h2):not(.is-in) > * { opacity: 0; filter: blur(8px); transform: translateY(28px); }
   .fx-ready [data-reveal] > :nth-child(2) { transition-delay: 0.1s; }
   .fx-ready [data-reveal] > :nth-child(3) { transition-delay: 0.2s; }
+
+  /* 画面3枚：1枚に指を乗せると、ほかの2枚はぼけて下がる（マウスのある端末だけ） */
+  @media (hover: hover) {
+    .h-trio figure { transition: filter 0.4s ease, opacity 0.4s ease, transform 0.5s var(--h-ease); }
+    .h-trio:has(figure:hover) figure:not(:hover) { filter: blur(6px); opacity: 0.45; }
+    .h-trio figure:hover { transform: translateY(-6px); }
+  }
 
   /* 細かい動き：同じ曲線で、押すと沈む・指を乗せると浮く */
   .h-button, .h-badge, .h-link { transition: transform 0.25s var(--h-ease), background-color 0.2s ease, opacity 0.2s ease; }
@@ -393,6 +404,13 @@
   .h-faq details[open] p { animation: h-rise 0.6s var(--h-ease) both; }
 }
 
+@keyframes h-in { from { opacity: 0; filter: blur(10px); transform: translateY(0.3em); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes h-device { from { opacity: 0; transform: translateY(48px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes h-float {
+  0% { translate: 0 0; rotate: 0deg; }
+  50% { translate: calc(var(--fx, 1) * 6px) -10px; rotate: calc(var(--fx, 1) * var(--fr, 1) * 0.4deg); }
+  100% { translate: calc(var(--fx, 1) * -4px) 6px; rotate: calc(var(--fx, 1) * var(--fr, 1) * -0.3deg); }
+}
 @keyframes h-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
 /* ───────── 最初の画面の「動く実機」（components/HeroLive.tsx） ─────────

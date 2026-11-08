@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { ReactElement, ReactNode } from "react";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { ScrollFx } from "./components/ScrollFx";
 import { MacLive, PhoneLive } from "./components/HeroLive";
@@ -110,6 +110,27 @@ const faqs: { q: string; a: ReactNode }[] = [
   { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から。期間の終わりまでは Pro のままです。" },
 ];
 
+/**
+ * 見出しを文節ごとに分けて、1つずつ現れるようにする（動きは home.css の .h-w）。
+ * "\n" は改行。読み上げでは普通の1つの文として読まれる（区切りは見た目だけ）。
+ */
+function Words({ parts }: { parts: string[] }): ReactElement {
+  let i = 0;
+  return (
+    <>
+      {parts.map((part, k) =>
+        part === "\n" ? (
+          <br key={k} />
+        ) : (
+          <span key={k} className="h-w" style={{ "--i": i++ } as CSSProperties}>
+            {part}
+          </span>
+        ),
+      )}
+    </>
+  );
+}
+
 export default function Home(): ReactElement {
   const platform = useVisitorPlatform();
 
@@ -138,9 +159,7 @@ export default function Home(): ReactElement {
           <div className="h-inner h-hero-copy">
             <p className="h-eyebrow">無料の AI 議事録アプリ</p>
             <h1>
-              相手に気づかれず、
-              <br />
-              会話をまるごと記録。
+              <Words parts={["相手に", "気づかれず、", "\n", "会話を", "まるごと", "記録。"]} />
             </h1>
             <p className="h-lead">録音して、そのまま文字に。AIが議事録にまとめます。</p>
             <div className="h-hero-actions">
@@ -161,7 +180,7 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section tone="gray">
-          <h2 className="h-center-title h-trio-title" data-reveal>録音から議事録まで、これひとつで。</h2>
+          <h2 className="h-center-title h-trio-title" data-reveal><Words parts={["録音から", "議事録まで、", "これひとつで。"]} /></h2>
           <div className="h-trio" data-reveal>
             <figure>
               <PhoneShot src="/shots/ios-04-minutes.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />
@@ -179,7 +198,7 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          <h2 className="h-center-title" data-reveal>基本は、無料。</h2>
+          <h2 className="h-center-title" data-reveal><Words parts={["基本は、", "無料。"]} /></h2>
           <div className="h-plans" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
@@ -218,7 +237,7 @@ export default function Home(): ReactElement {
 
         <section id="download" className="h-section h-section-gray h-download">
           <div className="h-inner">
-            <h2 data-reveal>今すぐ、はじめよう。</h2>
+            <h2 data-reveal><Words parts={["今すぐ、", "はじめよう。"]} /></h2>
             <div className="h-stores" data-reveal>
               <div className="h-store">
                 <h3>iPhone</h3>
