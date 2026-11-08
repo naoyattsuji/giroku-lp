@@ -136,6 +136,7 @@ export default function Home(): ReactElement {
       <main id="top">
         <section className="h-hero">
           <div className="h-inner h-hero-copy">
+            <p className="h-eyebrow">無料の AI 議事録アプリ</p>
             <h1>
               相手に気づかれず、
               <br />
@@ -146,7 +147,6 @@ export default function Home(): ReactElement {
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
             </div>
-            <p className="h-hero-note">無料</p>
           </div>
           <div className="h-hero-stage">
             <MacLive />
@@ -161,7 +161,7 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section tone="gray">
-          <h2 className="h-center-title" data-reveal>録音から議事録まで、これひとつで。</h2>
+          <h2 className="h-center-title h-trio-title" data-reveal>録音から議事録まで、これひとつで。</h2>
           <div className="h-trio" data-reveal>
             <figure>
               <PhoneShot src="/shots/ios-04.webp" alt="AI 議事録。概要・決まったこと・やることが並ぶ" />

@@ -103,8 +103,8 @@
 .h-hero-mark { display: inline-flex; margin-bottom: 20px; }
 .h-lead { margin: 22px auto 0; max-width: 40em; color: var(--h-ink-2); font-size: clamp(19px, 2vw, 24px) !important; line-height: 1.55; }
 .h-hero-actions { margin-top: 32px; display: flex; gap: 24px; justify-content: center; align-items: center; flex-wrap: wrap; }
-/* ボタンのすぐ下に「無料」の1語だけ。控えめな灰色・普通の太さ */
-.h-hero-note { margin-top: 12px; color: var(--h-ink-3); font-size: 14px !important; }
+/* 見出しの上の小さな一言：何のアプリかと「無料」を最初に伝える（Apple の製品ページと同じ置き方。赤は押す所だけなので灰色。2026-11-08） */
+.h-eyebrow { margin: 0 0 14px; color: var(--h-ink-2); font-weight: 600; font-size: clamp(15px, 1.4vw, 19px) !important; letter-spacing: 0.02em; }
 
 .h-hero-stage {
   position: relative;
@@ -314,6 +314,17 @@
 .h-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3.4vw, 48px); max-width: 1040px; margin: 0 auto; }
 .h-trio figure { margin: 0; text-align: center; }
 .h-trio figcaption { margin-top: 14px; font-weight: 600; font-size: 16px; }
+/* 圧迫感を減らす（2026-11-08）：見出しは一回り小さく余白を広く、iPhone は小さめにして下3分の1を背景に溶かす */
+.h-trio-title { font-size: clamp(26px, 3.4vw, 40px) !important; margin-bottom: clamp(40px, 5vw, 64px); }
+.h-trio .h-phone {
+  width: 80%;
+  margin: 0 auto;
+  padding: 3px 3px 0;
+  aspect-ratio: 646 / 960;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
 .h-download .h-faq { margin-top: clamp(40px, 6vw, 64px); text-align: left; }
 
 @media (max-width: 760px) {
@@ -339,6 +350,7 @@
   }
   .h-trio::-webkit-scrollbar { display: none; }
   .h-trio figure { flex: 0 0 62%; scroll-snap-align: center; }
+  .h-trio .h-phone { width: 100%; }
   .h-trio figcaption { font-size: 14px !important; margin-top: 14px; }
   .h-trio figcaption b { font-size: 16px; }
 }
