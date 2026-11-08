@@ -300,8 +300,12 @@
   /* 画面の下半分は空白が多いので、下の方を背景に溶かして短くする（画面3枚の所と同じ見せ方。すぐ下の区切りが見え始める） */
   .h-hero-phone {
     height: min(340px, 84vw);
-    overflow: hidden;
-    padding-top: 14px;
+    /* 下だけ切る。横は切らない（横まで切ると、枠の外側の縁や影が白く欠けて見えた） */
+    overflow-x: visible;
+    overflow-y: clip;
+    /* 下を溶かす覆い（mask）は箱の外を消すので、左右にも余白を取って、外側の縁と影まで箱の中に入れる */
+    box-sizing: content-box;
+    padding: 14px 12px 0;
     -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
   }
@@ -432,6 +436,10 @@
   /* Mac と iPhone：大きく沈んだ所から現れ、そのあと漂う（漂いは translate、現れは transform なので重ならない） */
   .h-hero-stage .lv-mac { animation: h-device 1.2s var(--h-ease-soft) 0.6s both, h-float 13s ease-in-out 1.8s infinite alternate; --fx: -1; --fr: 0; }
   .h-hero-stage .h-hero-phone > * { animation: h-device 1.2s var(--h-ease-soft) 0.75s both, h-float 9s ease-in-out 2s infinite alternate; --fx: 1; }
+  /* スマホは iPhone 1台を下で切って見せるので、漂う動きは付けない（傾きと横揺れで、切った端や縁が動いて不自然に見えた。2026-11-08 本人の指摘） */
+  @media (max-width: 760px) {
+    .h-hero-stage .h-hero-phone > * { animation: h-device 1.2s var(--h-ease-soft) 0.75s both; }
+  }
 
   /* 画面に入ったら：見出しは文節ごと、ほかは同じ現れ方で順番に */
   .fx-ready h2[data-reveal] .h-w { transition: opacity 0.6s ease, filter 0.6s ease, transform 0.7s var(--h-ease-soft); transition-delay: calc(var(--i, 0) * 0.08s); }
