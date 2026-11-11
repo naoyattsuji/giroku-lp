@@ -574,6 +574,14 @@ function chatHistory(raw: unknown): Array<{ role: 'user' | 'model'; parts: Array
   return turns.slice(-10).map((t) => ({ role: t.role, parts: [{ text: t.text }] }))
 }
 
+/** 議事録だけで答えられないときの答え（このときは文字起こしの全文で答え直す） */
+const NOT_IN_MINUTES = /分かりません|わかりません|書かれていません|記載がありません|記載はありません|含まれていません|触れられていません|言及されていません|don't know|doesn't (?:show|mention|say)|not (?:mentioned|in the)/i
+
+/** 議事録を、文字起こしの形（1行ずつの発言）にする。議事録だけで答えさせるときに使う */
+function minutesAsSegments(minutes: string): TranscriptSegment[] {
+  return minutes.split('\n').map((line) => line.trim()).filter(Boolean).map((text) => ({ speaker: 'self' as const, text }))
+}
+
 function isChatRequest(body: { instruction?: string; previousSummary?: string }): boolean {
   return Boolean(body.instruction && body.previousSummary)
 }
@@ -715,34 +723,54 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // 無料の利用（広告で運営）は 3.1 Flash-Lite、有料は 3.5 Flash-Lite（app/lib/gemini.ts）
   try {
-    const { res, model } = await generateContent(
-      paid ? 'quality' : 'economy',
-      apiKey,
-      {
+    // AI に1回聞く。content は先頭に置く本文（文字起こし＋議事録、または議事録だけ）
+    const ask = (content: string) =>
+      generateContent(
+        paid ? 'quality' : 'economy',
+        apiKey,
+        {
           systemInstruction: { parts: [{ text: systemInstructionText }] },
           contents: isChat
             ? [
-                { role: 'user', parts: [{ text: userContent }] },
+                { role: 'user', parts: [{ text: content }] },
                 { role: 'model', parts: [{ text: body.lang === 'en' ? 'I have read the transcript and the notes.' : '文字起こしと議事録を読みました。' }] },
                 ...chatHistory(body.history),
                 { role: 'user', parts: [{ text: `---ユーザーのメッセージ---\n${body.instruction}` }] }
               ]
-            : [{ role: 'user', parts: [{ text: userContent }] }],
+            : [{ role: 'user', parts: [{ text: content }] }],
           generationConfig: {
             // 議事録は創作ではなく抽出タスクのため、温度を低く固定してハルシネーション
             // （文字起こしに無い内容を書いてしまうこと）を抑える。0にはせず少しだけ
             // 余地を残し、不自然に硬い言い回しの繰り返しを避ける。
             temperature: 0.2,
-            // 2.5 Flashの動的thinkingは長い会話で待ち時間が大きく振れるため上限を固定する。
-            // 要約・質問に必要な推論余地は残しつつ、数万thinking tokenへ膨らむのを防ぐ。
-            // （推論の上限は generateContent の thinkingBudget で指定する）
-            // 以前は初回生成だけ4096で、長い会議だと本文が途中で切れるリスクがあった。
-            // チャット（書き直し）と同じ余裕を持たせて揃える。
             maxOutputTokens: 16384
           }
-      },
-      { thinkingBudget: paid ? 1024 : 0 }
-    )
+        },
+        { thinkingBudget: paid ? 1024 : 0 }
+      )
+
+    // 質問は、まず議事録だけを送って答えさせる（2026-11-12 本人の判断）。
+    // 文字起こしの全文（1時間で約1万8千字）を毎回送るのが費用の大半だった。議事録（約1,000字）だけなら約3分の1。
+    // 10の会議・125問で試すと、議事録だけで106問に正しく答え、間違いは0。残り19問は「分からない」と正しく判断した。
+    // 「分からない」と答えたときと、書き直しの依頼（細かい中身が要る）のときだけ、全文で答え直す。回数は1回として数える
+    if (isChat) {
+      const lightContent = `---文字起こし---\n${formatTranscript(minutesAsSegments(body.previousSummary!))}\n\n---現在の議事録---\n${body.previousSummary}`
+      const first = await ask(lightContent)
+      if (first.res.ok) {
+        const data = await first.res.json()
+        await recordUsage(first.model, 'chat', paid, data?.usageMetadata)
+        const text = responseText(data).trim()
+        const { type, body: reply } = splitChatReply(text)
+        if (text && type === 'answer' && !NOT_IN_MINUTES.test(reply)) {
+          return NextResponse.json(
+            { type, content: toPlainJapaneseNotes(reply), quota: quotaInfo },
+            { headers: { 'x-giroku-model': first.model, 'x-giroku-chat': 'minutes' } }
+          )
+        }
+      }
+    }
+
+    const { res, model } = await ask(userContent)
     if (!res.ok) {
       await quota.refund()
       return NextResponse.json({ error: `要約に失敗しました (${res.status})` }, { status: 502 })
@@ -759,7 +787,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (isChat) {
       const { type, body: reply } = splitChatReply(text)
       const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(reply)) : toPlainJapaneseNotes(reply)
-      return NextResponse.json({ type, content, quota: quotaInfo }, { headers: { 'x-giroku-model': model } })
+      return NextResponse.json({ type, content, quota: quotaInfo }, { headers: { 'x-giroku-model': model, 'x-giroku-chat': 'full' } })
     }
     const { title: generatedTitle, body: summaryText } = splitTitle(text)
     const summary = removePlaceholderOwners(toPlainJapaneseNotes(summaryText))
