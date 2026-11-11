@@ -333,8 +333,20 @@ REVISE・ANSWERの両方に適用するルール:
 - 絵文字と機種依存文字を使わないこと（例: 絵文字全般、丸数字①②③、ローマ数字ⅠⅡⅢ、㈱№℡㎡）。貼り付け先の環境で文字化けする
 - 強調のために記号を足さないこと。大事なことは前に書き、短く言い切る
 
+会話の続きについて:
+- これまでのやりとり（ユーザーの質問とあなたの答え）が渡されたときは、それを踏まえて答える。「それ」「さっきの」「もっと詳しく」「なぜ？」などは、直前の質問と答えを指す
+- 前の答えと食い違うことを言わない。前の答えが間違っていたと分かったら、そう言ってから正す
+- 前の答えをそのままくり返さない。深掘りの質問には、前の答えより一段詳しく、文字起こしの具体的な発言をもとに答える
+
+答え方の指定について（いちばん優先する）:
+- ユーザーが答え方を指定したら（例: 箇条書きで、番号を付けて、3つに、一言で、100文字以内で、表で、時系列で、です・ますなしで）、必ずその通りにする。この下の決まりより優先する
+- 箇条書きは行頭に「・」、番号は「1.」「2.」を使う（Markdownの記号の代わり）
+- 表を頼まれたら、1行に1件ずつ「項目：内容」の形で並べる
+- 数や文字数の指定（3つ、100文字以内など）は必ず守る
+- 一度指定された答え方は、ユーザーが変えるまで次の答えでも続ける
+
 ANSWERのときだけ適用するルール:
-- 短い質問には、見出しも箇条書きも付けずに普通の文章で答えること
+- 答え方の指定がなく、短い質問のときは、見出しも箇条書きも付けずに普通の文章で答えること
 - 回答は議事録本文と違い、ですます調で構わない
 
 REVISEで書き直すときは、次のルールも適用する:
@@ -372,8 +384,20 @@ Rules for both REVISE and ANSWER:
 - Do not use emoji or platform-dependent characters. They break when pasted elsewhere
 - Do not add symbols for emphasis. Put what matters first and state it plainly
 
+About the ongoing conversation:
+- When earlier turns (the user's questions and your answers) are given, answer with them in mind. "That", "the one before", "more detail", "why?" refer to the previous question and answer
+- Do not contradict your earlier answers. If an earlier answer was wrong, say so and correct it
+- Do not repeat the previous answer. For follow-up questions, go one level deeper using specific statements from the transcript
+
+About the requested answer format (highest priority):
+- If the user specifies a format (e.g. bullet points, numbered, three items, one word, within 100 characters, a table, chronological), always follow it. This overrides the rules below
+- Use "・" for bullets and "1." "2." for numbering (instead of Markdown symbols)
+- For a table, put one item per line as "Item: content"
+- Always respect counts and length limits
+- Keep using a requested format in later answers until the user changes it
+
 Rules for ANSWER only:
-- For a short question, answer in plain sentences with no headings or lists at all
+- If no format is requested and the question is short, answer in plain sentences with no headings or lists at all
 
 When rewriting for REVISE, also apply these rules:
 ${PLAIN_STYLE_RULES_EN}
@@ -526,6 +550,30 @@ function formatTranscript(segments: TranscriptSegment[]): string {
   return compactTranscriptLines(segments.map((s) => s.text)).join('\n')
 }
 
+/**
+ * これまでの質問と答えを、AI に渡す会話の形にそろえる（2026-11-11）。
+ * 前は毎回「今回の質問」だけを渡していて、深掘りの質問（「それはなぜ？」など）で話が通じなかった。
+ * 古い順に、ユーザー→AI の組だけを残す。長すぎる会話は直近の5往復まで、1つの発言は1,500文字まで
+ * （書き直しの答えは議事録の全文なので長い。中身は「現在の議事録」に入っているので短く切ってよい）。
+ */
+function chatHistory(raw: unknown): Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> {
+  if (!Array.isArray(raw)) return []
+  const turns: Array<{ role: 'user' | 'model'; text: string }> = []
+  for (const item of raw.slice(-40)) {
+    if (!item || typeof item !== 'object') continue
+    const { role, text } = item as { role?: unknown; text?: unknown }
+    if ((role !== 'user' && role !== 'assistant') || typeof text !== 'string' || !text.trim()) continue
+    const r = role === 'user' ? 'user' : 'model'
+    const t = text.trim().slice(0, 1500)
+    const last = turns[turns.length - 1]
+    if (last && last.role === r) last.text = t // 同じ側が続いたら新しい方だけ残す
+    else turns.push({ role: r, text: t })
+  }
+  while (turns.length && turns[0].role !== 'user') turns.shift()
+  if (turns.length && turns[turns.length - 1].role !== 'model') turns.pop()
+  return turns.slice(-10).map((t) => ({ role: t.role, parts: [{ text: t.text }] }))
+}
+
 function isChatRequest(body: { instruction?: string; previousSummary?: string }): boolean {
   return Boolean(body.instruction && body.previousSummary)
 }
@@ -553,6 +601,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     template?: SummaryTemplate
     instruction?: string
     previousSummary?: string
+    /** これまでの質問と答え（古い順。2026-11-11 から。無ければ1問だけの質問として扱う） */
+    history?: unknown
   }
   try {
     body = await req.json()
@@ -647,7 +697,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (isChat) {
     systemInstructionText =
       body.lang === 'en' ? CHAT_PROMPT_EN : CHAT_PROMPT_JA.replace('{LANG}', langLabel)
-    userContent = `---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}\n\n---ユーザーのメッセージ---\n${body.instruction}`
+    // 文字起こしと議事録を先頭に置き、これまでのやりとり、今回の質問の順に会話として渡す。
+    // 先頭が毎回同じなので、2回目からは Google の割引（キャッシュ）が効く
+    userContent = `---文字起こし---\n${formatTranscript(segments)}\n\n---現在の議事録---\n${body.previousSummary}`
   } else {
     const template = body.template ?? 'auto'
     const prompt =
@@ -668,7 +720,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       apiKey,
       {
           systemInstruction: { parts: [{ text: systemInstructionText }] },
-          contents: [{ role: 'user', parts: [{ text: userContent }] }],
+          contents: isChat
+            ? [
+                { role: 'user', parts: [{ text: userContent }] },
+                { role: 'model', parts: [{ text: body.lang === 'en' ? 'I have read the transcript and the notes.' : '文字起こしと議事録を読みました。' }] },
+                ...chatHistory(body.history),
+                { role: 'user', parts: [{ text: `---ユーザーのメッセージ---\n${body.instruction}` }] }
+              ]
+            : [{ role: 'user', parts: [{ text: userContent }] }],
           generationConfig: {
             // 議事録は創作ではなく抽出タスクのため、温度を低く固定してハルシネーション
             // （文字起こしに無い内容を書いてしまうこと）を抑える。0にはせず少しだけ
@@ -698,12 +757,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (isChat) {
-      const { type, body } = splitChatReply(text)
-      const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(body)) : toPlainJapaneseNotes(body)
+      const { type, body: reply } = splitChatReply(text)
+      const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(reply)) : toPlainJapaneseNotes(reply)
       return NextResponse.json({ type, content, quota: quotaInfo }, { headers: { 'x-giroku-model': model } })
     }
-    const { title: generatedTitle, body } = splitTitle(text)
-    const summary = removePlaceholderOwners(toPlainJapaneseNotes(body))
+    const { title: generatedTitle, body: summaryText } = splitTitle(text)
+    const summary = removePlaceholderOwners(toPlainJapaneseNotes(summaryText))
     return NextResponse.json(
       { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
       { headers: { 'x-giroku-model': model } }
