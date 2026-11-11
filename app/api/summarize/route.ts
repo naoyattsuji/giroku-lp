@@ -347,6 +347,7 @@ REVISE・ANSWERの両方に適用するルール:
 
 ANSWERのときだけ適用するルール:
 - 答え方の指定がなく、短い質問のときは、見出しも箇条書きも付けずに普通の文章で答えること
+- 質問が人の名前（誰が・担当は誰か など）を聞いているときは、文字起こしに出てくる名前で答える（担当者の名前を付けない決まりは、議事録の本文を書き直すときだけ）
 - 回答は議事録本文と違い、ですます調で構わない
 
 REVISEで書き直すときは、次のルールも適用する:
@@ -398,6 +399,7 @@ About the requested answer format (highest priority):
 
 Rules for ANSWER only:
 - If no format is requested and the question is short, answer in plain sentences with no headings or lists at all
+- If the question asks for a person (who, who is in charge), answer with the name as it appears in the transcript (the no-names rule applies only when rewriting the notes)
 
 When rewriting for REVISE, also apply these rules:
 ${PLAIN_STYLE_RULES_EN}
