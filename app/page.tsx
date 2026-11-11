@@ -246,19 +246,20 @@ export default function Home(): ReactElement {
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
               <ul className="h-list">
-                <li><Check />録音・文字起こし・AI 議事録</li>
-                <li><Check />何回でも使える</li>
-                <li className="h-muted">iPhone 版は広告あり</li>
+                <li><Check />録音・文字起こしは何回でも</li>
+                <li><Check />AI 議事録は月5回まで</li>
+                <li className="h-muted">iPhone 版は広告あり。広告を見ると AI 議事録をもう1回作れます</li>
               </ul>
               <a href="#download" className="h-button h-button-gray">無料で始める</a>
             </article>
             <article className="h-plan h-plan-pro">
               <h3>Pro</h3>
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
+              <p className="h-plan-how">月ごとなら ¥200／月</p>
               <ul className="h-list">
                 <li><Check />広告なし</li>
-                <li><Check />より高性能な AI で議事録を作成</li>
-                <li><Check />文字起こしの誤字・句読点を自動で直す</li>
+                <li><Check />より高性能な AI で、AI 議事録を月100回まで</li>
+                <li><Check />文字起こしの誤字・句読点を AI で直せる</li>
                 <li><Check />コピーした議事録の末尾に付く「Giroku で作成」の一文を消せる</li>
               </ul>
               <div className="h-plan-actions">
@@ -274,7 +275,7 @@ export default function Home(): ReactElement {
             </article>
           </div>
           <p className="h-fineprint">
-            Pro は iPhone とパソコンで別々に購入します。1年ごとの自動更新で、期間が終わる 24時間前までに解約しない限り更新されます。
+            Pro は iPhone とパソコンで別々に購入します。年額か月額の自動更新で、期間が終わる 24時間前までに解約しない限り更新されます。AI 議事録は会議1時間ごとに1回と数えます。
           </p>
           </HScroll>
         </Section>
