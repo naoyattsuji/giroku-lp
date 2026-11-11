@@ -157,10 +157,10 @@ export async function takeQuota(options: {
 export function quotaMessage(kind: QuotaKind, plan: QuotaPlan, result: QuotaResult): string {
   const what = kind === 'summary' ? 'AI 議事録の作成' : kind === 'chat' ? 'AI への質問' : '文章の仕上げ'
   if (result.reason === 'day') {
-    return `今日の${what}の上限（${result.limit.day}回）に届きました。日本時間の0時にまた使えます。`
+    return `今日の ${what}の上限（${result.limit.day}回）に届きました。日本時間の0時にまた使えます。`
   }
   if (plan === 'pro') {
-    return `今月の${what}の上限（${result.limit.month}回）に届きました。来月1日にまた使えます。`
+    return `今月の ${what}の上限（${result.limit.month}回）に届きました。来月1日にまた使えます。`
   }
   if (result.canReward) {
     return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。広告を見ると、もう1回作れます。Pro なら月100回まで使えます。`
