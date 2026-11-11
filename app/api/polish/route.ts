@@ -249,9 +249,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return { segments: output, title: generatedTitle, complete }
   })()
 
+  // 安いモデルは、題名を付け忘れたり「〜について」で終わる題名を返したりすることがある（2026-11-11 実測で2回に1回）。
+  // そのときだけ、抜粋から題名だけを作り直す（抜粋は6,000文字まで。原価は1回0.2円ほど）
+  let title = polishResult.title
+  if (!title) {
+    try {
+      const { res, model } = await generateContent('polish', apiKey, {
+        contents: [{ role: 'user', parts: [{ text: `${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}` }] }],
+        generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 256 }
+      }, { thinkingBudget: 0 })
+      if (res.ok) {
+        const data = await res.json()
+        await recordUsage(model, 'polish', true, data?.usageMetadata)
+        const parsed = JSON.parse(responseText(data)) as { title?: unknown }
+        const cleaned = typeof parsed.title === 'string' ? parsed.title.trim() : ''
+        title = validGeneratedTitle(cleaned) ? cleaned : null
+      }
+    } catch {
+      // 題名が作れなくても、仕上げた文章は返す
+    }
+  }
+
   return NextResponse.json({
     segments: polishResult.segments,
-    title: polishResult.title,
+    title,
     polished: polishResult.complete
   })
 }
