@@ -176,7 +176,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             includeTitle && batches.length > 1
               ? `\n\n${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}`
               : ''
-          const { res } = await generateContent('quality', apiKey, {
+          const { res } = await generateContent('polish', apiKey, {
               contents: [
                 {
                   role: 'user',

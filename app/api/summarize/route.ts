@@ -629,7 +629,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     userContent = `---文字起こし---\n${formatTranscript(segments)}`
   }
 
-  // 無料の利用（広告で運営）は原価の安い Flash-Lite、有料は Flash（app/lib/gemini.ts）
+  // 無料の利用（広告で運営）は 3.1 Flash-Lite、有料は 3.5 Flash-Lite（app/lib/gemini.ts）
   try {
     const { res, model } = await generateContent(
       paid ? 'quality' : 'economy',

@@ -7,15 +7,19 @@ import { fetchWithRetry } from './license'
  * 2.5 Flash-Lite がすでに404になっていた（実測）。モデルが見つからない・使えないときは
  * 次の候補へ自動で切り替え、AI機能がまとめて止まらないようにする。
  *
- * - quality: 有料・文章の仕上げ。いまは 2.5 Flash を使い、止まったら後継へ
- * - economy: 無料（広告で運営）。原価の安い Flash-Lite を先に試す
+ * - quality: Pro の議事録・質問。3.5 Flash-Lite（2.5 Flash は 2026-12-01 に提供終了。後継として Google が示すもの。
+ *   値段は 2.5 Flash と同じ）
+ * - polish: Pro の文章の仕上げ。誤字や読点を直すだけで返す文字が多いので、安い 3.1 Flash-Lite（2026-11-11 本人の判断）
+ * - economy: 無料（広告で運営）。原価の安い 3.1 Flash-Lite
+ * 3.1 Flash-Lite の提供終了は早くて 2027-05-07（後継は 3.5 Flash-Lite）。
  */
-export type GeminiTier = 'quality' | 'economy'
+export type GeminiTier = 'quality' | 'polish' | 'economy'
 
 const CANDIDATES: Record<GeminiTier, string[]> = {
-  // 最後の 3.1 Flash-Lite は本番で動作確認済みの受け皿（後継の Flash の名前が違っても止まらないように）
-  quality: ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3-flash', 'gemini-3.1-flash-lite'],
-  economy: ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash']
+  // 後ろの候補は、前のモデルが見つからない（404）ときの受け皿
+  quality: ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'],
+  polish: ['gemini-3.1-flash-lite', 'gemini-3.5-flash-lite'],
+  economy: ['gemini-3.1-flash-lite', 'gemini-3.5-flash-lite']
 }
 
 // 404 になったモデルは、このサーバーが動いている間は試さない（毎回の無駄な往復を避ける）
