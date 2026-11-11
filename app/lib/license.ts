@@ -317,7 +317,8 @@ export function allowLicenseRequest(licenseKey: string | undefined | null): bool
     current.count++
     return true
   }
-  return take(licenseMinuteBuckets, 6, 60_000) && take(licenseHourBuckets, 30, 60 * 60_000)
+  // Pro も同じく、連打を防ぐだけ（月・1日の上限は dailyLimit.ts）
+  return take(licenseMinuteBuckets, 12, 60_000) && take(licenseHourBuckets, 90, 60 * 60_000)
 }
 
 /** 登録不要の無料版を匿名端末IDで認可する。個人情報や端末名は受け取らない。 */
@@ -425,7 +426,9 @@ export function allowAnonymousRequest(deviceId: string): boolean {
     current.count++
     return true
   }
-  return take(anonymousMinuteBuckets, 4, 60_000) && take(anonymousHourBuckets, 24, 60 * 60_000)
+  // 費用は月・1日の上限（dailyLimit.ts）で守るので、ここは連打を防ぐだけにする。
+  // 前の「1分4回」は、議事録を作ってすぐ深掘りの質問を続けると当たっていた（2026-11-11）
+  return take(anonymousMinuteBuckets, 10, 60_000) && take(anonymousHourBuckets, 60, 60 * 60_000)
 }
 
 /** 有料モバイル版にも不正な自動連打だけを止める安全上限を設ける。 */
