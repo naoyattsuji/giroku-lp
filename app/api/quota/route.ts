@@ -1,0 +1,53 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { isPaidAppleTransaction } from '../../lib/apple-plus'
+import {
+  allowApiRequest,
+  isPaidLicense,
+  isPaidMobileAccount,
+  isPaidMobileDevice,
+  isPaidPortableInstance,
+  isValidAnonymousDeviceId
+} from '../../lib/license'
+import { clientPlatform, nextResetDate, peekQuota, rewardCredits } from '../../lib/dailyLimit'
+
+/**
+ * 今月の AI の回数の残りを返す（回数は減らさない）。アプリが残りのバーを出すため（2026-11-11）。
+ * 送るものは /api/summarize と同じ（無料版は端末の匿名 ID、Pro は購入キーか iPhone の購入記録）。
+ * 返すもの：plan（free/pro）、kinds（summary/chat/polish ごとの上限・使った数・残り）、
+ * rewardCredits（iPhone の無料版で、広告で足してまだ使っていない回数）、resetsOn（もとに戻る日）
+ */
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!allowApiRequest(req, 30)) {
+    return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
+  }
+  let body: { deviceId?: string; licenseKey?: string; licenseInstanceId?: string; appleSignedTransaction?: string }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: '不正なリクエストです' }, { status: 400 })
+  }
+  const hasKey = typeof body.licenseKey === 'string' && body.licenseKey.trim().length > 0 && body.licenseKey.length <= 256
+  const hasDevice = isValidAnonymousDeviceId(body.deviceId)
+  if (!hasKey && !hasDevice) {
+    return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
+  }
+
+  const mobilePaid =
+    !hasKey && hasDevice
+      ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
+        (await isPaidMobileAccount(req, body.deviceId!)) ||
+        (await isPaidMobileDevice(body.deviceId!))
+      : false
+  const paid =
+    (hasKey
+      ? typeof body.licenseInstanceId === 'string' && body.licenseInstanceId.length <= 100
+        ? await isPaidPortableInstance(body.licenseKey!, body.licenseInstanceId)
+        : await isPaidLicense(body.licenseKey)
+      : false) || mobilePaid
+
+  const plan = paid ? 'pro' : 'free'
+  const platform = clientPlatform(req.headers.get('user-agent'))
+  const kinds = await peekQuota(hasKey ? body.licenseKey! : body.deviceId!, plan, platform)
+  const credits = !paid && platform === 'iphone' && hasDevice ? await rewardCredits(body.deviceId!) : 0
+  return NextResponse.json({ plan, platform, kinds, rewardCredits: credits, resetsOn: nextResetDate() })
+}

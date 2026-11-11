@@ -6,6 +6,7 @@ import {
   allowApiRequest,
   allowLicenseRequest,
   isPaidLicense,
+  isValidAnonymousDeviceId,
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
@@ -95,6 +96,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   let body: {
     licenseKey?: string
     appleSignedTransaction?: unknown
+    /** iPhone の端末の匿名 ID（回数を /api/quota と同じ相手で数えるため。無くても動く） */
+    deviceId?: string
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
   }
@@ -137,7 +140,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // Pro の仕上げの回数（月100回・1日20回。会議の長さで数える。app/lib/dailyLimit.ts）
   const quota = await takeQuota({
-    subject: rateKey,
+    subject: hasKey ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : rateKey,
     plan: 'pro',
     platform: clientPlatform(req.headers.get('user-agent')),
     kind: 'polish',

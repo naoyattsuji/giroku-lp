@@ -167,3 +167,50 @@ export function quotaMessage(kind: QuotaKind, plan: QuotaPlan, result: QuotaResu
   }
   return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。来月1日にまた使えます。Pro なら月100回まで使えます。`
 }
+
+export interface QuotaStatus {
+  kind: QuotaKind
+  monthLimit: number
+  monthUsed: number
+  remaining: number
+  dayLimit: number
+  dayUsed: number
+}
+
+/** 回数を減らさずに、今月と今日の使った数を返す（アプリが残りのバーを出すため） */
+export async function peekQuota(subject: string, plan: QuotaPlan, platform: ClientPlatform): Promise<QuotaStatus[]> {
+  const id = subjectId(subject)
+  const kinds = (Object.keys(QUOTA_LIMITS[plan][platform]) as QuotaKind[])
+  const keys = kinds.flatMap((kind) => [
+    `giroku:q:${jstMonth()}:${plan}:${kind}:${id}`,
+    `giroku:q:${jstDay()}:${plan}:${kind}:${id}`
+  ])
+  const result = await redisPipeline([['MGET', ...keys]])
+  const values = Array.isArray(result?.[0]) ? (result![0] as unknown[]) : keys.map((key) => memory.get(key) ?? 0)
+  return kinds.map((kind, i) => {
+    const limit = QUOTA_LIMITS[plan][platform][kind]!
+    const monthUsed = Math.max(0, Number(values[i * 2] ?? 0) || 0)
+    const dayUsed = Math.max(0, Number(values[i * 2 + 1] ?? 0) || 0)
+    return {
+      kind,
+      monthLimit: limit.month,
+      monthUsed,
+      remaining: Math.max(0, limit.month - monthUsed),
+      dayLimit: limit.day,
+      dayUsed
+    }
+  })
+}
+
+/** リワード広告で足されて、まだ使っていない回数 */
+export async function rewardCredits(deviceId: string): Promise<number> {
+  const result = await redisPipeline([['GET', rewardKey(deviceId)]])
+  return Math.max(0, Number(result?.[0] ?? 0) || 0)
+}
+
+/** 来月1日（日本時間）を「2026-12-01」の形で */
+export function nextResetDate(now = Date.now()): string {
+  const jst = new Date(now + 9 * 60 * 60 * 1000)
+  const next = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth() + 1, 1))
+  return next.toISOString().slice(0, 10)
+}
