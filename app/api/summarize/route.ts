@@ -16,7 +16,7 @@ import {
 import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/summaryTitle'
 import { generateContent, responseText } from '../../lib/gemini'
 import { isPaidAppleTransaction } from '../../lib/apple-plus'
-import { clientPlatform, dailyLimitMessage, takeDaily } from '../../lib/dailyLimit'
+import { clientPlatform, quotaMessage, quotaUnits, takeQuota } from '../../lib/dailyLimit'
 import { recordUsage } from '../../lib/usageLog'
 
 export const runtime = 'nodejs'
@@ -524,6 +524,10 @@ function formatTranscript(segments: TranscriptSegment[]): string {
   return compactTranscriptLines(segments.map((s) => s.text)).join('\n')
 }
 
+function isChatRequest(body: { instruction?: string; previousSummary?: string }): boolean {
+  return Boolean(body.instruction && body.previousSummary)
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!allowApiRequest(req)) {
     return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
@@ -605,18 +609,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })
   }
 
-  // 無料版の1日の上限（議事録と質問を別々に数える。app/lib/dailyLimit.ts）
-  if (!paid) {
-    const kind = body.instruction && body.previousSummary ? 'chat' : 'summary'
-    const daily = await takeDaily(body.deviceId!, kind, clientPlatform(req.headers.get('user-agent')))
-    if (!daily.allowed) {
-      return NextResponse.json({ error: dailyLimitMessage(kind, daily.limit), dailyLimit: true }, { status: 429 })
-    }
+  // 回数の上限（月・1日。議事録は会議の長さで数える。app/lib/dailyLimit.ts）
+  const kind = isChatRequest(body) ? 'chat' : 'summary'
+  const plan = paid ? 'pro' : 'free'
+  const quota = await takeQuota({
+    subject: body.licenseKey || body.deviceId!,
+    plan,
+    platform: clientPlatform(req.headers.get('user-agent')),
+    kind,
+    units: quotaUnits(kind, segments.reduce((sum, s) => sum + s.text.length, 0)),
+    deviceId: body.deviceId
+  })
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: quotaMessage(kind, plan, quota), quota: { kind, reason: quota.reason, canReward: quota.canReward === true, limit: quota.limit } },
+      { status: 429 }
+    )
   }
 
   const langLabel =
     body.lang === 'en' ? 'English' : body.lang === 'auto' ? '文字起こしと同じ言語' : '日本語'
-  const isChat = Boolean(body.instruction && body.previousSummary)
+  // アプリが「今月あと何回」を出せるように、成功した返事に添える（上限が無いときは null）
+  const quotaInfo = {
+    kind,
+    remaining: Number.isFinite(quota.remainingMonth) ? quota.remainingMonth : null,
+    limit: Number.isFinite(quota.limit.month) ? quota.limit.month : null
+  }
+  const isChat = isChatRequest(body)
 
   // 指示文（書式・正確さのルール）はsystemInstructionへ切り出し、userのcontentsには
   // データ（文字起こし・現在の議事録・ユーザーの依頼）だけを渡す。長いuser発話の中に
@@ -664,6 +683,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { thinkingBudget: paid ? 1024 : 0 }
     )
     if (!res.ok) {
+      await quota.refund()
       return NextResponse.json({ error: `要約に失敗しました (${res.status})` }, { status: 502 })
     }
     const data = await res.json()
@@ -671,21 +691,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await recordUsage(model, isChat ? 'chat' : 'summary', paid, data?.usageMetadata)
     const text = responseText(data).trim()
     if (!text) {
+      await quota.refund()
       return NextResponse.json({ error: '要約の生成に失敗しました（空の応答）' }, { status: 502 })
     }
 
     if (isChat) {
       const { type, body } = splitChatReply(text)
       const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(body)) : toPlainJapaneseNotes(body)
-      return NextResponse.json({ type, content }, { headers: { 'x-giroku-model': model } })
+      return NextResponse.json({ type, content, quota: quotaInfo }, { headers: { 'x-giroku-model': model } })
     }
     const { title: generatedTitle, body } = splitTitle(text)
     const summary = removePlaceholderOwners(toPlainJapaneseNotes(body))
     return NextResponse.json(
-      { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null },
+      { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
       { headers: { 'x-giroku-model': model } }
     )
   } catch {
+    await quota.refund()
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
   }
 }

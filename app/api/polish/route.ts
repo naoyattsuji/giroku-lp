@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { recordUsage } from '../../lib/usageLog'
+import { clientPlatform, quotaMessage, quotaUnits, takeQuota } from '../../lib/dailyLimit'
 import { isPaidAppleTransaction, isPlausibleSignedTransaction } from '../../lib/apple-plus'
 import {
   allowApiRequest,
@@ -133,6 +134,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const texts = segments.map((s) => s.text)
+
+  // Pro の仕上げの回数（月100回・1日20回。会議の長さで数える。app/lib/dailyLimit.ts）
+  const quota = await takeQuota({
+    subject: rateKey,
+    plan: 'pro',
+    platform: clientPlatform(req.headers.get('user-agent')),
+    kind: 'polish',
+    units: quotaUnits('polish', texts.reduce((sum, t) => sum + t.length, 0))
+  })
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: quotaMessage('polish', 'pro', quota), quota: { kind: 'polish', reason: quota.reason, limit: quota.limit } },
+      { status: 429 }
+    )
+  }
 
   // 通常の録音は1リクエストで本文補正とタイトル生成を完了する。長文だけ分割する。
   // 発話IDで対応付けるため、モデルが順序を変えても別の発話へ文章を上書きしない。
@@ -268,6 +284,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     } catch {
       // 題名が作れなくても、仕上げた文章は返す
     }
+  }
+
+  // 1つも仕上げられなかったときは、使った回数を返す
+  if (!polishResult.complete && polishResult.segments.every((seg, i) => seg.text === segments[i]?.text)) {
+    await quota.refund()
   }
 
   return NextResponse.json({
