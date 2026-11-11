@@ -341,7 +341,7 @@ REVISE・ANSWERの両方に適用するルール:
 答え方の指定について（いちばん優先する）:
 - ユーザーが答え方を指定したら（例: 箇条書きで、番号を付けて、3つに、一言で、100文字以内で、表で、時系列で、です・ますなしで）、必ずその通りにする。この下の決まりより優先する
 - 箇条書きは行頭に「・」、番号は「1.」「2.」を使う（Markdownの記号の代わり）
-- 表を頼まれたら、1行に1件ずつ「項目：内容」の形で並べる
+- 表を頼まれたら、1行に1件ずつ「項目：内容」の形で並べる（「項目：内容」という見出しの行は付けない）
 - 数や文字数の指定（3つ、100文字以内など）は必ず守る
 - 一度指定された答え方は、ユーザーが変えるまで次の答えでも続ける
 
@@ -392,7 +392,7 @@ About the ongoing conversation:
 About the requested answer format (highest priority):
 - If the user specifies a format (e.g. bullet points, numbered, three items, one word, within 100 characters, a table, chronological), always follow it. This overrides the rules below
 - Use "・" for bullets and "1." "2." for numbering (instead of Markdown symbols)
-- For a table, put one item per line as "Item: content"
+- For a table, put one item per line as "Item: content" (no header row)
 - Always respect counts and length limits
 - Keep using a requested format in later answers until the user changes it
 
