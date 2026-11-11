@@ -1,7 +1,7 @@
 import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { AppStoreServerAPIClient, Environment, Status } from '@apple/app-store-server-library'
 import { get, put } from '@vercel/blob'
-import { BUNDLE_ID, PLUS_PRODUCT_ID, verifiers } from './apple-plus'
+import { BUNDLE_ID, PLUS_PRODUCT_IDS, verifiers } from './apple-plus'
 
 /**
  * iPhone（App Store）で買った Pro を、PC 版でも使うためのキー。
@@ -91,7 +91,7 @@ export async function checkAppleKey(input: string): Promise<AppleKeyState> {
           for (const verifier of verifiers) {
             try {
               const tx = await verifier.verifyAndDecodeTransaction(last.signedTransactionInfo)
-              if (tx.productId !== PLUS_PRODUCT_ID) break
+              if (!PLUS_PRODUCT_IDS.includes(tx.productId ?? '')) break
               expiresAt = typeof tx.expiresDate === 'number' ? new Date(tx.expiresDate).toISOString() : null
               state = { paid: active && !tx.revocationDate, expiresAt }
               break
