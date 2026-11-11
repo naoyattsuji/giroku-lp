@@ -755,8 +755,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 文字起こしの全文（1時間で約1万8千字）を毎回送るのが費用の大半だった。議事録（約1,000字）だけなら約3分の1。
     // 10の会議・125問で試すと、議事録だけで106問に正しく答え、間違いは0。残り19問は「分からない」と正しく判断した。
     // 「分からない」と答えたときと、書き直しの依頼（細かい中身が要る）のときだけ、全文で答え直す。回数は1回として数える
-    // 人の名前を聞く質問は、議事録には名前を書かないので、最初から全文で答える
-    const asksPerson = /誰|だれ|どなた|担当者は|担当は|who\b/i.test(body.instruction ?? '')
+    // 人の名前を聞く質問・人を指す質問は、議事録には名前を書かないので、最初から全文で答える
+    // （「その担当の人は他に何を？」が議事録だけだと全員の仕事を並べた。2026-11-12 の本番の確かめで見つけた）
+    const asksPerson = /誰|だれ|どなた|担当|その人|この人|あの人|さん|名前|発言者|話した人|言った人|who\b|whose\b|person|people/i.test(body.instruction ?? '')
     if (isChat && !asksPerson) {
       const lightContent = `---文字起こし---\n${formatTranscript(minutesAsSegments(body.previousSummary!))}\n\n---現在の議事録---\n${body.previousSummary}`
       const first = await ask(lightContent)
