@@ -16,6 +16,7 @@ import {
 import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/summaryTitle'
 import { generateContent, responseText } from '../../lib/gemini'
 import { isPaidAppleTransaction } from '../../lib/apple-plus'
+import { clientPlatform, dailyLimitMessage, takeDaily } from '../../lib/dailyLimit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -601,6 +602,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   if (!paid && !anonymous) {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })
+  }
+
+  // 無料版の1日の上限（議事録と質問を別々に数える。app/lib/dailyLimit.ts）
+  if (!paid) {
+    const kind = body.instruction && body.previousSummary ? 'chat' : 'summary'
+    const daily = await takeDaily(body.deviceId!, kind, clientPlatform(req.headers.get('user-agent')))
+    if (!daily.allowed) {
+      return NextResponse.json({ error: dailyLimitMessage(kind, daily.limit), dailyLimit: true }, { status: 429 })
+    }
   }
 
   const langLabel =
