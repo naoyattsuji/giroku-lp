@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { recordUsage } from '../../lib/usageLog'
 import { isPaidAppleTransaction, isPlausibleSignedTransaction } from '../../lib/apple-plus'
 import {
   allowApiRequest,
@@ -176,7 +177,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             includeTitle && batches.length > 1
               ? `\n\n${titlePrompt(body.lang)}\n\n${digestForTitle(texts)}`
               : ''
-          const { res } = await generateContent('polish', apiKey, {
+          const { res, model } = await generateContent('polish', apiKey, {
               contents: [
                 {
                   role: 'user',
@@ -197,7 +198,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             console.warn(`[polish] batch ${index + 1}/${batches.length}: Gemini ${res.status}`)
             continue
           }
-          const raw = responseText(await res.json())
+          const data = await res.json()
+          await recordUsage(model, 'polish', true, data?.usageMetadata)
+          const raw = responseText(data)
           const parsed = JSON.parse(raw) as { items?: unknown; title?: unknown }
           const returned = Array.isArray(parsed.items) ? parsed.items : []
           const expectedIds = new Set(current.items.map((item) => item.id))

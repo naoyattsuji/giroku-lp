@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { jstDay, redisPipeline } from './redis'
 
 /**
  * 無料版の1日の上限（2026-11-11 本人の判断）。
@@ -32,42 +33,18 @@ export function clientPlatform(userAgent: string | null): ClientPlatform {
   return /CFNetwork|Darwin|iPhone|iOS/i.test(userAgent ?? '') ? 'iphone' : 'pc'
 }
 
-/** 日本時間の日付（YYYYMMDD） */
-function jstDay(now = Date.now()): string {
-  return new Date(now + 9 * 60 * 60 * 1000).toISOString().slice(0, 10).replace(/-/g, '')
+/** 1つ数えて、今日の合計を返す。数えられなければ null */
+async function incrementInRedis(key: string): Promise<number | null> {
+  // 2日で消える（日付が鍵に入っているので、前の日の数は使われない）
+  const result = await redisPipeline([
+    ['INCR', key],
+    ['EXPIRE', key, 172_800]
+  ])
+  const count = Number(result?.[0])
+  return result && Number.isFinite(count) ? count : null
 }
 
 const memory = new Map<string, number>()
-
-function redisConfig(): { url: string; token: string } | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN
-  return url && token ? { url: url.replace(/\/$/, ''), token } : null
-}
-
-/** 1つ数えて、今日の合計を返す。数えられなければ null */
-async function incrementInRedis(key: string): Promise<number | null> {
-  const config = redisConfig()
-  if (!config) return null
-  try {
-    const res = await fetch(`${config.url}/pipeline`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${config.token}`, 'Content-Type': 'application/json' },
-      // 2日で消える（日付が鍵に入っているので、前の日の数は使われない）
-      body: JSON.stringify([
-        ['INCR', key],
-        ['EXPIRE', key, 172_800]
-      ]),
-      signal: AbortSignal.timeout(2_000)
-    })
-    if (!res.ok) return null
-    const data = (await res.json()) as Array<{ result?: unknown }>
-    const count = Number(data?.[0]?.result)
-    return Number.isFinite(count) ? count : null
-  } catch {
-    return null
-  }
-}
 
 function incrementInMemory(key: string): number {
   if (memory.size > 20_000) memory.clear()

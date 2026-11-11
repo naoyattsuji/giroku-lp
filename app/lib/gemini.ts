@@ -30,10 +30,14 @@ interface GenerationOptions {
   thinkingBudget: number
 }
 
-function thinkingConfigFor(model: string, opts: GenerationOptions): Record<string, unknown> | null {
-  if (model.startsWith('gemini-2.5')) return { thinkingBudget: opts.thinkingBudget }
-  // 3 系は thinkingBudget ではなく thinkingLevel で指定する。推論を抑えて原価と待ち時間を減らす
-  return { thinkingLevel: 'low' }
+/**
+ * 推論（考える時間）の指定。返す文字には「考えた分」も料金がかかるので、最小にする。
+ * 議事録・仕上げ・質問は文字起こしからの抜き出しと整理で、深く考えなくてもできる（2026-11-11 本人の判断）。
+ * 3 系は thinkingLevel で指定する。minimal が使えないモデルでは low に下げ、それも合わなければ指定を外す。
+ */
+function thinkingConfigsFor(model: string, opts: GenerationOptions): Array<Record<string, unknown> | null> {
+  if (model.startsWith('gemini-2.5')) return [{ thinkingBudget: opts.thinkingBudget }, null]
+  return [{ thinkingLevel: 'minimal' }, { thinkingLevel: 'low' }, null]
 }
 
 export async function generateContent(
@@ -46,8 +50,7 @@ export async function generateContent(
   let last: { res: Response; model: string } | null = null
   for (const model of models.length > 0 ? models : CANDIDATES[tier]) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-    const thinking = thinkingConfigFor(model, opts)
-    const attempts = thinking ? [thinking, null] : [null]
+    const attempts = thinkingConfigsFor(model, opts)
     for (const thinkingConfig of attempts) {
       const generationConfig = { ...(body.generationConfig ?? {}) }
       delete generationConfig.thinkingConfig

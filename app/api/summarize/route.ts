@@ -17,6 +17,7 @@ import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/s
 import { generateContent, responseText } from '../../lib/gemini'
 import { isPaidAppleTransaction } from '../../lib/apple-plus'
 import { clientPlatform, dailyLimitMessage, takeDaily } from '../../lib/dailyLimit'
+import { recordUsage } from '../../lib/usageLog'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -665,7 +666,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!res.ok) {
       return NextResponse.json({ error: `要約に失敗しました (${res.status})` }, { status: 502 })
     }
-    const text = responseText(await res.json()).trim()
+    const data = await res.json()
+    // 本当の費用を記録（数だけ。app/lib/usageLog.ts）
+    await recordUsage(model, isChat ? 'chat' : 'summary', paid, data?.usageMetadata)
+    const text = responseText(data).trim()
     if (!text) {
       return NextResponse.json({ error: '要約の生成に失敗しました（空の応答）' }, { status: 502 })
     }
