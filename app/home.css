@@ -222,7 +222,7 @@
 .h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 /* 比べる行：左右のカードで同じ項目・同じ高さ。印・項目名・数字の位置をすべての行でそろえる */
 .h-rows { list-style: none; padding: 0; margin: 24px 0 26px; flex: 1; }
-.h-rows li { display: grid; grid-template-columns: 18px 1fr auto; column-gap: 10px; align-items: center; min-height: 54px; padding: 8px 0; border-top: 1px solid var(--h-line); font-size: 16px; }
+.h-rows li { display: grid; grid-template-columns: 18px 1fr auto; column-gap: 10px; align-items: center; height: 56px; border-top: 1px solid var(--h-line); font-size: 16px; }
 .h-rows li:last-child { border-bottom: 1px solid var(--h-line); }
 .h-rows .h-check { margin: 0; }
 .h-row-label { color: var(--h-ink-2); }
