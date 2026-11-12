@@ -250,9 +250,9 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥0</strong></p>
               <ul className="h-list">
                 <li><Check />録音・文字起こしは何回でも</li>
-                <li><Check />AI 議事録は月5回まで</li>
-                <li><Check />AI への質問は月10回まで（iPhone は30回）</li>
-                <li className="h-muted">1日に使える回数にも上限があります。iPhone 版は広告あり。月5回を使い切ったあとも、広告を見ると AI 議事録をもう1回作れます</li>
+                <li><Check />AI 議事録は月5回</li>
+                <li><Check />AI への質問は月10回（iPhone は月30回）</li>
+                <li className="h-muted">iPhone 版は広告つき。広告を見ると、議事録をもう1回作れます</li>
               </ul>
               <a href="#download" className="h-button h-button-gray">無料で始める</a>
             </article>
@@ -261,10 +261,11 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
               <p className="h-plan-how">月ごとなら ¥200／月</p>
               <ul className="h-list">
-                <li><Check />より高性能な AI で、AI 議事録は月100回、AI への質問は月300回まで</li>
-                <li><Check />「文章を整える」で、文字起こしの誤字・句読点を直せる</li>
+                <li><Check />AI 議事録は月100回、質問は月300回</li>
+                <li><Check />より高性能な AI</li>
+                <li><Check />「文章を整える」で誤字・句読点を直せる</li>
                 <li><Check />iPhone 版の広告なし</li>
-                <li><Check />コピーした議事録の末尾に付く「Giroku で作成」の一文を消せる</li>
+                <li><Check />コピーの末尾の「Giroku で作成」を消せる</li>
               </ul>
               <div className="h-plan-actions">
                 <div>
@@ -278,9 +279,12 @@ export default function Home(): ReactElement {
               </div>
             </article>
           </div>
-          <p className="h-fineprint">
-            Pro は iPhone とパソコンで別々に購入します。パソコン版は1つの購入でパソコン1台、iPhone 版は購入した本人だけが使えます。年額か月額の自動更新で、iPhone は期間が終わる24時間前まで、パソコンは更新日までに解約しない限り更新されます。AI 議事録は会議1時間ごとに1回と数えます。
-          </p>
+          {/* 1行に1つのことだけ（2026-11-12 本人の指摘：1段落に詰めるとわかりにくい） */}
+          <div className="h-fineprint">
+            <p>iPhone とパソコンは別々に購入します。パソコン版は1台、iPhone 版は購入した本人だけが使えます。</p>
+            <p>自動で更新されます。解約は、iPhone は更新の24時間前まで、パソコンは更新日までに。</p>
+            <p>1日に使える回数にも上限があります。AI 議事録は、会議1時間ごとに1回と数えます。</p>
+          </div>
           </HScroll>
         </Section>
 
