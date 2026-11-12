@@ -285,8 +285,8 @@
 
 /* ── フッター ── */
 .h-footer { background: var(--h-gray); padding: 32px 0 48px; color: var(--h-ink-3); font-size: 12px; }
-.h-footer-inner { display: grid; gap: 10px; }
-.h-footer-links { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--h-ink-2); }
+.h-footer-inner { display: grid; gap: 10px; justify-items: center; text-align: center; } /* 2026-11-12 本人の指摘：左揃えから真ん中に */
+.h-footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; color: var(--h-ink-2); }
 .h-footer-links a:hover { color: var(--h-ink); text-decoration: underline; }
 .h-footer p { font-size: 12px !important; }
 .h-legal { line-height: 1.6; }
