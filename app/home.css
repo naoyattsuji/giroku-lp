@@ -336,7 +336,7 @@
    * バッジは高さ 44px のまま（App Store のバッジは画面で 40px 以上の決まり） */
   .h-stores {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     margin-left: calc(var(--h-gutter) * -1);
@@ -612,7 +612,7 @@
 @media (max-width: 760px) {
   .h-plans {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     margin-left: calc(var(--h-gutter) * -1);

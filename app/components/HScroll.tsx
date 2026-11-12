@@ -30,8 +30,10 @@ export function HScroll({ children }: { children: ReactNode }): ReactElement {
       if (dist <= 0) return 0;
       const r = track.getBoundingClientRect();
       const vh = window.innerHeight;
-      // 並びの真ん中が画面の下から 80% の所に来たら流れ始め、35% の所で流れ終わる
-      const center = r.top + r.height / 2;
+      // 並びの真ん中が画面の下から 80% の所に来たら流れ始め、35% の所で流れ終わる。
+      // 画面より背の高い並び（料金のカード）は、上の「画面の7割」ぶんを並びとみなす。
+      // こうすると、背の低い画面3枚と同じ見え方・同じ速さで流れる（2026-11-12 本人の指摘：特長の画面と全く同じ動きに）
+      const center = r.top + Math.min(r.height, vh * 0.7) / 2;
       const p = (vh * 0.8 - center) / (vh * 0.45);
       return Math.min(1, Math.max(0, p)) * dist;
     };
