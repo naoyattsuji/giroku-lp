@@ -160,7 +160,7 @@ function expiresInPast(expiresAt: string | null | undefined): boolean {
   return Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now())
 }
 
-/** Mac・Windowsと同じLemonSqueezyの2台枠へ、スマートフォンを登録する。 */
+/** Mac・Windowsと同じLemonSqueezyの枠（パソコン1台）へ、スマートフォンを登録する（古い仕組み。いまの iPhone 版はキーを使わない）。 */
 export async function activatePortableLicense(licenseKey: string, instanceName: string): Promise<PortableLicenseState> {
   const key = licenseKey.trim()
   const name = instanceName.trim()
@@ -203,7 +203,7 @@ export async function validatePortableLicense(licenseKey: string, instanceId: st
   }
 }
 
-/** モバイルのAI利用時に、キーだけでなく登録済み端末IDも検証して2台制限の迂回を防ぐ。 */
+/** モバイルのAI利用時に、キーだけでなく登録済み端末IDも検証して台数の制限の迂回を防ぐ。 */
 export async function isPaidPortableInstance(licenseKey: string, instanceId: string): Promise<boolean> {
   const key = licenseKey.trim()
   const id = instanceId.trim()
