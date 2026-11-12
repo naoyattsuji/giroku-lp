@@ -29,53 +29,64 @@ export const verifiers = [
 ]
 
 const CACHE_MS = 10 * 60 * 1000
-const cache = new Map<string, { paid: boolean; expires: number }>()
+
+/**
+ * 署名つきの購入記録を確かめた結果。
+ * - paid：いま有効（期限内・返金なし）
+ * - originalTransactionId：購入の大もとの番号（更新しても変わらない。回数を数える相手にも使う）
+ * - expiresDate：期限（ミリ秒）。期限切れでも猶予期間中かを Apple に聞くために残す（2026-11-12 の点検）
+ */
+export interface AppleTransactionCheck {
+  paid: boolean
+  originalTransactionId: string | null
+  expiresDate: number | null
+  /** 本物・Giroku の Pro の商品・返金なし（期限だけは見ていない） */
+  genuine: boolean
+}
+
+const cache = new Map<string, { check: AppleTransactionCheck; expires: number }>()
 
 export function isPlausibleSignedTransaction(value: unknown): value is string {
   return typeof value === 'string' && value.length > 100 && value.length < 20_000 && value.split('.').length === 3
 }
 
-export async function isPaidAppleTransaction(signedTransaction: unknown): Promise<boolean> {
-  if (!isPlausibleSignedTransaction(signedTransaction)) return false
+/** 購入記録を確かめる（10分覚えておく）。前は isPaidAppleTransaction と paidOriginalTransactionId が別々に確かめていた */
+export async function checkAppleTransaction(signedTransaction: unknown): Promise<AppleTransactionCheck> {
+  const none: AppleTransactionCheck = { paid: false, originalTransactionId: null, expiresDate: null, genuine: false }
+  if (!isPlausibleSignedTransaction(signedTransaction)) return none
   const key = createHash('sha256').update(signedTransaction).digest('hex')
   const cached = cache.get(key)
-  if (cached && cached.expires > Date.now()) return cached.paid
-  let paid = false
+  if (cached && cached.expires > Date.now()) return cached.check
+  let check = none
   for (const verifier of verifiers) {
     try {
       const tx = await verifier.verifyAndDecodeTransaction(signedTransaction)
-      paid =
-        tx.bundleId === BUNDLE_ID &&
-        PLUS_PRODUCT_IDS.includes(tx.productId ?? '') &&
-        !tx.revocationDate &&
-        typeof tx.expiresDate === 'number' &&
-        tx.expiresDate > Date.now()
+      const genuine = tx.bundleId === BUNDLE_ID && PLUS_PRODUCT_IDS.includes(tx.productId ?? '') && !tx.revocationDate
+      const expiresDate = typeof tx.expiresDate === 'number' ? tx.expiresDate : null
+      check = {
+        genuine,
+        paid: genuine && expiresDate !== null && expiresDate > Date.now(),
+        originalTransactionId: tx.originalTransactionId ?? null,
+        expiresDate,
+      }
       break
     } catch {
       // この環境の記録ではない・署名が合わない → 次の環境で試す
     }
   }
   if (cache.size > 5000) cache.clear()
-  cache.set(key, { paid, expires: Date.now() + CACHE_MS })
-  return paid
+  // 期限が来たら覚えた「有効」を使わない
+  const until = check.paid && check.expiresDate ? Math.min(Date.now() + CACHE_MS, check.expiresDate) : Date.now() + CACHE_MS
+  cache.set(key, { check, expires: until })
+  return check
+}
+
+export async function isPaidAppleTransaction(signedTransaction: unknown): Promise<boolean> {
+  return (await checkAppleTransaction(signedTransaction)).paid
 }
 
 /** 確かめた上で、購入の大もとの番号（更新しても変わらない）を返す。有効でなければ null */
 export async function paidOriginalTransactionId(signedTransaction: unknown): Promise<string | null> {
-  if (!isPlausibleSignedTransaction(signedTransaction)) return null
-  for (const verifier of verifiers) {
-    try {
-      const tx = await verifier.verifyAndDecodeTransaction(signedTransaction)
-      const paid =
-        tx.bundleId === BUNDLE_ID &&
-        PLUS_PRODUCT_IDS.includes(tx.productId ?? '') &&
-        !tx.revocationDate &&
-        typeof tx.expiresDate === 'number' &&
-        tx.expiresDate > Date.now()
-      return paid && tx.originalTransactionId ? tx.originalTransactionId : null
-    } catch {
-      // 次の環境で試す
-    }
-  }
-  return null
+  const check = await checkAppleTransaction(signedTransaction)
+  return check.paid ? check.originalTransactionId : null
 }

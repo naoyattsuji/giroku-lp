@@ -3,7 +3,7 @@
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { checkAppleKey, isAppleKey } from './apple-key'
-import { remainingMs } from './deadline'
+import { DeadlineError, remainingMs } from './deadline'
 import { redisPipeline } from './redis'
 
 // デスクトップ版のGIROKU-PROMO-招待コード（HMAC方式、Giroku/scripts/generate-promo-codes.mjs で発行）。
@@ -34,8 +34,22 @@ export function checkPromoCode(input: string): boolean | null {
   return timingSafeEqual(expected, Buffer.from(sig))
 }
 
+/**
+ * 招待コードを判定できない（鍵の環境変数が無い）ときの失敗。
+ * 前は「無効」と同じ扱いで summarize・polish が 403 を返し、招待コードの人が「Pro ではない」と取り違えられた。
+ * /api/license と同じく 503（確かめられなかった）にするため、呼び出し元へ投げる（2026-11-12 の点検）
+ */
+export class LicenseUnavailableError extends Error {
+  constructor(message = '確認できませんでした。しばらくしてからお試しください。') {
+    super(message)
+    this.name = 'LicenseUnavailableError'
+  }
+}
+
 function verifyPromoCode(input: string): boolean {
-  return checkPromoCode(input) === true
+  const valid = checkPromoCode(input)
+  if (valid === null) throw new LicenseUnavailableError()
+  return valid
 }
 
 const GIROKU_STORE_ID = 410452
@@ -227,7 +241,8 @@ export async function fetchWithRetry(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     // リクエストの締め切り（app/lib/deadline.ts）が近ければ始めない。投げた失敗は呼び出し元が回数を返す
     const left = remainingMs()
-    if (left < 3000) throw new Error('締め切りまでに AI の応答が間に合いませんでした')
+    // 締め切りの失敗は DeadlineError にして、呼び出し元が 503 を返せるようにする（2026-11-12 の点検）
+    if (left < 3000) throw new DeadlineError()
     const timeoutSignal = AbortSignal.timeout(Math.min(45_000, left - 1000))
     const signal = init.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal
     const res = await fetch(url, { ...init, signal })
@@ -242,6 +257,7 @@ export async function fetchWithRetry(
   return lastRes as Response
 }
 
+/** 招待コードの鍵が無くて判定できないときは LicenseUnavailableError を投げる（呼び出し元で 503） */
 export async function isPaidLicense(licenseKey: string | undefined | null): Promise<boolean> {
   if (!licenseKey) return false
   if (isPromoCode(licenseKey)) return verifyPromoCode(licenseKey)

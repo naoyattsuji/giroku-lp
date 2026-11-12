@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { recordUsage } from '../../lib/usageLog'
-import { clientPlatform, quotaMessage, quotaUnits, takeQuota } from '../../lib/dailyLimit'
-import { isPaidAppleTransaction, isPlausibleSignedTransaction } from '../../lib/apple-plus'
+import { clientPlatform, quotaMessage, quotaUnits, takeQuota, validRequestId } from '../../lib/dailyLimit'
+import { isPlausibleSignedTransaction } from '../../lib/apple-plus'
+import { appleQuotaSubject, licenseQuotaSubject, paidAppleOriginalId } from '../../lib/apple-key'
 import {
   allowApiRequest,
   allowLicenseRequest,
   isPaidLicense,
-  isValidAnonymousDeviceId,
+  LicenseUnavailableError,
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
@@ -106,6 +107,8 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
     deviceId?: string
     segments?: TranscriptSegment[]
     lang?: 'ja' | 'en' | 'auto'
+    /** 1回の依頼の番号（送り直しでも同じ。任意。2026-11-12 から。app/lib/dailyLimit.ts の takeQuota） */
+    requestId?: unknown
   }
   try {
     body = await req.json()
@@ -116,12 +119,13 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   // Pro の確かめ方は2通り：購入キー（PC・スマホ）か、iPhone のアプリ内課金の署名つきの購入記録
   const hasKey = typeof body.licenseKey === 'string' && body.licenseKey.trim().length > 0 && body.licenseKey.length <= 256
   const hasApple = isPlausibleSignedTransaction(body.appleSignedTransaction)
-  if (
-    (!hasKey && !hasApple) ||
-    !Array.isArray(body.segments) ||
-    (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang))
-  ) {
+  if (!Array.isArray(body.segments) || (body.lang !== undefined && !['ja', 'en', 'auto'].includes(body.lang))) {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
+  }
+  // 購入の証拠が無い人は「形が不正（400）」ではなく「Pro ではない（403）」。
+  // アプリが 400 を「アプリの不具合」と見て、Pro の案内を出せなかった（2026-11-12 の点検）
+  if (!hasKey && !hasApple) {
+    return NextResponse.json({ error: 'Pro を確認できませんでした' }, { status: 403 })
   }
 
   const rateKey = hasKey ? body.licenseKey! : `apple:${String(body.appleSignedTransaction).slice(-64)}`
@@ -130,11 +134,21 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   }
 
   // キーが通らなくても、Apple の購入記録が通れば Pro（summarize と同じ。2026-11-12 の点検）
-  const licensePaid = hasKey ? await isPaidLicense(body.licenseKey) : false
-  const applePaid = !licensePaid && hasApple ? await isPaidAppleTransaction(body.appleSignedTransaction) : false
-  const paid = licensePaid || applePaid
+  let licensePaid = false
+  try {
+    licensePaid = hasKey ? await isPaidLicense(body.licenseKey) : false
+  } catch (error) {
+    // 招待コードの鍵が未設定で判定できない → 403 でなく 503（2026-11-12 の点検。/api/license と同じ）
+    if (error instanceof LicenseUnavailableError) {
+      return NextResponse.json({ error: error.message }, { status: 503 })
+    }
+    throw error
+  }
+  // iPhone の購入記録は、支払いの猶予期間中も Pro（app/lib/apple-key.ts）
+  const appleId = !licensePaid && hasApple ? await paidAppleOriginalId(body.appleSignedTransaction) : null
+  const paid = licensePaid || appleId !== null
   if (!paid) {
-    return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
+    return NextResponse.json({ error: 'Pro を確認できませんでした' }, { status: 403 })
   }
 
   const segments = body.segments
@@ -148,12 +162,14 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   const texts = segments.map((s) => s.text)
 
   // Pro の仕上げの回数（月100回・1日20回。会議の長さで数える。app/lib/dailyLimit.ts）
+  // iPhone で買った Pro は、端末の ID ではなく元の購入の番号で数え、PC のキー（GIROKU-IOS-）と1つの枠にする（2026-11-12 の点検）
   const quota = await takeQuota({
-    subject: licensePaid ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : `apple:${String(body.appleSignedTransaction).slice(-64)}`,
+    subject: licensePaid ? licenseQuotaSubject(body.licenseKey!) : appleQuotaSubject(appleId!),
     plan: 'pro',
     platform: clientPlatform(req.headers.get('user-agent')),
     kind: 'polish',
-    units: quotaUnits('polish', texts.reduce((sum, t) => sum + t.length, 0))
+    units: quotaUnits('polish', texts.reduce((sum, t) => sum + t.length, 0), body.lang),
+    requestId: validRequestId(body.requestId) ? body.requestId : undefined
   })
   if (!quota.allowed) {
     return NextResponse.json(
@@ -299,13 +315,23 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   }
 
   // 1つも仕上げられなかったときは、使った回数を返す
-  if (!polishResult.complete && polishResult.segments.every((seg, i) => seg.text === segments[i]?.text)) {
+  const refunded = !polishResult.complete && polishResult.segments.every((seg, i) => seg.text === segments[i]?.text)
+  if (refunded) {
     await quota.refund()
   }
 
+  // 今月の残りを添える（summarize と同じ形。2026-11-12 の点検）
   return NextResponse.json({
     segments: polishResult.segments,
     title,
-    polished: polishResult.complete
+    polished: polishResult.complete,
+    quota: {
+      kind: 'polish',
+      // 回数を返したときは、返した分を足して見せる
+      remaining: Number.isFinite(quota.remainingMonth)
+        ? Math.min(quota.limit.month, quota.remainingMonth + (refunded ? quota.charged ?? 0 : 0))
+        : null,
+      limit: Number.isFinite(quota.limit.month) ? quota.limit.month : null
+    }
   })
 }

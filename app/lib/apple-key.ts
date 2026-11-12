@@ -1,7 +1,7 @@
 import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { AppStoreServerAPIClient, Environment, Status } from '@apple/app-store-server-library'
 import { get, put } from '@vercel/blob'
-import { BUNDLE_ID, PLUS_PRODUCT_IDS, verifiers } from './apple-plus'
+import { BUNDLE_ID, checkAppleTransaction, PLUS_PRODUCT_IDS, verifiers } from './apple-plus'
 
 /**
  * iPhone（App Store）で買った Pro を、PC 版でも使うためのキー。
@@ -71,6 +71,15 @@ const cache = new Map<string, { state: AppleKeyState; expires: number }>()
 export async function checkAppleKey(input: string): Promise<AppleKeyState> {
   const id = parseAppleKey(input)
   if (!id) return { paid: false, expiresAt: null }
+  return appleSubscriptionState(id)
+}
+
+/**
+ * 購入の大もとの番号で、Apple の App Store Server API に「いま有効か」を聞く（10分覚えておく）。
+ * 支払いの猶予期間（BILLING_GRACE_PERIOD）も有効として扱う。
+ * PC のキーだけでなく、iPhone の購入記録の期限が切れているときの確かめにも使うので切り出した（2026-11-12 の点検）
+ */
+export async function appleSubscriptionState(id: string): Promise<AppleKeyState> {
   const cacheKey = createHash('sha256').update(id).digest('hex')
   const cached = cache.get(cacheKey)
   if (cached && cached.expires > Date.now()) return cached.state
@@ -113,6 +122,47 @@ export async function checkAppleKey(input: string): Promise<AppleKeyState> {
   if (cache.size > 5000) cache.clear()
   cache.set(cacheKey, { state: result, expires: Date.now() + (result.paid ? CACHE_MS : 60_000) })
   return result
+}
+
+/** 猶予期間（最長16日）より前に切れた記録は Apple に聞かない（問い合わせを増やさないため） */
+const GRACE_LOOKBACK_MS = 17 * 24 * 60 * 60 * 1000
+
+/**
+ * iPhone の署名つきの購入記録から、Pro なら購入の大もとの番号を返す（Pro でなければ null）。
+ * 記録の期限が切れていても、支払いの猶予期間中なら Pro として扱う（2026-11-12 の点検）。
+ * 猶予期間中は Apple が新しい記録を出さないので、アプリが送る記録は期限切れのままになる。
+ * そのときだけ App Store Server API に今の状態を聞く。聞けないとき（鍵の未設定・通信の失敗）は今までどおり無料。
+ */
+export async function paidAppleOriginalId(signedTransaction: unknown): Promise<string | null> {
+  const check = await checkAppleTransaction(signedTransaction)
+  if (!check.originalTransactionId || !check.genuine) return null
+  if (check.paid) return check.originalTransactionId
+  if (check.expiresDate === null || Date.now() - check.expiresDate > GRACE_LOOKBACK_MS) return null
+  if (!/^\d{6,20}$/.test(check.originalTransactionId)) return null
+  try {
+    const state = await appleSubscriptionState(check.originalTransactionId)
+    return state.paid ? check.originalTransactionId : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 回数を数える相手（2026-11-12 の点検）。
+ * iPhone で買った Pro は、iPhone（購入記録）でも PC（GIROKU-IOS- のキー）でも、元の購入の番号で数える。
+ * 前はキーそのものと端末の ID で別々に数えていて、iPhone と PC で枠が2つになっていた。
+ */
+export function appleQuotaSubject(originalTransactionId: string): string {
+  return `apple-otx:${originalTransactionId}`
+}
+
+/** 購入キーで数える相手。GIROKU-IOS- のキーは元の購入の番号にそろえ、それ以外はキーのまま */
+export function licenseQuotaSubject(licenseKey: string): string {
+  if (isAppleKey(licenseKey)) {
+    const id = parseAppleKey(licenseKey)
+    if (id) return appleQuotaSubject(id)
+  }
+  return licenseKey
 }
 
 /**

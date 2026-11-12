@@ -10,15 +10,16 @@ import {
   isPaidPortableInstance,
   isPaidMobileAccount,
   isPaidMobileDevice,
+  LicenseUnavailableError,
   requestBodyIsTooLarge,
   validTranscriptSegments
 } from '../../lib/license'
 import { removePlaceholderOwners, splitChatReply, splitTitle } from '../../lib/summaryTitle'
 import { generateContent, responseText } from '../../lib/gemini'
-import { isPaidAppleTransaction } from '../../lib/apple-plus'
-import { clientPlatform, quotaMessage, quotaUnits, takeQuota } from '../../lib/dailyLimit'
+import { appleQuotaSubject, licenseQuotaSubject, paidAppleOriginalId } from '../../lib/apple-key'
+import { clientPlatform, quotaMessage, quotaUnits, takeQuota, validRequestId } from '../../lib/dailyLimit'
 import { recordUsage } from '../../lib/usageLog'
-import { runWithDeadline } from '../../lib/deadline'
+import { DEADLINE_MESSAGE, isDeadlineError, runWithDeadline } from '../../lib/deadline'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -619,6 +620,8 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
     previousSummary?: string
     /** これまでの質問と答え（古い順。2026-11-11 から。無ければ1問だけの質問として扱う） */
     history?: unknown
+    /** 1回の依頼の番号（送り直しでも同じ。任意。2026-11-12 から。app/lib/dailyLimit.ts の takeQuota） */
+    requestId?: unknown
   }
   try {
     body = await req.json()
@@ -656,17 +659,27 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   if (body.licenseKey && !allowLicenseRequest(body.licenseKey)) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
-  const licensePaid = body.licenseKey
-    ? body.licenseInstanceId
-      ? await isPaidPortableInstance(body.licenseKey, body.licenseInstanceId)
-      : await isPaidLicense(body.licenseKey)
-    : false
+  let licensePaid = false
+  try {
+    licensePaid = body.licenseKey
+      ? body.licenseInstanceId
+        ? await isPaidPortableInstance(body.licenseKey, body.licenseInstanceId)
+        : await isPaidLicense(body.licenseKey)
+      : false
+  } catch (error) {
+    // 招待コードの鍵が未設定で判定できない → 403（Pro ではない）でなく 503（2026-11-12 の点検。/api/license と同じ）
+    if (error instanceof LicenseUnavailableError) {
+      return NextResponse.json({ error: error.message }, { status: 503 })
+    }
+    throw error
+  }
   // 購入キーが通らないとき（解除・返金・期限切れ）も、端末の ID があれば iPhone の Pro か無料版として扱う。
   // 前はキーがあるだけで Apple の購入記録を見ず 403 にしていたため、iPhone にキーが残っていると Apple の Pro でも AI が使えなかった（2026-11-12 の点検）
   const anonymous = !licensePaid && isValidAnonymousDeviceId(body.deviceId)
-  // iPhone のアプリ内課金の Pro（署名つきの購入記録を Apple の証明書で確かめる）
+  // iPhone のアプリ内課金の Pro（署名つきの購入記録を Apple の証明書で確かめる。猶予期間中も Pro。app/lib/apple-key.ts）
+  const appleId = anonymous ? await paidAppleOriginalId(body.appleSignedTransaction) : null
   const mobilePaid = anonymous
-    ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
+    ? appleId !== null ||
       (await isPaidMobileAccount(req, body.deviceId!)) ||
       (await isPaidMobileDevice(body.deviceId!))
     : false
@@ -685,13 +698,16 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   // 回数の上限（月・1日。議事録は会議の長さで数える。app/lib/dailyLimit.ts）
   const kind = isChatRequest(body) ? 'chat' : 'summary'
   const plan = paid ? 'pro' : 'free'
+  // iPhone で買った Pro は、iPhone でも PC（GIROKU-IOS- のキー）でも元の購入の番号で数え、1つの枠にする（2026-11-12 の点検）
+  // 英語の会議は1回の目安の文字数が多い（lang を渡す。2026-11-12 の点検）
   const quota = await takeQuota({
-    subject: licensePaid ? body.licenseKey! : body.deviceId!,
+    subject: licensePaid ? licenseQuotaSubject(body.licenseKey!) : appleId ? appleQuotaSubject(appleId) : body.deviceId!,
     plan,
     platform: clientPlatform(req.headers.get('user-agent')),
     kind,
-    units: quotaUnits(kind, segments.reduce((sum, s) => sum + s.text.length, 0)),
-    deviceId: body.deviceId
+    units: quotaUnits(kind, segments.reduce((sum, s) => sum + s.text.length, 0), body.lang),
+    deviceId: body.deviceId,
+    requestId: validRequestId(body.requestId) ? body.requestId : undefined
   })
   if (!quota.allowed) {
     return NextResponse.json(
@@ -811,8 +827,12 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
       { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
       { headers: { 'x-giroku-model': model } }
     )
-  } catch {
+  } catch (error) {
     await quota.refund()
+    // 50秒の締め切りで打ち切ったときは、少し待てば通るので 503 で伝える（2026-11-12 の点検。回数は上で返した）
+    if (isDeadlineError(error)) {
+      return NextResponse.json({ error: DEADLINE_MESSAGE }, { status: 503 })
+    }
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 })
   }
 }

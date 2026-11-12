@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { checkAppleKey, claimAppleKeyDevice, DeviceLimitError, issueAppleKey, releaseAppleKeyDevice } from '../../lib/apple-key'
-import { paidOriginalTransactionId } from '../../lib/apple-plus'
+import { checkAppleKey, claimAppleKeyDevice, DeviceLimitError, issueAppleKey, paidAppleOriginalId, releaseAppleKeyDevice } from '../../lib/apple-key'
 import { allowApiRequest } from '../../lib/license'
 
 export const runtime = 'nodejs'
@@ -24,7 +23,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     if (body.action === 'issue') {
-      const id = await paidOriginalTransactionId(body.signedTransaction)
+      // 支払いの猶予期間中も Pro として PC 用のキーを出す（AI の窓口と同じ判定。2026-11-12 の点検）
+      const id = await paidAppleOriginalId(body.signedTransaction)
       if (!id) return NextResponse.json({ error: '有効な Pro の購入が見つかりません。' }, { status: 400 })
       return NextResponse.json({ key: issueAppleKey(id) })
     }

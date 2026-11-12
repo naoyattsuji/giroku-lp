@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isPaidAppleTransaction } from '../../lib/apple-plus'
+import { appleQuotaSubject, licenseQuotaSubject, paidAppleOriginalId } from '../../lib/apple-key'
 import {
   allowApiRequest,
   isPaidLicense,
   isPaidMobileAccount,
   isPaidMobileDevice,
   isPaidPortableInstance,
-  isValidAnonymousDeviceId
+  isValidAnonymousDeviceId,
+  LicenseUnavailableError
 } from '../../lib/license'
 import { clientPlatform, nextResetDate, peekQuota, rewardCredits } from '../../lib/dailyLimit'
 
@@ -32,15 +33,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
 
-  const licensePaid = hasKey
-    ? typeof body.licenseInstanceId === 'string' && body.licenseInstanceId.length <= 100
-      ? await isPaidPortableInstance(body.licenseKey!, body.licenseInstanceId)
-      : await isPaidLicense(body.licenseKey)
-    : false
+  let licensePaid = false
+  try {
+    licensePaid = hasKey
+      ? typeof body.licenseInstanceId === 'string' && body.licenseInstanceId.length <= 100
+        ? await isPaidPortableInstance(body.licenseKey!, body.licenseInstanceId)
+        : await isPaidLicense(body.licenseKey)
+      : false
+  } catch (error) {
+    // 招待コードの鍵が未設定で判定できない → 503（summarize・polish と同じ。2026-11-12 の点検）
+    if (error instanceof LicenseUnavailableError) {
+      return NextResponse.json({ error: error.message }, { status: 503 })
+    }
+    throw error
+  }
   // 購入キーが通らないときは、端末の ID で iPhone の Pro か無料版として見る（summarize と同じ。2026-11-12）
   const useDevice = !licensePaid && hasDevice
+  const appleId = useDevice ? await paidAppleOriginalId(body.appleSignedTransaction) : null
   const mobilePaid = useDevice
-    ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
+    ? appleId !== null ||
       (await isPaidMobileAccount(req, body.deviceId!)) ||
       (await isPaidMobileDevice(body.deviceId!))
     : false
@@ -48,7 +59,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const plan = paid ? 'pro' : 'free'
   const platform = clientPlatform(req.headers.get('user-agent'))
-  const kinds = await peekQuota(licensePaid || !hasDevice ? body.licenseKey! : body.deviceId!, plan, platform)
+  // 数える相手は summarize・polish と同じ（iPhone で買った Pro は元の購入の番号。2026-11-12 の点検）
+  const subject = licensePaid || !hasDevice
+    ? licenseQuotaSubject(body.licenseKey!)
+    : appleId
+      ? appleQuotaSubject(appleId)
+      : body.deviceId!
+  const kinds = await peekQuota(subject, plan, platform)
   const credits = !paid && platform === 'iphone' && hasDevice ? await rewardCredits(body.deviceId!) : 0
   return NextResponse.json({ plan, platform, kinds, rewardCredits: credits, resetsOn: nextResetDate() })
 }

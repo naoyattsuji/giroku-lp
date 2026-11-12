@@ -16,3 +16,22 @@ export function remainingMs(): number {
   const deadline = store.getStore()
   return deadline === undefined ? Infinity : deadline - Date.now()
 }
+
+/**
+ * 締め切りで打ち切ったことを表す失敗。呼び出し元は 500 ではなく 503 にして、
+ * 「時間内に終わらなかった（少し待てば通る）」と利用者に伝える（2026-11-12 の点検）
+ */
+export class DeadlineError extends Error {
+  constructor(message = '締め切りまでに AI の応答が間に合いませんでした') {
+    super(message)
+    this.name = 'DeadlineError'
+  }
+}
+
+/** 締め切りによる打ち切りか。AbortSignal.timeout で切れたとき（TimeoutError）も含める */
+export function isDeadlineError(error: unknown): boolean {
+  if (error instanceof DeadlineError) return true
+  return error instanceof Error && error.name === 'TimeoutError'
+}
+
+export const DEADLINE_MESSAGE = 'AI の処理が時間内に終わりませんでした。少し時間をおいてお試しください。'
