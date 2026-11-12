@@ -118,6 +118,49 @@ function downloadHref(platform: Platform): string {
   return "#download";
 }
 
+/** Pro にしか無いものの、無料の側の印（線） */
+function Dash(): ReactElement {
+  return (
+    <svg className="h-check h-dash" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4.5 8h7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/*
+ * 料金の比べる行。無料と Pro のカードに同じ項目を同じ順で並べ、横に見ればそのまま比べられるようにする
+ * （2026-11-12 本人の指摘：左右で違う話が並び、字下げもそろっていなかった）
+ */
+const PLAN_ROWS: { label: string; free: string; freeNote?: string; pro: string; freeHas: boolean }[] = [
+  { label: "録音・文字起こし", free: "何回でも", pro: "何回でも", freeHas: true },
+  { label: "AI 議事録", free: "月5回", pro: "月100回", freeHas: true },
+  { label: "AI への質問", free: "月10回", freeNote: "iPhone は月30回", pro: "月300回", freeHas: true },
+  { label: "AI の性能", free: "標準", pro: "より高性能", freeHas: true },
+  { label: "文章を整える", free: "―", pro: "使える", freeHas: false },
+  { label: "iPhone 版の広告", free: "あり", pro: "なし", freeHas: false },
+  { label: "「Giroku で作成」の一文", free: "付く", pro: "消せる", freeHas: false },
+];
+
+function PlanRows({ plan }: { plan: "free" | "pro" }): ReactElement {
+  return (
+    <ul className="h-rows">
+      {PLAN_ROWS.map((row) => {
+        const has = plan === "pro" || row.freeHas;
+        return (
+          <li key={row.label} className={has ? "" : "h-row-off"}>
+            {has ? <Check /> : <Dash />}
+            <span className="h-row-label">{row.label}</span>
+            <span className="h-row-value">
+              {plan === "pro" ? row.pro : row.free}
+              {plan === "free" && row.freeNote ? <small>{row.freeNote}</small> : null}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function Check(): ReactElement {
   return (
     <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
@@ -251,25 +294,15 @@ export default function Home(): ReactElement {
             <article className="h-plan">
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
-              <ul className="h-list">
-                <li><Check />録音・文字起こしは何回でも</li>
-                <li><Check />AI 議事録は月5回</li>
-                <li><Check />AI への質問は月10回（iPhone は月30回）</li>
-                <li className="h-muted">iPhone 版は広告つき。広告を見ると、議事録をもう1回作れます</li>
-              </ul>
+              <p className="h-plan-how">登録なしで使えます</p>
+              <PlanRows plan="free" />
               <a href="#download" className="h-button h-button-gray">無料で始める</a>
             </article>
             <article className="h-plan h-plan-pro">
               <h3>Pro</h3>
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
               <p className="h-plan-how">月ごとなら ¥200／月</p>
-              <ul className="h-list">
-                <li><Check />AI 議事録は月100回、質問は月300回</li>
-                <li><Check />より高性能な AI</li>
-                <li><Check />「文章を整える」で誤字・句読点を直せる</li>
-                <li><Check />iPhone 版の広告なし</li>
-                <li><Check />コピーの末尾の「Giroku で作成」を消せる</li>
-              </ul>
+              <PlanRows plan="pro" />
               <div className="h-plan-actions">
                 <div>
                   <p className="h-plan-where">iPhone</p>
@@ -291,6 +324,7 @@ export default function Home(): ReactElement {
             <p>iPhone とパソコンは別々に購入します。パソコン版は1台、iPhone 版は購入した本人だけが使えます。</p>
             <p>自動で更新されます。解約は、iPhone は更新の24時間前まで、パソコンは更新日までに。</p>
             <p>1日に使える回数にも上限があります。AI 議事録は、会議1時間ごとに1回と数えます。</p>
+            <p>iPhone の無料版は、月5回を使い切ったあとも、広告を見ると議事録をもう1回作れます。</p>
           </div>
           </HScroll>
         </Section>
