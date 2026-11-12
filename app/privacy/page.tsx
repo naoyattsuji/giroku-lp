@@ -28,7 +28,7 @@ const sections: LegalSection[] = [
       { h3: "デバイス上にのみ保存される情報" },
       {
         list: [
-          "録音した音声データ（.webm形式）",
+          "録音した音声データ（パソコン版は .webm 形式、iPhone版は .wav 形式）",
           "音声の文字起こし・AI議事録・AIとの会話履歴（JSON形式）",
           "使用時間・設定・学習語彙の記録",
           "ライセンスキー（OSの安全な保管機能で暗号化）",
@@ -38,7 +38,7 @@ const sections: LegalSection[] = [
       {
         note: (
           <>
-            上記のデータはすべて <code>~/Library/Application Support/Giroku/</code>（macOS）または <code>%APPDATA%\Giroku\</code>（Windows）に保存され、ユーザー自身が管理します。
+            上記のデータはすべて <code>~/Library/Application Support/Giroku/</code>（macOS）、<code>%APPDATA%\Giroku\</code>（Windows）、または iPhone の Giroku アプリの中に保存され、ユーザー自身が管理します。
           </>
         ),
       },
@@ -47,10 +47,10 @@ const sections: LegalSection[] = [
         list: [
           "購入キーによるライセンス認証時：ライセンスキー、匿名端末IDから作成した端末名、OS（LemonSqueezy）。Mac・Windowsを合わせた最大2台の管理に使用します",
           "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）",
-          "無料AI機能使用時：個人情報を含まないランダムな匿名端末ID（利用制限と濫用防止のため）",
+          "AI機能使用時：個人情報を含まないランダムな匿名端末ID、または購入キー（月・1日の利用回数を数えるためと濫用防止のため）",
           "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信",
           "文字起こしモデル取得時：通信情報（Hugging Face）",
-          "アプリ更新確認時：バージョン・通信情報（GitHub Releases）",
+          "アプリ更新確認時：バージョン・通信情報（Mac 版は GitHub Releases、iPhone 版は Giroku API。Windows 版は Microsoft Store が更新を配信します）",
           "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）",
         ],
       },
@@ -66,7 +66,7 @@ const sections: LegalSection[] = [
         list: [
           "音声の文字起こし処理（すべてデバイス内で実行）",
           "AI議事録・質問・修正の生成（Gemini APIを使用）",
-          "AI機能の濫用防止（端末ごとの匿名IDによる短時間の利用回数の確認）",
+          "AI機能の月・1日の利用回数の管理と濫用防止（匿名端末IDまたは購入キーを元に戻せない形（ハッシュ）に変えて回数だけを記録し、約40日で消去。AIの利用量の統計は、利用者を区別しない数だけを90日保存）",
           "Pro の購入・有効性確認と最大2台の端末管理",
           "スマートフォン版の無料版での広告表示（Google AdMob。Pro には表示しません）",
           "アプリの自動更新",
@@ -94,6 +94,9 @@ const sections: LegalSection[] = [
             <b>Vercel</b>：Giroku APIの提供（文字起こしテキスト、ライセンスキー、IPアドレス等の通信情報）
           </>,
           <>
+            <b>Upstash</b>：AI機能の利用回数の記録（匿名端末IDまたは購入キーをハッシュに変えた値と回数だけ。約40日で消去）
+          </>,
+          <>
             <b>Google Gemini API</b>：AI要約生成時（文字起こしテキスト）
           </>,
           <>
@@ -115,7 +118,7 @@ const sections: LegalSection[] = [
     title: "データの削除",
     blocks: [
       {
-        p: "録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。アプリ自体のアンインストール後も、データディレクトリは残る場合があります。有料アカウントは、モバイルアプリの設定画面にある「アカウントを削除」からメールアドレスと端末登録を削除できます。外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。",
+        p: "録音データおよびすべての設定は、アプリのデータディレクトリを削除することで完全に消去できます。アプリ自体のアンインストール後も、データディレクトリは残る場合があります。購入の情報（メールアドレスや端末の登録）の削除は、お問い合わせからご依頼ください。外部サービスへ送信されたデータや通信ログは、各サービスの規約・プライバシーポリシーに従って取り扱われます。",
       },
     ],
   },
@@ -152,5 +155,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function PrivacyPage(): ReactElement {
-  return <LegalPage title="プライバシーポリシー" updated="2026年11月9日" sections={sections} />;
+  return <LegalPage title="プライバシーポリシー" updated="2026年11月12日" sections={sections} />;
 }
