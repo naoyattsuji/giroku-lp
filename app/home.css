@@ -219,7 +219,9 @@
 .h-price strong { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .h-price span { color: var(--h-ink-2); font-size: 15px; }
 .h-price-note { color: var(--h-ink-3); font-size: 14px !important; }
-.h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.h-plan-actions .h-button { align-self: stretch; text-align: center; }
+.h-button-off { opacity: .6; pointer-events: none; }
 /* 比べる行：左右のカードで同じ項目・同じ高さ。印・項目名・数字の位置をすべての行でそろえる */
 .h-rows { list-style: none; padding: 0; margin: 24px 0 26px; flex: 1; }
 .h-rows li { display: grid; grid-template-columns: 18px 1fr auto; column-gap: 10px; align-items: center; height: 56px; border-top: 1px solid var(--h-line); font-size: 16px; }
@@ -328,20 +330,6 @@
   .h-split { grid-template-columns: 1fr; }
   .h-split-reverse .h-phone-solo { order: 2; }
   .h-polish-row { grid-template-columns: 1fr; }
-  /* 料金：横にすべらせて見る。右の枠が少し見切れて「横にもある」と分かる（画面3枚の所と同じ操作。2026-11-08 本人が P2 を選んだ） */
-  .h-plans {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    margin-left: calc(var(--h-gutter) * -1);
-    margin-right: calc(var(--h-gutter) * -1);
-    padding: 0 var(--h-gutter) 8px;
-    scrollbar-width: none;
-  }
-  .h-plans::-webkit-scrollbar { display: none; }
-  .h-plan { flex: 0 0 80%; scroll-snap-align: center; padding: 26px 22px; }
-  .h-plan-actions { grid-template-columns: 1fr 1fr; }
   /* ダウンロード：白い枠なしで、iPhone と Mac を上に2つ、Windows を下に。
    * 3つを1列に並べるとバッジが小さくなりすぎる（App Store のバッジは画面で高さ 40px 以上の決まり）ため 2＋1 にした */
   /* ダウンロード：白い枠なしで横1列。次の物が見切れて「横にもある」と分かる（料金・画面3枚と同じ形。2026-11-08 本人の案）。
@@ -619,34 +607,20 @@
   .h-before { color: #8e8e93; text-decoration-color: #8e8e93; }
 }
 
-/* 料金：スマホは1つの比べる表（2026-11-12 本人の指摘。2枚を横に送ると片方しか見えず比べられなかった） */
-.h-compare { display: none; }
-.h-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* 料金：スマホもパソコンと同じ2枚のカード。縦に重ね、背を低くして読みやすくする（2026-11-12 本人の指摘：表より、パソコン版のカードの形がよい） */
 @media (max-width: 760px) {
-  .h-plans { display: none; }
-  .h-compare { display: block; margin-top: 8px; }
-  .h-compare table { width: 100%; border-collapse: collapse; font-size: 15px; table-layout: fixed; }
-  /* 無料と Pro の列は見出しも値も真ん中揃え（2026-11-12 本人の指摘：右寄せで列の真ん中から外れて見えた） */
-  .h-compare th, .h-compare td { padding: 12px 4px; border-top: 1px solid var(--h-line); text-align: center; vertical-align: middle; line-height: 1.35; }
-  .h-compare thead th, .h-compare thead td { border-top: none; vertical-align: top; padding-bottom: 14px; }
-  .h-compare thead th { font-size: 15px; font-weight: 700; }
-  .h-compare thead th span { display: block; font-size: 22px; font-variant-numeric: tabular-nums; margin-top: 2px; white-space: nowrap; }
-  .h-compare thead th span small { font-size: 12px; font-weight: 400; color: var(--h-ink-2); }
-  .h-compare thead th > small { display: block; font-size: 12px; font-weight: 400; color: var(--h-ink-2); white-space: nowrap; }
-  .h-compare tbody th { text-align: left; font-weight: 400; color: var(--h-ink-2); padding-left: 0; word-break: auto-phrase; }
-  .h-compare col.h-col-label { width: 44%; }
-  .h-compare tbody td { font-weight: 600; }
-
-  .h-compare td.h-off { color: var(--h-ink-3); font-weight: 400; }
-  .h-compare td small { display: block; font-size: 12px; font-weight: 400; color: var(--h-ink-3); white-space: nowrap; }
-  .h-compare tbody tr:last-child th, .h-compare tbody tr:last-child td { border-bottom: 1px solid var(--h-line); }
-  .h-compare-actions { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
-  .h-compare-actions .h-button { padding-left: 18px; padding-right: 18px; }
-  .h-button-off { opacity: .6; pointer-events: none; }
-  .h-compare-how { margin-top: 12px; font-size: 13px !important; color: var(--h-ink-2); }
-  .h-compare-actions p { word-break: auto-phrase; }
-  .h-compare-actions a:not(.h-button) { color: var(--h-red); text-decoration: underline; }
-  /* 表の下は左揃えにそろえ、注意書きの背を低くする（2026-11-12 本人の指摘：左と真ん中が混ざり崩れて見え、注意書きが縦に長かった） */
+  .h-plans { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 28px; overflow: visible; margin-left: 0; margin-right: 0; padding: 0; }
+  .h-plan { padding: 22px 20px 24px; }
+  .h-plan h3 { font-size: 20px; }
+  /* 値段と一言を1行に並べて、カードの上を短くする */
+  .h-plan > .h-price { margin-top: 4px; }
+  .h-price strong { font-size: 34px; }
+  .h-plan > .h-plan-how { margin-top: 2px; color: var(--h-ink-2); }
+  .h-rows { margin: 16px 0 20px; }
+  .h-rows li { height: 46px; font-size: 15px; column-gap: 8px; }
+  .h-row-label { word-break: auto-phrase; }
+  .h-plan .h-button { align-self: stretch; text-align: center; }
+  .h-plan-actions { grid-template-columns: 1fr; gap: 10px; }
   .h-fineprint { text-align: left; margin-top: 18px; max-width: none; line-height: 1.55; word-break: auto-phrase; }
   .h-fineprint p { margin: 0 0 6px; }
 }

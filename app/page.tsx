@@ -161,53 +161,6 @@ function PlanRows({ plan }: { plan: "free" | "pro" }): ReactElement {
   );
 }
 
-/** スマホの幅だけで出す、無料と Pro の比べる表（1画面に収まる） */
-function PlanCompare(): ReactElement {
-  return (
-    <div className="h-compare" data-reveal>
-      <table>
-        <caption className="h-sr">無料と Pro のちがい</caption>
-        {/* 項目名の列を広くとり、言葉の途中で折り返さないようにする */}
-        <colgroup>
-          <col className="h-col-label" />
-          <col />
-          <col />
-        </colgroup>
-        <thead>
-          <tr>
-            <td />
-            <th scope="col">無料<span>¥0</span><small>登録なしで</small></th>
-            <th scope="col">Pro<span>¥980<small>／年</small></span><small>月 ¥200 でも</small></th>
-          </tr>
-        </thead>
-        <tbody>
-          {PLAN_ROWS.map((row) => (
-            <tr key={row.label}>
-              <th scope="row">{row.label}</th>
-              <td className={row.freeHas ? "" : "h-off"}>
-                {row.free}
-                {row.freeNote ? <small>{row.freeNote}</small> : null}
-              </td>
-              <td>{row.pro}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {/* 「無料で始める」と同じ形のボタンを横に並べる（2026-11-12 本人の指摘）。iPhone の Pro は App Store から入れてアプリで買う */}
-      <div className="h-compare-actions">
-        <a href="#download" className="h-button h-button-gray">無料で始める</a>
-        <a href={APP_STORE_URL} className="h-button">iPhone の Pro</a>
-        {PC_PRO_CHECKOUT_READY ? (
-          <a href={PC_PRO_CHECKOUT_URL} className="h-button">Mac・Windows の Pro</a>
-        ) : (
-          <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows の Pro（準備中）</span>
-        )}
-      </div>
-      <p className="h-compare-how">iPhone の Pro は、アプリの［設定］から購入します。</p>
-    </div>
-  );
-}
-
 function Check(): ReactElement {
   return (
     <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
@@ -335,10 +288,9 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          {/* スマホでは2枚を横に送ると片方しか見えず比べられないので、1つの比べる表にする（2026-11-12 本人の指摘）。
-              パソコンは2枚のカードのまま。横に送る仕組み（HScroll）は料金では使わない */}
+          {/* スマホもパソコンと同じ2枚のカード。横に送ると片方しか見えず比べられないので、縦に重ねて全部見せる（2026-11-12 本人の指摘）。
+              横に送る仕組み（HScroll）は料金では使わない */}
           <h2 className="h-center-title" data-reveal><Words parts={["基本は、", "無料。"]} /></h2>
-          <PlanCompare />
           <div className="h-plans" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
@@ -352,20 +304,16 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
               <p className="h-plan-how">月ごとなら ¥200／月</p>
               <PlanRows plan="pro" />
+              {/* 押す所は「無料で始める」と同じ形のボタン（2026-11-12 本人の指摘：文字だけでは押す所が分かりにくい） */}
               <div className="h-plan-actions">
-                <div>
-                  <p className="h-plan-where">iPhone</p>
-                  <p className="h-plan-how">アプリの［設定］から購入</p>
-                </div>
-                <div>
-                  <p className="h-plan-where">Mac・Windows</p>
-                  {PC_PRO_CHECKOUT_READY ? (
-                    <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
-                  ) : (
-                    <p className="h-plan-how">準備中</p>
-                  )}
-                </div>
+                <a href={APP_STORE_URL} className="h-button">iPhone の Pro</a>
+                {PC_PRO_CHECKOUT_READY ? (
+                  <a href={PC_PRO_CHECKOUT_URL} className="h-button">Mac・Windows の Pro</a>
+                ) : (
+                  <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows（準備中）</span>
+                )}
               </div>
+              <p className="h-plan-sub">iPhone の Pro は、アプリの［設定］から購入します。</p>
             </article>
           </div>
           {/* 1行に1つのことだけ（2026-11-12 本人の指摘：1段落に詰めるとわかりにくい） */}
