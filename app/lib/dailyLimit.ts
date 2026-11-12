@@ -96,7 +96,7 @@ async function incrementBy(keys: Array<{ key: string; ttl: number }>, by: number
 }
 
 /** リワード広告で足された回数を units だけ使う。足りなければ使わずに false */
-async function useReward(deviceId: string, units: number): Promise<boolean> {
+async function spendReward(deviceId: string, units: number): Promise<boolean> {
   const key = rewardKey(deviceId)
   const result = await redisPipeline([['DECRBY', key, units]])
   const left = Number(result?.[0])
@@ -193,7 +193,7 @@ export async function takeQuota(options: {
     const rewardable = options.plan === 'free' && options.platform === 'iphone' && options.kind === 'summary'
     // 広告1本で、会議の長さに関係なく議事録を1つ作れる（「広告を見ると、もう1回作れます」の案内どおり）。
     // 前は会議の長さの分（2時間なら2回）を引こうとして足りず、広告を見ても作れなかった（2026-11-12 の点検・本人の判断）
-    if (rewardable && options.deviceId && (await useReward(options.deviceId, 1))) {
+    if (rewardable && options.deviceId && (await spendReward(options.deviceId, 1))) {
       const deviceId = options.deviceId
       return {
         allowed: true,

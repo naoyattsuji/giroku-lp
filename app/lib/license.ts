@@ -53,8 +53,18 @@ function verifyPromoCode(input: string): boolean {
 }
 
 const GIROKU_STORE_ID = 410452
-const GIROKU_PRODUCT_ID = 1153138
-const MAX_ACTIVATIONS = 2
+// Giroku の PC 版 Pro の商品番号。1153138 は試し（テストモード）の商品。
+// Lemon Squeezy のお店が本番になったら、本番の商品番号を環境変数 GIROKU_PRODUCT_IDS（カンマ区切り）に入れれば、コードを変えずに受け付ける（2026-11-13）
+const GIROKU_PRODUCT_IDS = new Set<number>([
+  1153138,
+  ...(process.env.GIROKU_PRODUCT_IDS ?? '')
+    .split(',')
+    .map((v) => Number(v.trim()))
+    .filter((n) => Number.isInteger(n) && n > 0),
+])
+const isGirokuProduct = (id: number | undefined): boolean => id !== undefined && GIROKU_PRODUCT_IDS.has(id)
+// パソコンは1台まで（2026-11-12 本人の判断。アプリの MAX_ACTIVATIONS と同じ）
+const MAX_ACTIVATIONS = 1
 const LS_BASE = 'https://api.lemonsqueezy.com/v1/licenses'
 const LICENSE_CACHE_MS = 5 * 60 * 1000
 const licenseCache = new Map<string, { paid: boolean; expires: number }>()
@@ -101,7 +111,7 @@ export class PortableLicenseError extends Error {
 
 function portableLicenseResponseError(status: number, message?: string | null): PortableLicenseError {
   if (/activation limit/i.test(message ?? '')) {
-    return new PortableLicenseError(`このライセンスは既に最大${MAX_ACTIVATIONS}台で使用されています。`)
+    return new PortableLicenseError('この購入キーは、すでに別のパソコンで使われています。前のパソコンの設定で「この端末で解除」してから、もう一度登録してください。')
   }
   if (status === 404 || /not found|invalid/i.test(message ?? '')) {
     return new PortableLicenseError('ライセンスキーが見つかりません。入力内容をご確認ください。')
@@ -141,7 +151,7 @@ async function postLemonSqueezyLicense(
 }
 
 function assertGirokuLicense(data: LemonSqueezyLicenseResponse): void {
-  if (data.meta?.store_id !== GIROKU_STORE_ID || data.meta?.product_id !== GIROKU_PRODUCT_ID) {
+  if (data.meta?.store_id !== GIROKU_STORE_ID || !isGirokuProduct(data.meta?.product_id)) {
     throw new Error('このライセンスキーはGiroku用ではありません。')
   }
 }
@@ -162,7 +172,7 @@ export async function activatePortableLicense(licenseKey: string, instanceName: 
   }
   if ((data.license_key.activation_usage ?? 0) > MAX_ACTIVATIONS) {
     await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
-    throw new Error(`このライセンスは既に最大${MAX_ACTIVATIONS}台で使用されています。`)
+    throw new Error('この購入キーは、すでに別のパソコンで使われています。前のパソコンの設定で「この端末で解除」してから、もう一度登録してください。')
   }
   if (data.license_key.status !== 'active' || expiresInPast(data.license_key.expires_at)) {
     await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
@@ -296,7 +306,7 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
       !data.valid ||
       data.license_key?.status !== 'active' ||
       data.meta?.store_id !== GIROKU_STORE_ID ||
-      data.meta?.product_id !== GIROKU_PRODUCT_ID
+      !isGirokuProduct(data.meta?.product_id)
     ) {
       licenseCache.set(cacheKey, { paid: false, expires: Date.now() + 60_000 })
       await redisPipeline([['DEL', `giroku:lic:ok:${cacheKey}`]])
