@@ -222,8 +222,8 @@
 .h-plan-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .h-plan-actions .h-button { align-self: stretch; text-align: center; }
 .h-button-off { opacity: .6; pointer-events: none; }
-/* 比べる行：左右のカードで同じ項目・同じ高さ。印・項目名・数字の位置をすべての行でそろえる */
-.h-rows { list-style: none; padding: 0; margin: 24px 0 26px; flex: 1; }
+/* 比べる行：左右のカードで同じ項目・同じ高さ。行のすぐ下にボタンを置き、無料と Pro のボタンの高さをそろえる（2026-11-12 本人の指摘：無料で始めるが下すぎた）。印・項目名・数字の位置をすべての行でそろえる */
+.h-rows { list-style: none; padding: 0; margin: 24px 0 26px; flex: none; }
 .h-rows li { display: grid; grid-template-columns: 18px 1fr auto; column-gap: 10px; align-items: center; height: 56px; border-top: 1px solid var(--h-line); font-size: 16px; }
 .h-rows li:last-child { border-bottom: 1px solid var(--h-line); }
 .h-rows .h-check { margin: 0; }
