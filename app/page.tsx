@@ -98,7 +98,7 @@ const STORES: Record<StoreKey, ReactElement> = {
     <>
       <h3>Windows</h3>
       <div className="h-store-badge"><MicrosoftStoreBadge /></div>
-      <p>Windows 10・11</p>
+      <p>Windows 10・11（64ビット）</p>
     </>
   ),
 };
@@ -142,11 +142,14 @@ function PhoneShot({ src, alt, className = "" }: { src: string; alt: string; cla
 }
 
 const faqs: { q: string; a: ReactNode }[] = [
-  { q: "音声は外に送られますか？", a: "送られません。文字起こしは端末の中です。AI 議事録を作るときだけ、文字をサーバーへ送ります。" },
+  { q: "音声は外に送られますか？", a: "送られません。文字起こしは端末の中です。AI 議事録・質問・文章を整えるを使うときだけ、文字をサーバーへ送ります。" },
+  { q: "ネットがなくても使えますか？", a: "録音と文字起こしは使えます。Windows と iOS 26 より前の iPhone は、最初の録音のときに文字起こしの準備（約656MB）をネットから取得します。AI 議事録と質問にはネットが要ります。" },
   { q: "iPhone で相手の声も録れますか？", a: "iPhone はマイクの音だけです。オンライン会議の相手の声まで録るなら、Mac 版・Windows 版をお使いください。" },
   { q: "相手に知らせなくていいですか？", a: "相手の画面には何も出ませんが、録音するときはひとこと伝えるのがマナーです。" },
   { q: "使い方は？", a: "アプリの中の「使い方」（iPhone は下のタブ、パソコンは左の帯）から、画面つきで見られます。" },
-  { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から解約できます。期間の終わりまでは Pro のままです。" },
+  { q: "Pro は何台で使えますか？", a: "パソコン版は1つの購入でパソコン1台です。別のパソコンに移すときは、前のパソコンの［設定］で「この端末で解除」してから登録します。iPhone 版は購入した本人だけが使えます。" },
+  { q: "機種変更したら Pro は？", a: "iPhone は、新しい iPhone の Giroku で［設定］→「購入を復元」を押します。パソコンは、前のパソコンで解除してから、購入のメールにある購入キーを新しいパソコンで登録します。" },
+  { q: "Pro の解約は？", a: "iPhone は［設定］→ 自分の名前 →［サブスクリプション］から解約できます。パソコンは、購入したときのメールにある管理画面から解約できます（Giroku 0.1.90 以降は［設定］→［サブスクリプションを管理］からも開けます）。どちらも期間の終わりまでは Pro のままです。" },
 ];
 
 /**
@@ -248,7 +251,8 @@ export default function Home(): ReactElement {
               <ul className="h-list">
                 <li><Check />録音・文字起こしは何回でも</li>
                 <li><Check />AI 議事録は月5回まで</li>
-                <li className="h-muted">iPhone 版は広告あり。広告を見ると AI 議事録をもう1回作れます</li>
+                <li><Check />AI への質問は月10回まで（iPhone は30回）</li>
+                <li className="h-muted">1日に使える回数にも上限があります。iPhone 版は広告あり。月5回を使い切ったあとも、広告を見ると AI 議事録をもう1回作れます</li>
               </ul>
               <a href="#download" className="h-button h-button-gray">無料で始める</a>
             </article>
@@ -257,9 +261,9 @@ export default function Home(): ReactElement {
               <p className="h-price"><strong>¥980</strong><span>／年（税込）</span></p>
               <p className="h-plan-how">月ごとなら ¥200／月</p>
               <ul className="h-list">
-                <li><Check />広告なし</li>
-                <li><Check />より高性能な AI で、AI 議事録を月100回まで</li>
-                <li><Check />文字起こしの誤字・句読点を AI で直せる</li>
+                <li><Check />より高性能な AI で、AI 議事録は月100回、AI への質問は月300回まで</li>
+                <li><Check />「文章を整える」で、文字起こしの誤字・句読点を直せる</li>
+                <li><Check />iPhone 版の広告なし</li>
                 <li><Check />コピーした議事録の末尾に付く「Giroku で作成」の一文を消せる</li>
               </ul>
               <div className="h-plan-actions">

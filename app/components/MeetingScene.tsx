@@ -43,7 +43,7 @@ function useLevel(active: boolean, running: boolean): number {
 const POINTS = [
   { title: "相手に気づかれない", text: "録音用の Bot は入りません。相手の画面はいつもどおりです。" },
   { title: "自分の声も、パソコンの音も", text: "パソコン版は、マイクの声とパソコンの音を同時に録音します。" },
-  { title: "ネットがなくても文字に", text: "文字起こしは端末の中で行うので、音声は外に出ません。" },
+  { title: "ネットがなくても文字に", text: "最初に一度準備すれば、文字起こしは端末の中で行います。音声は外に出ません。" },
 ];
 
 export function MeetingScene(): ReactElement {
