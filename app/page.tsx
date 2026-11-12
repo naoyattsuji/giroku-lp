@@ -176,7 +176,7 @@ function PlanCompare(): ReactElement {
         <thead>
           <tr>
             <td />
-            <th scope="col">無料<span>¥0</span></th>
+            <th scope="col">無料<span>¥0</span><small>登録なしで</small></th>
             <th scope="col">Pro<span>¥980<small>／年</small></span><small>月 ¥200 でも</small></th>
           </tr>
         </thead>
