@@ -275,7 +275,7 @@ export default function Home(): ReactElement {
             </article>
           </div>
           <p className="h-fineprint">
-            Pro は iPhone とパソコンで別々に購入します。年額か月額の自動更新で、iPhone は期間が終わる24時間前まで、パソコンは更新日までに解約しない限り更新されます。AI 議事録は会議1時間ごとに1回と数えます。
+            Pro は iPhone とパソコンで別々に購入します。パソコン版は1つの購入でパソコン1台、iPhone 版は購入した本人だけが使えます。年額か月額の自動更新で、iPhone は期間が終わる24時間前まで、パソコンは更新日までに解約しない限り更新されます。AI 議事録は会議1時間ごとに1回と数えます。
           </p>
           </HScroll>
         </Section>
