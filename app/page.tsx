@@ -310,7 +310,7 @@ export default function Home(): ReactElement {
                 {PC_PRO_CHECKOUT_READY ? (
                   <a href={PC_PRO_CHECKOUT_URL} className="h-button">Mac・Windows の Pro</a>
                 ) : (
-                  <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows（準備中）</span>
+                  <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows<small>（準備中）</small></span>
                 )}
               </div>
               <p className="h-plan-sub">iPhone の Pro は、アプリの［設定］から購入します。</p>
