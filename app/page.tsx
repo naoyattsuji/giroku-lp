@@ -193,12 +193,23 @@ function PlanCompare(): ReactElement {
           ))}
         </tbody>
       </table>
+      {/* パソコンの幅と同じく、Mac・Windows の Pro は赤いボタン（2026-11-12 本人の指摘：文の中のリンクではわかりにくい） */}
       <div className="h-compare-actions">
         <a href="#download" className="h-button h-button-gray">無料で始める</a>
-        <p>
-          Pro の購入：iPhone はアプリの［設定］から。Mac・Windows は
-          {PC_PRO_CHECKOUT_READY ? <> <a href={PC_PRO_CHECKOUT_URL}>ウェブで購入</a></> : "準備中"}
-        </p>
+        <div className="h-compare-buy">
+          <div>
+            <p className="h-plan-where">iPhone の Pro</p>
+            <p className="h-plan-how">アプリの［設定］から購入</p>
+          </div>
+          <div>
+            <p className="h-plan-where">Mac・Windows の Pro</p>
+            {PC_PRO_CHECKOUT_READY ? (
+              <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
+            ) : (
+              <p className="h-plan-how">準備中</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
