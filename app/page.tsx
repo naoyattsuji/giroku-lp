@@ -196,8 +196,8 @@ function PlanCompare(): ReactElement {
       <div className="h-compare-actions">
         <a href="#download" className="h-button h-button-gray">無料で始める</a>
         <p>
-          Pro は、iPhone はアプリの［設定］から購入できます。Mac・Windows は
-          {PC_PRO_CHECKOUT_READY ? <> <a href={PC_PRO_CHECKOUT_URL}>ウェブで購入</a>できます。</> : "準備中です。"}
+          Pro の購入：iPhone はアプリの［設定］から。Mac・Windows は
+          {PC_PRO_CHECKOUT_READY ? <> <a href={PC_PRO_CHECKOUT_URL}>ウェブで購入</a></> : "準備中"}
         </p>
       </div>
     </div>

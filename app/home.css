@@ -643,4 +643,7 @@
   .h-compare-actions { margin-top: 22px; display: grid; gap: 14px; justify-items: start; }
   .h-compare-actions p { font-size: 14px !important; color: var(--h-ink-2); }
   .h-compare-actions a:not(.h-button) { color: var(--h-red); text-decoration: underline; }
+  /* 表の下は左揃えにそろえ、注意書きの背を低くする（2026-11-12 本人の指摘：左と真ん中が混ざり崩れて見え、注意書きが縦に長かった） */
+  .h-fineprint { text-align: left; margin-top: 18px; line-height: 1.55; }
+  .h-fineprint p { margin: 0 0 6px; }
 }
