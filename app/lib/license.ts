@@ -4,6 +4,7 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { checkAppleKey, isAppleKey } from './apple-key'
 import { remainingMs } from './deadline'
+import { redisPipeline } from './redis'
 
 // デスクトップ版のGIROKU-PROMO-招待コード（HMAC方式、Giroku/scripts/generate-promo-codes.mjs で発行）。
 // 鍵（GIROKU_PROMO_SECRET）はこのサーバーの環境変数にだけ置く。デスクトップ版は 0.1.68 から
@@ -249,6 +250,12 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
   const cacheKey = createHash('sha256').update(licenseKey).digest('hex')
   const cached = licenseCache.get(cacheKey)
   if (cached && cached.expires > Date.now()) return cached.paid
+  // Lemon Squeezy が遅い・答えないときは、24時間以内に「Pro」と確かめた結果を使う（Upstash に残す）。
+  // 前は通信の失敗も「無料」と同じ扱いで、15秒待つ間にアプリが諦め、Pro の人の残り回数が消え、議事録も 403 になった（2026-11-12）
+  const lastKnownPaid = async (): Promise<boolean> => {
+    const result = await redisPipeline([['GET', `giroku:lic:ok:${cacheKey}`]])
+    return result?.[0] === '1'
+  }
   try {
     const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
       method: 'POST',
@@ -257,8 +264,11 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({ license_key: licenseKey }).toString(),
-      signal: AbortSignal.timeout(15_000)
+      // アプリは残り回数を15秒で諦めるので、それより十分短く
+      signal: AbortSignal.timeout(6_000)
     })
+    // 混雑・故障（429・5xx）は「無効」ではないので、前に確かめた結果に頼る
+    if (res.status === 429 || res.status >= 500) return lastKnownPaid()
     if (!res.ok) return false
     const data = (await res.json()) as {
       valid?: boolean
@@ -273,21 +283,31 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
       data.meta?.product_id !== GIROKU_PRODUCT_ID
     ) {
       licenseCache.set(cacheKey, { paid: false, expires: Date.now() + 60_000 })
+      await redisPipeline([['DEL', `giroku:lic:ok:${cacheKey}`]])
       return false
     }
     const expiresAt = data.license_key?.expires_at
     if (expiresAt && new Date(expiresAt).getTime() < Date.now()) return false
     licenseCache.set(cacheKey, { paid: true, expires: Date.now() + LICENSE_CACHE_MS })
+    await redisPipeline([['SET', `giroku:lic:ok:${cacheKey}`, '1', 'EX', 24 * 60 * 60]])
     return true
   } catch {
-    return false
+    // 時間切れ・通信の失敗
+    return lastKnownPaid()
   }
 }
 
 /** Vercelインスタンス単位の軽量な濫用防止。永続ストアなしでも突発的な連打を抑える。 */
 export function allowApiRequest(req: Request, limit = 12): boolean {
   const forwarded = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-  const key = forwarded || req.headers.get('x-real-ip') || 'unknown'
+  // 窓口ごとに分けて数える。1つにまとめていたため、残り回数や購入キーの確認が、議事録・質問の枠を食っていた（2026-11-12 の点検）
+  let path = ''
+  try {
+    path = new URL(req.url).pathname
+  } catch {
+    path = ''
+  }
+  const key = `${path}:${forwarded || req.headers.get('x-real-ip') || 'unknown'}`
   const now = Date.now()
   if (rateBuckets.size > 5000) {
     for (const [bucketKey, bucket] of rateBuckets) {
@@ -454,7 +474,8 @@ export function allowMobilePaidRequest(deviceId: string): boolean {
     current.count++
     return true
   }
-  return take(mobilePaidMinuteBuckets, 6, 60_000) && take(mobilePaidHourBuckets, 30, 60 * 60_000)
+  // 購入キーの Pro（1分12回・1時間90回）と同じにする。無料版（10回・60回）より厳しく残っていた（2026-11-12 の点検）
+  return take(mobilePaidMinuteBuckets, 12, 60_000) && take(mobilePaidHourBuckets, 90, 60 * 60_000)
 }
 
 export function requestBodyIsTooLarge(req: Request, maxBytes = 2_000_000): boolean {

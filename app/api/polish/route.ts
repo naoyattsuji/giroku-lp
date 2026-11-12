@@ -149,7 +149,7 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
 
   // Pro の仕上げの回数（月100回・1日20回。会議の長さで数える。app/lib/dailyLimit.ts）
   const quota = await takeQuota({
-    subject: licensePaid ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : rateKey,
+    subject: licensePaid ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : `apple:${String(body.appleSignedTransaction).slice(-64)}`,
     plan: 'pro',
     platform: clientPlatform(req.headers.get('user-agent')),
     kind: 'polish',
