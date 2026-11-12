@@ -162,10 +162,12 @@ export function quotaMessage(kind: QuotaKind, plan: QuotaPlan, result: QuotaResu
   if (plan === 'pro') {
     return `今月の ${what}の上限（${result.limit.month}回）に届きました。来月1日にまた使えます。`
   }
+  // Pro の回数は種類ごとに違う（質問は月300回）。100回と固定していたため、質問でも「月100回」と出ていた（2026-11-12）
+  const proMonth = QUOTA_LIMITS.pro.pc[kind]?.month ?? 100
   if (result.canReward) {
-    return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。広告を見ると、もう1回作れます。Pro なら月100回まで使えます。`
+    return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。広告を見ると、もう1回作れます。Pro なら月${proMonth}回まで使えます。`
   }
-  return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。来月1日にまた使えます。Pro なら月100回まで使えます。`
+  return `今月の無料の ${what}（${result.limit.month}回）を使い切りました。来月1日にまた使えます。Pro なら月${proMonth}回まで使えます。`
 }
 
 export interface QuotaStatus {
