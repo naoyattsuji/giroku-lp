@@ -632,7 +632,8 @@
   .h-compare thead th span { display: block; font-size: 22px; font-variant-numeric: tabular-nums; margin-top: 2px; }
   .h-compare thead th span small { font-size: 12px; font-weight: 400; color: var(--h-ink-2); }
   .h-compare thead th > small { display: block; font-size: 12px; font-weight: 400; color: var(--h-ink-2); }
-  .h-compare tbody th { text-align: left; font-weight: 400; color: var(--h-ink-2); width: 44%; padding-left: 0; }
+  .h-compare tbody th { text-align: left; font-weight: 400; color: var(--h-ink-2); padding-left: 0; word-break: auto-phrase; }
+  .h-compare col.h-col-label { width: 50%; }
   .h-compare tbody td { font-weight: 600; }
   .h-compare tbody td:last-child, .h-compare thead th:last-child { padding-right: 0; }
   .h-compare td.h-off { color: var(--h-ink-3); font-weight: 400; }

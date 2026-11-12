@@ -167,6 +167,12 @@ function PlanCompare(): ReactElement {
     <div className="h-compare" data-reveal>
       <table>
         <caption className="h-sr">無料と Pro のちがい</caption>
+        {/* 項目名の列を広くとり、言葉の途中で折り返さないようにする */}
+        <colgroup>
+          <col className="h-col-label" />
+          <col />
+          <col />
+        </colgroup>
         <thead>
           <tr>
             <td />
