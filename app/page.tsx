@@ -161,6 +161,43 @@ function PlanRows({ plan }: { plan: "free" | "pro" }): ReactElement {
   );
 }
 
+/** スマホの幅だけで出す、無料と Pro の比べる表（1画面に収まる） */
+function PlanCompare(): ReactElement {
+  return (
+    <div className="h-compare" data-reveal>
+      <table>
+        <caption className="h-sr">無料と Pro のちがい</caption>
+        <thead>
+          <tr>
+            <td />
+            <th scope="col">無料<span>¥0</span></th>
+            <th scope="col">Pro<span>¥980<small>／年</small></span><small>月ごとなら ¥200</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLAN_ROWS.map((row) => (
+            <tr key={row.label}>
+              <th scope="row">{row.label}</th>
+              <td className={row.freeHas ? "" : "h-off"}>
+                {row.free}
+                {row.freeNote ? <small>{row.freeNote}</small> : null}
+              </td>
+              <td>{row.pro}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="h-compare-actions">
+        <a href="#download" className="h-button h-button-gray">無料で始める</a>
+        <p>
+          Pro は、iPhone はアプリの［設定］から購入できます。Mac・Windows は
+          {PC_PRO_CHECKOUT_READY ? <> <a href={PC_PRO_CHECKOUT_URL}>ウェブで購入</a>できます。</> : "準備中です。"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function Check(): ReactElement {
   return (
     <svg className="h-check" viewBox="0 0 16 16" aria-hidden="true">
@@ -288,9 +325,11 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          <HScroll>
+          {/* スマホでは2枚を横に送ると片方しか見えず比べられないので、1つの比べる表にする（2026-11-12 本人の指摘）。
+              パソコンは2枚のカードのまま。横に送る仕組み（HScroll）は料金では使わない */}
           <h2 className="h-center-title" data-reveal><Words parts={["基本は、", "無料。"]} /></h2>
-          <div className="h-plans hs-track" data-reveal>
+          <PlanCompare />
+          <div className="h-plans" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
@@ -326,7 +365,6 @@ export default function Home(): ReactElement {
             <p>1日に使える回数にも上限があります。AI 議事録は、会議1時間ごとに1回と数えます。</p>
             <p>iPhone の無料版は、月5回を使い切ったあとも、広告を見ると議事録をもう1回作れます。</p>
           </div>
-          </HScroll>
         </Section>
 
         <section id="download" className="h-section h-section-gray h-download">
