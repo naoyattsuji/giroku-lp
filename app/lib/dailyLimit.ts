@@ -135,7 +135,9 @@ export async function takeQuota(options: {
   }
   if (month > limit.month) {
     const rewardable = options.plan === 'free' && options.platform === 'iphone' && options.kind === 'summary'
-    if (rewardable && options.deviceId && (await useReward(options.deviceId, options.units))) {
+    // 広告1本で、会議の長さに関係なく議事録を1つ作れる（「広告を見ると、もう1回作れます」の案内どおり）。
+    // 前は会議の長さの分（2時間なら2回）を引こうとして足りず、広告を見ても作れなかった（2026-11-12 の点検・本人の判断）
+    if (rewardable && options.deviceId && (await useReward(options.deviceId, 1))) {
       const deviceId = options.deviceId
       return {
         allowed: true,
@@ -143,7 +145,7 @@ export async function takeQuota(options: {
         remainingMonth: 0,
         refund: async () => {
           await rollback()
-          await redisPipeline([['INCRBY', rewardKey(deviceId), options.units]])
+          await redisPipeline([['INCRBY', rewardKey(deviceId), 1]])
         }
       }
     }
