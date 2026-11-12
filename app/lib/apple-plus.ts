@@ -10,10 +10,12 @@ import { Environment, SignedDataVerifier } from '@apple/app-store-server-library
 export const BUNDLE_ID = 'app.giroku.mobile'
 const APP_APPLE_ID = 6826128219
 export const PLUS_PRODUCT_ID = 'app.giroku.mobile.plus.yearly'
-/** 月額の Pro（2026-11-11 本人の判断。月300円。年額と同じ購読グループ） */
-export const PLUS_MONTHLY_PRODUCT_ID = 'app.giroku.mobile.plus.monthly'
+/** 月額の Pro（月200円。年額と同じ購読グループに 2026-11-12 作り直した番号） */
+export const PLUS_MONTHLY_PRODUCT_ID = 'app.giroku.mobile.pro.monthly'
+/** 最初の月額。別のグループにできてしまい売らないことにしたが、練習で買った記録のために Pro として受け付ける */
+const LEGACY_MONTHLY_PRODUCT_ID = 'app.giroku.mobile.plus.monthly'
 /** Pro として扱う商品（年額・月額） */
-export const PLUS_PRODUCT_IDS: readonly string[] = [PLUS_PRODUCT_ID, PLUS_MONTHLY_PRODUCT_ID]
+export const PLUS_PRODUCT_IDS: readonly string[] = [PLUS_PRODUCT_ID, PLUS_MONTHLY_PRODUCT_ID, LEGACY_MONTHLY_PRODUCT_ID]
 
 // Apple Root CA - G3（https://www.apple.com/certificateauthority/AppleRootCA-G3.cer、公開されている証明書）
 // SHA-256 63:34:3A:BF:B8:9A:6A:03:EB:B5:7E:9B:3F:5F:A7:BE:7C:4F:5C:75:6F:30:17:B3:A8:C4:88:C3:65:3E:91:79
