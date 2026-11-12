@@ -3,6 +3,7 @@
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 import { checkAppleKey, isAppleKey } from './apple-key'
+import { remainingMs } from './deadline'
 
 // デスクトップ版のGIROKU-PROMO-招待コード（HMAC方式、Giroku/scripts/generate-promo-codes.mjs で発行）。
 // 鍵（GIROKU_PROMO_SECRET）はこのサーバーの環境変数にだけ置く。デスクトップ版は 0.1.68 から
@@ -223,13 +224,17 @@ export async function fetchWithRetry(
 ): Promise<Response> {
   let lastRes: Response | null = null
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const timeoutSignal = AbortSignal.timeout(45_000)
+    // リクエストの締め切り（app/lib/deadline.ts）が近ければ始めない。投げた失敗は呼び出し元が回数を返す
+    const left = remainingMs()
+    if (left < 3000) throw new Error('締め切りまでに AI の応答が間に合いませんでした')
+    const timeoutSignal = AbortSignal.timeout(Math.min(45_000, left - 1000))
     const signal = init.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal
     const res = await fetch(url, { ...init, signal })
     if (res.ok || (res.status !== 429 && res.status !== 503)) return res
     lastRes = res
     if (attempt < maxRetries) {
       const delay = 1000 * Math.pow(2, attempt) // 1秒, 2秒, 4秒
+      if (remainingMs() < delay + 3000) break
       await new Promise((r) => setTimeout(r, delay))
     }
   }

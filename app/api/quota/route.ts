@@ -32,22 +32,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'リクエストの形式が不正です' }, { status: 400 })
   }
 
-  const mobilePaid =
-    !hasKey && hasDevice
-      ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
-        (await isPaidMobileAccount(req, body.deviceId!)) ||
-        (await isPaidMobileDevice(body.deviceId!))
-      : false
-  const paid =
-    (hasKey
-      ? typeof body.licenseInstanceId === 'string' && body.licenseInstanceId.length <= 100
-        ? await isPaidPortableInstance(body.licenseKey!, body.licenseInstanceId)
-        : await isPaidLicense(body.licenseKey)
-      : false) || mobilePaid
+  const licensePaid = hasKey
+    ? typeof body.licenseInstanceId === 'string' && body.licenseInstanceId.length <= 100
+      ? await isPaidPortableInstance(body.licenseKey!, body.licenseInstanceId)
+      : await isPaidLicense(body.licenseKey)
+    : false
+  // 購入キーが通らないときは、端末の ID で iPhone の Pro か無料版として見る（summarize と同じ。2026-11-12）
+  const useDevice = !licensePaid && hasDevice
+  const mobilePaid = useDevice
+    ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
+      (await isPaidMobileAccount(req, body.deviceId!)) ||
+      (await isPaidMobileDevice(body.deviceId!))
+    : false
+  const paid = licensePaid || mobilePaid
 
   const plan = paid ? 'pro' : 'free'
   const platform = clientPlatform(req.headers.get('user-agent'))
-  const kinds = await peekQuota(hasKey ? body.licenseKey! : body.deviceId!, plan, platform)
+  const kinds = await peekQuota(licensePaid || !hasDevice ? body.licenseKey! : body.deviceId!, plan, platform)
   const credits = !paid && platform === 'iphone' && hasDevice ? await rewardCredits(body.deviceId!) : 0
   return NextResponse.json({ plan, platform, kinds, rewardCredits: credits, resetsOn: nextResetDate() })
 }

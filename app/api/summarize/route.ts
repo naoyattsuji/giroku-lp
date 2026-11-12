@@ -18,6 +18,7 @@ import { generateContent, responseText } from '../../lib/gemini'
 import { isPaidAppleTransaction } from '../../lib/apple-plus'
 import { clientPlatform, quotaMessage, quotaUnits, takeQuota } from '../../lib/dailyLimit'
 import { recordUsage } from '../../lib/usageLog'
+import { runWithDeadline } from '../../lib/deadline'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -588,7 +589,12 @@ function isChatRequest(body: { instruction?: string; previousSummary?: string })
   return Boolean(body.instruction && body.previousSummary)
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+// 関数の制限（60秒）より前に締め切りを置き、間に合わなければ自分で失敗して回数を返す（app/lib/deadline.ts）
+export function POST(req: NextRequest): Promise<NextResponse> {
+  return runWithDeadline(50_000, () => handlePost(req))
+}
+
+async function handlePost(req: NextRequest): Promise<NextResponse> {
   if (!allowApiRequest(req)) {
     return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
   }
@@ -647,7 +653,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: '文字起こしがありません' }, { status: 400 })
   }
 
-  const anonymous = !body.licenseKey && isValidAnonymousDeviceId(body.deviceId)
+  if (body.licenseKey && !allowLicenseRequest(body.licenseKey)) {
+    return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
+  }
+  const licensePaid = body.licenseKey
+    ? body.licenseInstanceId
+      ? await isPaidPortableInstance(body.licenseKey, body.licenseInstanceId)
+      : await isPaidLicense(body.licenseKey)
+    : false
+  // 購入キーが通らないとき（解除・返金・期限切れ）も、端末の ID があれば iPhone の Pro か無料版として扱う。
+  // 前はキーがあるだけで Apple の購入記録を見ず 403 にしていたため、iPhone にキーが残っていると Apple の Pro でも AI が使えなかった（2026-11-12 の点検）
+  const anonymous = !licensePaid && isValidAnonymousDeviceId(body.deviceId)
   // iPhone のアプリ内課金の Pro（署名つきの購入記録を Apple の証明書で確かめる）
   const mobilePaid = anonymous
     ? (await isPaidAppleTransaction(body.appleSignedTransaction)) ||
@@ -655,17 +671,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       (await isPaidMobileDevice(body.deviceId!))
     : false
   if (
-    (body.licenseKey && !allowLicenseRequest(body.licenseKey)) ||
     (anonymous && mobilePaid && !allowMobilePaidRequest(body.deviceId!)) ||
     (anonymous && !mobilePaid && !allowAnonymousRequest(body.deviceId!))
   ) {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
-  const paid = (body.licenseKey
-    ? body.licenseInstanceId
-      ? await isPaidPortableInstance(body.licenseKey, body.licenseInstanceId)
-      : await isPaidLicense(body.licenseKey)
-    : false) || mobilePaid
+  const paid = licensePaid || mobilePaid
 
   if (!paid && !anonymous) {
     return NextResponse.json({ error: 'AI機能の認証に失敗しました' }, { status: 403 })
@@ -675,7 +686,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const kind = isChatRequest(body) ? 'chat' : 'summary'
   const plan = paid ? 'pro' : 'free'
   const quota = await takeQuota({
-    subject: body.licenseKey || body.deviceId!,
+    subject: licensePaid ? body.licenseKey! : body.deviceId!,
     plan,
     platform: clientPlatform(req.headers.get('user-agent')),
     kind,

@@ -12,6 +12,7 @@ import {
 } from '../../lib/license'
 
 import { generateContent, responseText } from '../../lib/gemini'
+import { runWithDeadline } from '../../lib/deadline'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -81,7 +82,12 @@ function digestForTitle(texts: string[]): string {
   return sampled.join('\n').slice(0, LIMIT)
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+// 関数の制限（60秒）より前に締め切りを置き、間に合わなければ自分で失敗して回数を返す（app/lib/deadline.ts）
+export function POST(req: NextRequest): Promise<NextResponse> {
+  return runWithDeadline(50_000, () => handlePost(req))
+}
+
+async function handlePost(req: NextRequest): Promise<NextResponse> {
   if (!allowApiRequest(req)) {
     return NextResponse.json({ error: 'リクエストが多すぎます。1分後にお試しください。' }, { status: 429 })
   }
@@ -123,7 +129,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'AI機能の利用回数が上限に達しました。時間をおいてお試しください。' }, { status: 429 })
   }
 
-  const paid = hasKey ? await isPaidLicense(body.licenseKey) : await isPaidAppleTransaction(body.appleSignedTransaction)
+  // キーが通らなくても、Apple の購入記録が通れば Pro（summarize と同じ。2026-11-12 の点検）
+  const licensePaid = hasKey ? await isPaidLicense(body.licenseKey) : false
+  const applePaid = !licensePaid && hasApple ? await isPaidAppleTransaction(body.appleSignedTransaction) : false
+  const paid = licensePaid || applePaid
   if (!paid) {
     return NextResponse.json({ error: '有料プランの認証に失敗しました' }, { status: 403 })
   }
@@ -140,7 +149,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // Pro の仕上げの回数（月100回・1日20回。会議の長さで数える。app/lib/dailyLimit.ts）
   const quota = await takeQuota({
-    subject: hasKey ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : rateKey,
+    subject: licensePaid ? body.licenseKey! : isValidAnonymousDeviceId(body.deviceId) ? body.deviceId : rateKey,
     plan: 'pro',
     platform: clientPlatform(req.headers.get('user-agent')),
     kind: 'polish',
