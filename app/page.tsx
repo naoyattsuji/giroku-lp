@@ -288,10 +288,11 @@ export default function Home(): ReactElement {
         </Section>
 
         <Section id="pricing">
-          {/* スマホもパソコンと同じ2枚のカード。横に送ると片方しか見えず比べられないので、縦に重ねて全部見せる（2026-11-12 本人の指摘）。
-              横に送る仕組み（HScroll）は料金では使わない */}
+          {/* スマホは2枚のカードを横に並べ、縦のスクロールに合わせて横へ流す（右のカードが見切れて「横にもある」と分かる）。
+              表や縦並び・細い横並びは分かりにくかった（2026-11-12 本人の指摘で元の形に戻した） */}
+          <HScroll>
           <h2 className="h-center-title" data-reveal><Words parts={["基本は、", "無料。"]} /></h2>
-          <div className="h-plans" data-reveal>
+          <div className="h-plans hs-track" data-reveal>
             <article className="h-plan">
               <h3>無料</h3>
               <p className="h-price"><strong>¥0</strong></p>
@@ -310,12 +311,13 @@ export default function Home(): ReactElement {
                 {PC_PRO_CHECKOUT_READY ? (
                   <a href={PC_PRO_CHECKOUT_URL} className="h-button">Mac・Windows の Pro</a>
                 ) : (
-                  <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows<small>（準備中）</small></span>
+                  <span className="h-button h-button-gray h-button-off" aria-disabled="true">Mac・Windows（準備中）</span>
                 )}
               </div>
               <p className="h-plan-sub">iPhone の Pro は、アプリの［設定］から購入します。</p>
             </article>
           </div>
+          </HScroll>
           {/* 1行に1つのことだけ（2026-11-12 本人の指摘：1段落に詰めるとわかりにくい） */}
           <div className="h-fineprint">
             <p>iPhone とパソコンは別々に購入します。パソコン版は1台、iPhone 版は購入した本人だけが使えます。</p>
