@@ -16,6 +16,9 @@ import "./home.css";
 
 const APP_STORE_URL = "https://apps.apple.com/jp/app/giroku/id6826128219";
 // PC 版 Pro の購入画面（Lemon Squeezy）。本番の商品ができたら差し替える（2026-11-08 時点は審査中）
+// Lemon Squeezy のお店が本番になるまでは false（今の購入画面はテストモードで、本当には買えない）。
+// 本番の商品の購入リンクに差し替えたら true にする（2026-11-12 の点検）
+const PC_PRO_CHECKOUT_READY = false;
 const PC_PRO_CHECKOUT_URL =
   "https://naoyatsuji.lemonsqueezy.com/checkout/buy/5683990b-8898-4ca6-aa05-5e287095d747";
 
@@ -203,7 +206,7 @@ export default function Home(): ReactElement {
             <h1>
               <Words parts={["相手に", "気づかれず、", "\n", "会話を", "まるごと", "記録。"]} />
             </h1>
-            <p className="h-lead">録音して、そのまま文字に。AIが議事録にまとめます。</p>
+            <p className="h-lead">録音して、そのまま文字に。AI が議事録にまとめます。</p>
             <div className="h-hero-actions">
               <PrimaryAction platform={platform} />
               <a href="#download" className="h-link">ほかの端末 ›</a>
@@ -274,7 +277,11 @@ export default function Home(): ReactElement {
                 </div>
                 <div>
                   <p className="h-plan-where">Mac・Windows</p>
-                  <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
+                  {PC_PRO_CHECKOUT_READY ? (
+                    <a href={PC_PRO_CHECKOUT_URL} className="h-button h-button-small">ウェブで購入</a>
+                  ) : (
+                    <p className="h-plan-how">準備中</p>
+                  )}
                 </div>
               </div>
             </article>
