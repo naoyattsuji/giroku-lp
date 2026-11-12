@@ -9,6 +9,7 @@ export function SiteFooter(): ReactElement {
         <div className="h-footer-links">
           <Link href="/privacy">プライバシー</Link>
           <Link href="/terms">利用規約</Link>
+          <Link href="/legal">特定商取引法に基づく表記</Link>
           <a href="https://naoya-tsuji.com/?topic=giroku#contact" target="_blank" rel="noreferrer">お問い合わせ</a>
         </div>
         <p>© {new Date().getFullYear()} Naoya Tsuji</p>
