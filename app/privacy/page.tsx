@@ -49,6 +49,7 @@ const sections: LegalSection[] = [
           "iPhone版で Pro を購入・復元した時：App Store の署名つき購入記録（商品・期限・取引の識別子。氏名や支払い情報は含みません）。AI機能の利用時に Giroku API へ送り、Pro かどうかの確認だけに使用し、保存しません（Apple）",
           "AI機能使用時：個人情報を含まないランダムな匿名端末ID、または購入キー（月・1日の利用回数を数えるためと濫用防止のため）",
           "AI機能使用時：文字起こしテキスト、現在の議事録、編集指示（Vercel上のGiroku API）。AI処理に必要なテキストだけをGoogle Gemini APIへ送信",
+          "PC版の無料版で Giroku からのお知らせ（iPhone版・Proの案内）を表示したとき：お知らせの種類と、表示した・ボタンを押した・閉じたのどれか（Vercel上のGiroku API）。端末IDや録音の内容は送信せず、日ごとの件数だけを数えます",
           "文字起こしモデル取得時：通信情報（Hugging Face）",
           "アプリ更新確認時：バージョン・通信情報（Mac 版は GitHub Releases、iPhone 版は Giroku API。Windows 版は Microsoft Store が更新を配信します）",
           "このサイト（giroku.naoya-tsuji.com）の閲覧時：見たページ・おおよその地域・ブラウザなど（Google アナリティクス。Cookie を使い、個人を特定しない形で訪問の数を知るために使用。ブラウザの設定や Google のオプトアウト アドオンで止められます。アプリでは使いません）",
