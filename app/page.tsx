@@ -321,7 +321,7 @@ export default function Home(): ReactElement {
           <div className="h-fineprint">
             <p>iPhone とパソコンは別々に購入します。パソコン版は1台、iPhone 版は購入した本人だけが使えます。</p>
             <p>自動で更新されます。解約は、iPhone は更新の24時間前まで、パソコンは更新日までに。</p>
-            <p>1日に使える回数にも上限があります。AI 議事録は、会議1時間ごとに1回と数えます。</p>
+            <p>1日に使える回数にも上限があります。<span style={{ whiteSpace: "nowrap" }}>AI 議事録</span>は、会議1時間ごとに1回と数えます。</p>
             <p>iPhone の無料版は、月5回を使い切ったあとも、広告を見ると議事録をもう1回作れます。</p>
           </div>
         </Section>

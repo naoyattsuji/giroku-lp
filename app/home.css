@@ -625,6 +625,8 @@
   .h-rows li { height: 50px; font-size: 15px; }
   .h-plan .h-button { align-self: stretch; text-align: center; }
   .h-plan-actions { grid-template-columns: 1fr; gap: 10px; }
-  .h-fineprint { text-align: left; margin-top: 18px; max-width: none; line-height: 1.55; word-break: auto-phrase; }
+  /* スマホも中央揃え。行の長さをそろえて、右だけが空く折り返しをなくす（2026-11-13 本人の指摘） */
+  .h-fineprint { text-align: center; margin-top: 18px; max-width: none; line-height: 1.55; word-break: auto-phrase; text-wrap: balance; }
+  .h-fineprint p { text-wrap: balance; }
   .h-fineprint p { margin: 0 0 6px; }
 }
