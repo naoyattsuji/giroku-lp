@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { compactTranscriptLines } from '../../lib/compactTranscript'
+import { splitTranscriptLines } from '../../lib/splitTranscript'
 import {
   allowApiRequest,
   allowLicenseRequest,
@@ -73,7 +74,9 @@ const ACCURACY_RULES_EN = `Detail and accuracy rules:
 // 論点を並べていたため、複数の話題を扱った回では何の話か追いにくかった（辻直哉の要望）。
 const THEME_RULES_JA = `テーマごとの書き方:
 - 話の中身は、話題（テーマ）ごとに「■ テーマ名」の見出しを立てて書く。テーマ名は中身が分かる短い言葉にする（20文字以内。例:「■ 会場選び」「■ 来期の予算」）
-- テーマは話された順に並べる。各テーマの中は「・」で要点を書く
+- テーマは話された順に並べる。本題に関係する話題は、短く触れただけのものも1つのテーマとして残す。似た話題をまとめて1つにしすぎない
+- 各テーマの中は「・」で、次のうち話に出たものをすべて書く：何が問題・目的だったか、出た意見や案（反対意見や別の案も含む）、理由や根拠、数字・日付・固有名詞、どう決まったか（決まらなかったなら「結論は持ち越し」など）
+- 1つのテーマに書く項目の数は、話された長さに合わせる。数分以上話したテーマは5項目以上を目安にし、長く話したテーマほど多く書く
 - 「討議内容」「要点」「その他」のような、中身の分からないテーマ名を付けない
 - 本題と関係のない雑談や挨拶はテーマにしない`
 
@@ -98,8 +101,8 @@ const PLAIN_STYLE_RULES_JA = `書き方のルール:
 - 決定事項・対応事項は「1. 」「2. 」と番号を振る。それ以外の箇条書きは行頭に「・」を使う
 - 箇条書きを入れ子にしないこと。行頭に空白やインデントを入れない
 - 常体（である調・体言止め）で書くこと。ですます調は使わない
-- 一文を短くし、同じ内容を繰り返さないこと。「〜だと思われます」「〜という話がありました」のような冗長な言い回しは避ける
-- 簡潔にするために項目を省略しないこと。書式は短く、内容は網羅的にすること
+- 一文は短くする。ただし短くするのは言い回しだけで、話された中身は削らない。迷ったら書く側を選ぶ
+- 同じ内容を繰り返さないこと。「〜だと思われます」「〜という話がありました」のような冗長な言い回しは避ける
 - LINE・メール・チャットへそのまま貼り付けられる書式にすること`
 
 const PLAIN_STYLE_RULES_EN = `Formatting rules:
@@ -158,8 +161,14 @@ ${ACCURACY_RULES_JA}
 
 ${ACTION_ITEM_RULES_JA}
 
+書き終えたら:
+- 文字起こしを最初から最後まで順にたどり、議事録に入っていない話題・案・数字・理由が無いか確かめる。抜けていたら、該当するテーマに足す
+
 注意:
 - 文字起こしに無い情報を創作しないこと
+- 決定事項には、はっきり決まったことだけを書く。案が出ただけ・結論が出なかったことは、テーマの中に「案が出た」「結論は持ち越し」と書く
+- 日付は言われた言葉のまま書く。言われていない月や年を足さない。別の話の中で出た日付や数字と組み合わせない
+- 対応事項は、細かいやることも1つずつ書く。まとめて1つにしない
 - A/Bの判定結果や説明は出力せず、選んだ形式の本文だけを出力すること
 - 出力言語: {LANG}`
 
@@ -210,6 +219,86 @@ Notes:
 - Write the output in English`
 
 type SummaryTemplate = 'auto' | 'meeting' | 'lecture' | 'oneOnOne' | 'interview'
+
+
+// 長い会議（文字起こしが約9,000字＝30分くらいを超える）は、区切って作る（2026-11-14）。
+// 安いモデルは長い文字起こしを一度に読むと、途中の話を飛ばして短くまとめてしまう（3つの会議で項目が今の約1.5〜2.4倍になった）。
+// 1. 約8,000字ごとに区切り、区切りごとに話題のメモを作る（安いモデル。区切りは同時に頼む）
+// 2. メモを1つの議事録にまとめる（無料は安いモデル、Pro は上のモデル。最後の文を書くのは Pro の「高性能な AI」）
+const CHUNK_SPLIT_CHARS = 9000
+const CHUNK_SIZE_CHARS = 8000
+
+const CHUNK_NOTES_PROMPT_JA = `あなたは議事録作成の下書き係です。以下は、長い会話の文字起こしの一部です。
+この部分で話された内容を、話題ごとに漏れなくメモしてください。
+
+- 話題ごとに「■ 話題名（20文字以内）」の見出しを立て、その下に「・」で書く
+- 各話題について、話に出たものをすべて書く：何が問題・目的だったか、出た意見や案（反対意見や別の案も含む）、理由や根拠、数字・日付・固有名詞（文字起こしのまま）、決まったこと、やることになったこと
+- 短く触れただけの話題も残す。要約しすぎない。言い回しは短く、中身は削らない
+- 人の名前は書かない。雑談と挨拶は書かない
+- Markdown・絵文字・丸数字は使わない
+- 文字起こしに無いことは書かない
+- 「決定：」は、その場ではっきり合意したこと（「〜にしよう」「それで決まり」「〜することにした」）だけに付ける。やることは「やること：」、出ただけの案や意見は「案：」、結論が出なかったことは「持ち越し：」を行の頭に付ける。迷ったら「案：」にする
+- 日付は言われた言葉のまま書く。言われていない月や年を足さない。別の話の中で出た日付や数字と組み合わせない（例：画面の操作の説明で出た「2月」を、期限の「24日」に付けない）
+- やることは、細かいものも1つずつ書く`
+
+const CHUNK_MERGE_PROMPT_JA = `あなたは議事録作成アシスタントです。以下は、1つの会話を前から順に区切って作った話題メモです（話された順に並んでいます）。
+これを、読みやすい1つの議事録にまとめてください。
+
+まず内容が次のどちらに近いか判定してください。
+- A: 講義・説明会型（一人が説明し続け、その場で決まったことも、誰かがやることになった作業も無い。質疑応答は含んでよい）
+- B: 議論・会議型（複数人が対話している。または、決まったことや誰かがやることになった作業が1つでもある）
+迷った場合はBを選ぶこと。判定結果は出力しない。
+
+Aの形:
+■ 概要
+（1〜2文）
+
+■ （テーマ名）
+・（項目）
+
+■ 確認事項
+・（持ち帰って確かめること。なければ「特になし」）
+
+Bの形:
+■ 概要
+（1〜2文）
+
+■ 決定事項
+1. （決まったこと。なければ「特になし」）
+
+■ 対応事項
+1. （やること。なければ「特になし」）
+
+■ （テーマ名）
+・（項目）
+
+テーマの作り方:
+1. メモ全体を見て、会話の大きな話題（同じ班・同じ対象・同じ議題）を5〜7個に決める。メモの見出しをそのままテーマにしない
+2. メモの項目を、そのどれか1つに振り分ける。同じ話題が離れた時間に出てきても1つのテーマにまとめる
+3. テーマは最初に話された順に並べる。テーマ名は中身が分かる20文字以内の言葉にする
+
+長さの決まり（全体で1,800〜2,400字。1,500字より短いのは、拾い足りない）:
+- 1つのテーマの項目は4〜6個。メモに材料が多いテーマほど6個に近づける。決定事項は多くても7個
+- 1つの項目は1〜2文、60字くらいまで
+- 似た項目は1つにまとめる（例：「Aの案が出た」「Aの費用は10万円」→「Aの案（費用10万円）が出た」）
+- 必ず残すもの：決まったこと、やること、数字・日付・固有名詞、何が問題だったか、出た案、結論（または持ち越し）と理由
+- 削ってよいもの：同じことの言い換え、細かい経緯、例え話
+
+書き方:
+- Markdown・絵文字・丸数字・ローマ数字は使わない。見出しは「■ 」、決定事項と対応事項は「1. 」、ほかは「・」。入れ子にしない
+- 常体（である調・体言止め）で書く
+- 人の名前は書かない。「参加者」「相手」などの言い換えもしない
+- 対応事項はやることだけを書く。期限が言われていれば「（期限 今週の金曜日）」のように言われたとおりに付け、日付に直さない
+- メモに無いことは書かない
+- 決定事項には、メモで「決定：」となっているものだけを、多くても7個まで書く（似たものは1つにまとめる）。「やること：」は対応事項に書く。「案：」「持ち越し：」はテーマの中に「案が出た」「結論は持ち越し」と書く
+- 日付は言われた言葉のまま書く。言われていない月や年を足さない。別の話の中で出た日付や数字と組み合わせない
+- 対応事項は、メモのやることを1つずつ書く（似たものだけ1つにまとめる）。多くても10個
+
+出力の先頭に、次の形でタイトルを付ける。
+TITLE: （15〜25文字の具体的なタイトル。最終的に決まったことや中心の話題を優先。人の名前は入れない）
+---
+（この下に本文）`
+
 
 const MEETING_PROMPT_JA = `あなたは議事録作成アシスタントです。以下の会議の文字起こしを読み、次の形式で出力してください。
 
@@ -590,6 +679,64 @@ function isChatRequest(body: { instruction?: string; previousSummary?: string })
   return Boolean(body.instruction && body.previousSummary)
 }
 
+/**
+ * 長い会議の議事録を、区切って作る（2026-11-14）。
+ * 1. 約8,000字ごとのメモを、安いモデルで同時に作る
+ * 2. メモを1つの議事録にまとめる（無料は安いモデル、Pro は上のモデル）
+ * どこかで失敗したら null を返し、呼んだ側は今までの作り方（1回で作る）に戻す。使った量はそれぞれ記録する
+ */
+async function summarizeInChunks(
+  lines: string[],
+  paid: boolean,
+  apiKey: string,
+  langLabel: string
+): Promise<{ text: string; model: string; parts: number } | null> {
+  const chunks = splitTranscriptLines(lines, CHUNK_SIZE_CHARS)
+  const config = { temperature: 0.2, maxOutputTokens: 16384 }
+  try {
+    const notes = await Promise.all(
+      chunks.map(async (chunk) => {
+        const { res, model } = await generateContent(
+          'economy',
+          apiKey,
+          {
+            systemInstruction: { parts: [{ text: CHUNK_NOTES_PROMPT_JA }] },
+            contents: [{ role: 'user', parts: [{ text: `---文字起こし（一部）---\n${chunk.join('\n')}` }] }],
+            generationConfig: config
+          },
+          { thinkingBudget: 0 }
+        )
+        if (!res.ok) throw new Error(`notes ${res.status}`)
+        const data = await res.json()
+        await recordUsage(model, 'summary', paid, data?.usageMetadata)
+        const text = responseText(data).trim()
+        if (!text) throw new Error('notes empty')
+        return text
+      })
+    )
+    const memo = notes.map((text, i) => `（区切り${i + 1}）\n${text}`).join('\n\n')
+    const { res, model } = await generateContent(
+      paid ? 'quality' : 'economy',
+      apiKey,
+      {
+        systemInstruction: { parts: [{ text: CHUNK_MERGE_PROMPT_JA.replace('{LANG}', langLabel) }] },
+        contents: [{ role: 'user', parts: [{ text: `---話題メモ---\n${memo}` }] }],
+        generationConfig: config
+      },
+      { thinkingBudget: paid ? 1024 : 0 }
+    )
+    if (!res.ok) return null
+    const data = await res.json()
+    await recordUsage(model, 'summary', paid, data?.usageMetadata)
+    const text = responseText(data).trim()
+    return text ? { text, model, parts: chunks.length } : null
+  } catch (error) {
+    // 締め切りを過ぎたときは、呼んだ側でまとめて扱う（1回で作り直す時間は残っていない）
+    if (isDeadlineError(error)) throw error
+    return null
+  }
+}
+
 // 関数の制限（60秒）より前に締め切りを置き、間に合わなければ自分で失敗して回数を返す（app/lib/deadline.ts）
 export function POST(req: NextRequest): Promise<NextResponse> {
   return runWithDeadline(50_000, () => handlePost(req))
@@ -798,6 +945,25 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
             { type, content: toPlainJapaneseNotes(reply), quota: quotaInfo },
             { headers: { 'x-giroku-model': first.model, 'x-giroku-chat': 'minutes' } }
           )
+        }
+      }
+    }
+
+    // 長い会議（日本語・自動判定）は、区切ってメモを作ってから1つにまとめる（2026-11-14）。
+    // うまくいかなかったときは、下の今までの作り方（1回で作る）に戻す
+    if (!isChat && (body.template ?? 'auto') === 'auto' && body.lang !== 'en') {
+      const lines = compactTranscriptLines(segments.map((s) => s.text))
+      if (lines.reduce((sum, l) => sum + l.length, 0) > CHUNK_SPLIT_CHARS) {
+        const chunked = await summarizeInChunks(lines, paid, apiKey, langLabel)
+        if (chunked) {
+          const { title: generatedTitle, body: summaryText } = splitTitle(chunked.text)
+          const summary = removePlaceholderOwners(toPlainJapaneseNotes(summaryText))
+          if (summary.trim()) {
+            return NextResponse.json(
+              { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
+              { headers: { 'x-giroku-model': chunked.model, 'x-giroku-summary': `chunked-${chunked.parts}` } }
+            )
+          }
         }
       }
     }
