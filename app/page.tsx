@@ -135,7 +135,8 @@ const PLAN_ROWS: { label: string; free: string; freeNote?: string; pro: string; 
   { label: "AI への質問", free: "月10回", freeNote: "iPhone は月30回", pro: "月300回", freeHas: true },
   { label: "AI の性能", free: "標準", pro: "より高性能", freeHas: true },
   { label: "文章を整える", free: "―", pro: "使える", freeHas: false },
-  { label: "iPhone 版の広告", free: "あり", pro: "なし", freeHas: false },
+  // PC の無料版にも、AI 議事録の直後に Giroku 自身の案内（iPhone 版・Pro）が出る（2026-11-13）。広告網の広告は iPhone だけ
+  { label: "広告", free: "あり", freeNote: "パソコンは Giroku の案内だけ", pro: "なし", freeHas: false },
   { label: "「Giroku で作成」の一文", free: "付く", pro: "消せる", freeHas: false },
 ];
 
