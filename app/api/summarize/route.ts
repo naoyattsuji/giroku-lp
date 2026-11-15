@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { compactTranscriptLines } from '../../lib/compactTranscript'
 import { splitTranscriptLines } from '../../lib/splitTranscript'
+import { suspiciousDates } from '../../lib/dateCheck'
 import {
   allowApiRequest,
   allowLicenseRequest,
@@ -691,7 +692,7 @@ async function summarizeInChunks(
   paid: boolean,
   apiKey: string,
   langLabel: string
-): Promise<{ text: string; model: string; parts: number } | null> {
+): Promise<{ text: string; model: string; parts: number; recheck: boolean } | null> {
   const chunks = splitTranscriptLines(lines, CHUNK_SIZE_CHARS)
   const config = { temperature: 0.2, maxOutputTokens: 16384 }
   try {
@@ -716,21 +717,31 @@ async function summarizeInChunks(
       })
     )
     const memo = notes.map((text, i) => `（区切り${i + 1}）\n${text}`).join('\n\n')
-    const { res, model } = await generateContent(
-      paid ? 'quality' : 'economy',
-      apiKey,
-      {
-        systemInstruction: { parts: [{ text: CHUNK_MERGE_PROMPT_JA.replace('{LANG}', langLabel) }] },
-        contents: [{ role: 'user', parts: [{ text: `---話題メモ---\n${memo}` }] }],
-        generationConfig: config
-      },
-      { thinkingBudget: paid ? 1024 : 0 }
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    await recordUsage(model, 'summary', paid, data?.usageMetadata)
-    const text = responseText(data).trim()
-    return text ? { text, model, parts: chunks.length } : null
+    const merge = async (tier: 'quality' | 'economy') => {
+      const { res, model } = await generateContent(
+        tier,
+        apiKey,
+        {
+          systemInstruction: { parts: [{ text: CHUNK_MERGE_PROMPT_JA.replace('{LANG}', langLabel) }] },
+          contents: [{ role: 'user', parts: [{ text: `---話題メモ---\n${memo}` }] }],
+          generationConfig: config
+        },
+        { thinkingBudget: tier === 'quality' ? 1024 : 0 }
+      )
+      if (!res.ok) return null
+      const data = await res.json()
+      await recordUsage(model, 'summary', paid, data?.usageMetadata)
+      const text = responseText(data).trim()
+      return text ? { text, model } : null
+    }
+    const merged = await merge(paid ? 'quality' : 'economy')
+    if (!merged) return null
+    // 無料版で、文字起こしに無い月と日の組が書かれていたら、まとめだけ上のモデルで作り直す（app/lib/dateCheck.ts）
+    if (!paid && suspiciousDates(merged.text, lines.join('\n')).length > 0) {
+      const again = await merge('quality')
+      if (again) return { ...again, parts: chunks.length, recheck: true }
+    }
+    return { ...merged, parts: chunks.length, recheck: false }
   } catch (error) {
     // 締め切りを過ぎたときは、呼んだ側でまとめて扱う（1回で作り直す時間は残っていない）
     if (isDeadlineError(error)) throw error
@@ -901,9 +912,9 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   // 無料の利用（広告で運営）は 3.1 Flash-Lite、有料は 3.5 Flash-Lite（app/lib/gemini.ts）
   try {
     // AI に1回聞く。content は先頭に置く本文（文字起こし＋議事録、または議事録だけ）
-    const ask = (content: string) =>
+    const ask = (content: string, tier: 'quality' | 'economy' = paid ? 'quality' : 'economy') =>
       generateContent(
-        paid ? 'quality' : 'economy',
+        tier,
         apiKey,
         {
           systemInstruction: { parts: [{ text: systemInstructionText }] },
@@ -923,7 +934,7 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
             maxOutputTokens: 16384
           }
         },
-        { thinkingBudget: paid ? 1024 : 0 }
+        { thinkingBudget: tier === 'quality' ? 1024 : 0 }
       )
 
     // 質問は、まず議事録だけを送って答えさせる（2026-11-12 本人の判断）。
@@ -962,7 +973,7 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
           if (summary.trim()) {
             return NextResponse.json(
               { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
-              { headers: { 'x-giroku-model': chunked.model, 'x-giroku-summary': `chunked-${chunked.parts}` } }
+              { headers: { 'x-giroku-model': chunked.model, 'x-giroku-summary': `chunked-${chunked.parts}${chunked.recheck ? '-recheck' : ''}` } }
             )
           }
         }
@@ -988,11 +999,28 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
       const content = type === 'revise' ? removePlaceholderOwners(toPlainJapaneseNotes(reply)) : toPlainJapaneseNotes(reply)
       return NextResponse.json({ type, content, quota: quotaInfo }, { headers: { 'x-giroku-model': model, 'x-giroku-chat': 'full' } })
     }
-    const { title: generatedTitle, body: summaryText } = splitTitle(text)
+    // 無料版で、文字起こしに無い月と日の組が書かれていたら、上のモデルで作り直す（app/lib/dateCheck.ts）
+    let finalText = text
+    let finalModel = model
+    let recheck = false
+    if (!paid && suspiciousDates(text, segments.map((s) => s.text).join('\n')).length > 0) {
+      const again = await ask(userContent, 'quality')
+      if (again.res.ok) {
+        const againData = await again.res.json()
+        await recordUsage(again.model, 'summary', paid, againData?.usageMetadata)
+        const againText = responseText(againData).trim()
+        if (againText) {
+          finalText = againText
+          finalModel = again.model
+          recheck = true
+        }
+      }
+    }
+    const { title: generatedTitle, body: summaryText } = splitTitle(finalText)
     const summary = removePlaceholderOwners(toPlainJapaneseNotes(summaryText))
     return NextResponse.json(
       { summary, title: validGeneratedTitle(generatedTitle) ? generatedTitle : null, quota: quotaInfo },
-      { headers: { 'x-giroku-model': model } }
+      { headers: { 'x-giroku-model': finalModel, ...(recheck ? { 'x-giroku-summary': 'single-recheck' } : {}) } }
     )
   } catch (error) {
     await quota.refund()
