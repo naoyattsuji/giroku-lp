@@ -696,24 +696,32 @@ async function summarizeInChunks(
   const chunks = splitTranscriptLines(lines, CHUNK_SIZE_CHARS)
   const config = { temperature: 0.2, maxOutputTokens: 16384 }
   try {
+    const makeNote = async (chunk: string[], tier: 'quality' | 'economy') => {
+      const { res, model } = await generateContent(
+        tier,
+        apiKey,
+        {
+          systemInstruction: { parts: [{ text: CHUNK_NOTES_PROMPT_JA }] },
+          contents: [{ role: 'user', parts: [{ text: `---文字起こし（一部）---\n${chunk.join('\n')}` }] }],
+          generationConfig: config
+        },
+        { thinkingBudget: tier === 'quality' ? 1024 : 0 }
+      )
+      if (!res.ok) throw new Error(`notes ${res.status}`)
+      const data = await res.json()
+      await recordUsage(model, 'summary', paid, data?.usageMetadata)
+      const text = responseText(data).trim()
+      if (!text) throw new Error('notes empty')
+      return text
+    }
+    let recheck = false
     const notes = await Promise.all(
       chunks.map(async (chunk) => {
-        const { res, model } = await generateContent(
-          'economy',
-          apiKey,
-          {
-            systemInstruction: { parts: [{ text: CHUNK_NOTES_PROMPT_JA }] },
-            contents: [{ role: 'user', parts: [{ text: `---文字起こし（一部）---\n${chunk.join('\n')}` }] }],
-            generationConfig: config
-          },
-          { thinkingBudget: 0 }
-        )
-        if (!res.ok) throw new Error(`notes ${res.status}`)
-        const data = await res.json()
-        await recordUsage(model, 'summary', paid, data?.usageMetadata)
-        const text = responseText(data).trim()
-        if (!text) throw new Error('notes empty')
-        return text
+        const note = await makeNote(chunk, 'economy')
+        // メモに、その区切りの文字起こしに無い月と日の組があれば、そのメモだけ上のモデルで作り直す（app/lib/dateCheck.ts）
+        if (paid || suspiciousDates(note, chunk.join('\n')).length === 0) return note
+        recheck = true
+        return makeNote(chunk, 'quality').catch(() => note)
       })
     )
     const memo = notes.map((text, i) => `（区切り${i + 1}）\n${text}`).join('\n\n')
@@ -741,7 +749,7 @@ async function summarizeInChunks(
       const again = await merge('quality')
       if (again) return { ...again, parts: chunks.length, recheck: true }
     }
-    return { ...merged, parts: chunks.length, recheck: false }
+    return { ...merged, parts: chunks.length, recheck }
   } catch (error) {
     // 締め切りを過ぎたときは、呼んだ側でまとめて扱う（1回で作り直す時間は残っていない）
     if (isDeadlineError(error)) throw error
