@@ -166,7 +166,7 @@ export function licenseQuotaSubject(licenseKey: string): string {
 }
 
 /**
- * 台数の上限：買った iPhone を1台と数えて、合計2台（＝ PC は1台）。PC のキー（Lemon Squeezy）と同じ考え方。
+ * 台数の上限：買った iPhone を1台と数えて、合計2台（＝ PC は1台）。PC のキー（Polar）と同じ考え方。
  * PC の設定の「この端末で解除」で枠を空けて、別の PC に移せる。
  * 記録は Vercel Blob（非公開の置き場 giroku-plus-devices）に、購入の番号も端末の番号も
  * 元に戻せない形（ハッシュ）にして置く。置き場の設定がなければ上限をかけない。

@@ -60,7 +60,7 @@ const sections: LegalSection[] = [
         list: [
           "年額：980円",
           "月額：200円",
-          "iPhone 版は、App Store の購入画面に表示される金額（税込）です。パソコン版は、Lemon Squeezy の購入画面に、税を含めたお支払いの総額を表示します。",
+          "iPhone 版は、App Store の購入画面に表示される金額（税込）です。パソコン版は、Polar の購入画面に、税を含めたお支払いの総額を表示します。",
         ],
       },
     ],
@@ -79,7 +79,7 @@ const sections: LegalSection[] = [
       {
         list: [
           "iPhone 版：App Store のアプリ内課金。Apple が販売し、Apple ID に登録した支払い方法で請求されます。",
-          "パソコン版：Lemon Squeezy の購入画面。Lemon Squeezy（Lemon Squeezy, LLC）が販売の窓口として、決済と請求書の発行を行います。使える支払い方法は購入画面に表示します。",
+          "パソコン版：Polar の購入画面。Polar（Polar Software Inc.）が販売の窓口として、決済と請求書の発行を行います。使える支払い方法は購入画面に表示します。",
         ],
       },
     ],
@@ -127,7 +127,7 @@ const sections: LegalSection[] = [
     title: "返品・返金",
     blocks: [
       {
-        p: "デジタルのサービスのため、購入のあとの返品はお受けできません。返金は、パソコン版は Lemon Squeezy の決まりに、iPhone 版は Apple の決まりに従います。アプリが正しく動かない場合は、メールでお問い合わせください。",
+        p: "デジタルのサービスのため、購入のあとの返品はお受けできません。返金は、パソコン版は Polar の決まりに、iPhone 版は Apple の決まりに従います。アプリが正しく動かない場合は、メールでお問い合わせください。",
       },
     ],
   },

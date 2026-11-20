@@ -15,7 +15,7 @@ import "./home.css";
  */
 
 const APP_STORE_URL = "https://apps.apple.com/jp/app/giroku/id6826128219";
-// PC 版 Pro の購入画面（Lemon Squeezy）。本番の購入リンクを環境変数 NEXT_PUBLIC_GIROKU_PC_CHECKOUT_URL に入れて出し直すと、
+// PC 版 Pro の購入画面（Polar）。本番の購入リンクを環境変数 NEXT_PUBLIC_GIROKU_PC_CHECKOUT_URL に入れて出し直すと、
 // 「準備中」が赤い購入ボタンに変わる（コードは変えなくてよい。2026-11-13）。入っていない間は「準備中」のまま
 const PC_PRO_CHECKOUT_URL = process.env.NEXT_PUBLIC_GIROKU_PC_CHECKOUT_URL?.trim() ?? "";
 const PC_PRO_CHECKOUT_READY = PC_PRO_CHECKOUT_URL.startsWith("https://");
