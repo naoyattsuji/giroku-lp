@@ -1,4 +1,4 @@
-// Giroku アプリからのAPIリクエストを、LemonSqueezyの有料ライセンスキーで検証する。
+// Giroku アプリからのAPIリクエストを、Polar の購入キー（PC 版 Pro）・招待コード・iPhone のキーで検証する。
 // Geminiキーはこのサーバー側にのみ置き、アプリ本体には一切含めない構成にするための検証ヘルパー。
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
@@ -52,20 +52,16 @@ function verifyPromoCode(input: string): boolean {
   return valid
 }
 
-const GIROKU_STORE_ID = 410452
-// Giroku の PC 版 Pro の商品番号。1153138 は試し（テストモード）の商品。
-// Lemon Squeezy のお店が本番になったら、本番の商品番号を環境変数 GIROKU_PRODUCT_IDS（カンマ区切り）に入れれば、コードを変えずに受け付ける（2026-11-13）
-const GIROKU_PRODUCT_IDS = new Set<number>([
-  1153138,
-  ...(process.env.GIROKU_PRODUCT_IDS ?? '')
-    .split(',')
-    .map((v) => Number(v.trim()))
-    .filter((n) => Number.isInteger(n) && n > 0),
+// PC 版 Pro の購入キーは Polar が出す（2026-11-20 Lemon Squeezy から切り替え。Lemon Squeezy は新しいお店を受け付けなくなった）。
+// 確かめる窓口はお客さん向けの公開の窓口で、合言葉は要らない。組織の番号と特典（購入キー）の番号は公開してよい値
+const POLAR_LICENSE_BASE = 'https://api.polar.sh/v1/customer-portal/license-keys'
+const POLAR_ORGANIZATION_ID = process.env.POLAR_ORGANIZATION_ID?.trim() || '59dfc57b-e838-4299-a262-a0931f828062'
+// 「Giroku Pro 購入キー（パソコン1台）」の特典。ほかの特典のキーは受け付けない
+const POLAR_BENEFIT_IDS = new Set<string>([
+  'cf15e1f1-03b5-4824-9df8-26aa76f978de',
+  ...(process.env.POLAR_BENEFIT_IDS ?? '').split(',').map((v) => v.trim()).filter(Boolean),
 ])
-const isGirokuProduct = (id: number | undefined): boolean => id !== undefined && GIROKU_PRODUCT_IDS.has(id)
-// パソコンは1台まで（2026-11-12 本人の判断。アプリの MAX_ACTIVATIONS と同じ）
-const MAX_ACTIVATIONS = 1
-const LS_BASE = 'https://api.lemonsqueezy.com/v1/licenses'
+// パソコンは1台まで（2026-11-12 本人の判断。Polar の特典の設定でも1台にしてある）
 const LICENSE_CACHE_MS = 5 * 60 * 1000
 const licenseCache = new Map<string, { paid: boolean; expires: number }>()
 const portableInstanceCache = new Map<string, { paid: boolean; expires: number }>()
@@ -85,18 +81,20 @@ export interface PortableLicenseState {
   instanceName: string | null
 }
 
-interface LemonSqueezyLicenseResponse {
-  activated?: boolean
-  deactivated?: boolean
-  valid?: boolean
-  error?: string | null
-  license_key?: {
-    status?: string
-    expires_at?: string | null
-    activation_usage?: number
-  }
-  instance?: { id?: string; name?: string }
-  meta?: { store_id?: number; product_id?: number }
+interface PolarLicenseKey {
+  benefit_id?: string
+  status?: string
+  expires_at?: string | null
+}
+
+interface PolarActivation {
+  id?: string
+  label?: string
+  license_key?: PolarLicenseKey
+}
+
+interface PolarValidated extends PolarLicenseKey {
+  activation?: PolarActivation | null
 }
 
 export class PortableLicenseError extends Error {
@@ -109,15 +107,14 @@ export class PortableLicenseError extends Error {
   }
 }
 
-function portableLicenseResponseError(status: number, message?: string | null): PortableLicenseError {
-  if (/activation limit/i.test(message ?? '')) {
+function portableLicenseResponseError(status: number): PortableLicenseError {
+  // Polar は台数の上限に届くと 403 を返す
+  if (status === 403) {
     return new PortableLicenseError('この購入キーは、すでに別のパソコンで使われています。前のパソコンの設定で「この端末で解除」してから、もう一度登録してください。')
   }
-  if (status === 404 || /not found|invalid/i.test(message ?? '')) {
-    return new PortableLicenseError('ライセンスキーが見つかりません。入力内容をご確認ください。')
-  }
-  if (status >= 500) return new PortableLicenseError('ライセンスサーバーへ接続できませんでした。', true)
-  return new PortableLicenseError(message || 'ライセンスを認証できませんでした。')
+  if (status === 404 || status === 422) return new PortableLicenseError('購入キーが見つかりません。入力内容をご確認ください。')
+  if (status === 429 || status >= 500) return new PortableLicenseError('購入キーを確認するサーバーへ接続できませんでした。', true)
+  return new PortableLicenseError('購入キーを確認できませんでした。')
 }
 
 function assertPortableLicenseInput(licenseKey: string, instanceName?: string, instanceId?: string): void {
@@ -130,29 +127,31 @@ function assertPortableLicenseInput(licenseKey: string, instanceName?: string, i
   }
 }
 
-async function postLemonSqueezyLicense(
+/** Polar の公開の窓口を呼ぶ。204（解除）は本文なし。失敗は PortableLicenseError にする */
+async function postPolarLicense<T>(
   action: 'activate' | 'validate' | 'deactivate',
   values: Record<string, string>,
-): Promise<LemonSqueezyLicenseResponse> {
+  timeoutMs = 15_000,
+): Promise<T> {
+  let response: Response
   try {
-    const response = await fetch(`${LS_BASE}/${action}`, {
+    response = await fetch(`${POLAR_LICENSE_BASE}/${action}`, {
       method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(values).toString(),
-      signal: AbortSignal.timeout(15_000),
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...values, organization_id: POLAR_ORGANIZATION_ID }),
+      signal: AbortSignal.timeout(timeoutMs),
     })
-    const data = await response.json().catch(() => ({})) as LemonSqueezyLicenseResponse
-    if (!response.ok) throw portableLicenseResponseError(response.status, data.error)
-    return data
-  } catch (error) {
-    if (error instanceof PortableLicenseError) throw error
-    throw new PortableLicenseError('ライセンスサーバーへ接続できませんでした。', true)
+  } catch {
+    throw new PortableLicenseError('購入キーを確認するサーバーへ接続できませんでした。', true)
   }
+  if (!response.ok) throw portableLicenseResponseError(response.status)
+  if (response.status === 204) return {} as T
+  return (await response.json().catch(() => ({}))) as T
 }
 
-function assertGirokuLicense(data: LemonSqueezyLicenseResponse): void {
-  if (data.meta?.store_id !== GIROKU_STORE_ID || !isGirokuProduct(data.meta?.product_id)) {
-    throw new Error('このライセンスキーはGiroku用ではありません。')
+function assertGirokuLicense(key: PolarLicenseKey | undefined): void {
+  if (!key?.benefit_id || !POLAR_BENEFIT_IDS.has(key.benefit_id)) {
+    throw new PortableLicenseError('この購入キーはGiroku用ではありません。')
   }
 }
 
@@ -160,31 +159,24 @@ function expiresInPast(expiresAt: string | null | undefined): boolean {
   return Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now())
 }
 
-/** Mac・Windowsと同じLemonSqueezyの枠（パソコン1台）へ、スマートフォンを登録する（古い仕組み。いまの iPhone 版はキーを使わない）。 */
+/** 購入キーをこのパソコン（またはスマートフォン）に登録する。Polar では登録を activation と呼ぶ */
 export async function activatePortableLicense(licenseKey: string, instanceName: string): Promise<PortableLicenseState> {
   const key = licenseKey.trim()
   const name = instanceName.trim()
   assertPortableLicenseInput(key, name)
-  const data = await postLemonSqueezyLicense('activate', { license_key: key, instance_name: name })
-  assertGirokuLicense(data)
-  if (!data.activated || !data.license_key || !data.instance?.id) {
-    throw new Error(data.error || 'ライセンスの認証に失敗しました。キーをご確認ください。')
-  }
-  if ((data.license_key.activation_usage ?? 0) > MAX_ACTIVATIONS) {
-    await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
-    throw new Error('この購入キーは、すでに別のパソコンで使われています。前のパソコンの設定で「この端末で解除」してから、もう一度登録してください。')
-  }
-  if (data.license_key.status !== 'active' || expiresInPast(data.license_key.expires_at)) {
-    await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => undefined)
-    throw new Error('このライセンスキーの有効期限が切れています。')
+  const data = await postPolarLicense<PolarActivation>('activate', { key, label: name })
+  assertGirokuLicense(data.license_key)
+  if (!data.id || data.license_key?.status !== 'granted' || expiresInPast(data.license_key?.expires_at)) {
+    if (data.id) await postPolarLicense('deactivate', { key, activation_id: data.id }).catch(() => undefined)
+    throw new PortableLicenseError('この購入キーは有効ではありません。')
   }
   licenseCache.delete(createHash('sha256').update(key).digest('hex'))
   portableInstanceCache.clear()
   return {
     paid: true,
-    expiresAt: data.license_key.expires_at ?? null,
-    instanceId: data.instance.id,
-    instanceName: data.instance.name ?? name,
+    expiresAt: data.license_key?.expires_at ?? null,
+    instanceId: data.id,
+    instanceName: data.label ?? name,
   }
 }
 
@@ -192,14 +184,23 @@ export async function validatePortableLicense(licenseKey: string, instanceId: st
   const key = licenseKey.trim()
   const id = instanceId.trim()
   assertPortableLicenseInput(key, undefined, id)
-  const data = await postLemonSqueezyLicense('validate', { license_key: key, instance_id: id })
+  let data: PolarValidated
+  try {
+    data = await postPolarLicense<PolarValidated>('validate', { key, activation_id: id })
+  } catch (error) {
+    // 404 は「無い・取り消された・期限切れ・登録が無い」。無料として返す
+    if (error instanceof PortableLicenseError && !error.upstream) {
+      return { paid: false, expiresAt: null, instanceId: null, instanceName: null }
+    }
+    throw error
+  }
   assertGirokuLicense(data)
-  const paid = Boolean(data.valid) && data.license_key?.status === 'active' && !expiresInPast(data.license_key?.expires_at)
+  const paid = data.status === 'granted' && !expiresInPast(data.expires_at)
   return {
     paid,
-    expiresAt: data.license_key?.expires_at ?? null,
+    expiresAt: data.expires_at ?? null,
     instanceId: paid ? id : null,
-    instanceName: data.instance?.name ?? null,
+    instanceName: data.activation?.label ?? null,
   }
 }
 
@@ -228,8 +229,7 @@ export async function deactivatePortableLicense(licenseKey: string, instanceId: 
   const key = licenseKey.trim()
   const id = instanceId.trim()
   assertPortableLicenseInput(key, undefined, id)
-  const data = await postLemonSqueezyLicense('deactivate', { license_key: key, instance_id: id })
-  if (!data.deactivated) throw new Error(data.error || 'この端末の利用を解除できませんでした。')
+  await postPolarLicense('deactivate', { key, activation_id: id })
   licenseCache.delete(createHash('sha256').update(key).digest('hex'))
   portableInstanceCache.clear()
 }
@@ -276,49 +276,34 @@ export async function isPaidLicense(licenseKey: string | undefined | null): Prom
   const cacheKey = createHash('sha256').update(licenseKey).digest('hex')
   const cached = licenseCache.get(cacheKey)
   if (cached && cached.expires > Date.now()) return cached.paid
-  // Lemon Squeezy が遅い・答えないときは、24時間以内に「Pro」と確かめた結果を使う（Upstash に残す）。
+  // Polar が遅い・答えないときは、24時間以内に「Pro」と確かめた結果を使う（Upstash に残す）。
   // 前は通信の失敗も「無料」と同じ扱いで、15秒待つ間にアプリが諦め、Pro の人の残り回数が消え、議事録も 403 になった（2026-11-12）
   const lastKnownPaid = async (): Promise<boolean> => {
     const result = await redisPipeline([['GET', `giroku:lic:ok:${cacheKey}`]])
     return result?.[0] === '1'
   }
   try {
-    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({ license_key: licenseKey }).toString(),
-      // アプリは残り回数を15秒で諦めるので、それより十分短く
-      signal: AbortSignal.timeout(6_000)
-    })
-    // 混雑・故障（429・5xx）は「無効」ではないので、前に確かめた結果に頼る
-    if (res.status === 429 || res.status >= 500) return lastKnownPaid()
-    if (!res.ok) return false
-    const data = (await res.json()) as {
-      valid?: boolean
-      license_key?: { status?: string; expires_at?: string | null }
-      meta?: { store_id?: number; product_id?: number }
-    }
-    // API利用にもアプリ側での端末アクティベーションを必須にし、端末数制限を迂回できないようにする。
-    if (
-      !data.valid ||
-      data.license_key?.status !== 'active' ||
-      data.meta?.store_id !== GIROKU_STORE_ID ||
-      !isGirokuProduct(data.meta?.product_id)
-    ) {
+    // アプリは残り回数を15秒で諦めるので、それより十分短く
+    const data = await postPolarLicense<PolarValidated>('validate', { key: String(licenseKey).trim() }, 6_000)
+    const paid =
+      data.status === 'granted' &&
+      Boolean(data.benefit_id && POLAR_BENEFIT_IDS.has(data.benefit_id)) &&
+      !expiresInPast(data.expires_at)
+    if (!paid) {
       licenseCache.set(cacheKey, { paid: false, expires: Date.now() + 60_000 })
       await redisPipeline([['DEL', `giroku:lic:ok:${cacheKey}`]])
       return false
     }
-    const expiresAt = data.license_key?.expires_at
-    if (expiresAt && new Date(expiresAt).getTime() < Date.now()) return false
     licenseCache.set(cacheKey, { paid: true, expires: Date.now() + LICENSE_CACHE_MS })
     await redisPipeline([['SET', `giroku:lic:ok:${cacheKey}`, '1', 'EX', 24 * 60 * 60]])
     return true
-  } catch {
-    // 時間切れ・通信の失敗
+  } catch (error) {
+    // 「無い・取り消された」（404 など）ははっきり無料。混雑・故障・時間切れは前に確かめた結果に頼る
+    if (error instanceof PortableLicenseError && !error.upstream) {
+      licenseCache.set(cacheKey, { paid: false, expires: Date.now() + 60_000 })
+      await redisPipeline([['DEL', `giroku:lic:ok:${cacheKey}`]])
+      return false
+    }
     return lastKnownPaid()
   }
 }
